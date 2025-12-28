@@ -28,7 +28,7 @@ export const Features = () => {
     <section className="py-16 md:py-20 bg-background">
       <div className="container">
         <div className="mb-12">
-          <h2 className="text-3xl md:text-4xl font-light mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
             Чем мы<br />уникальны?
           </h2>
           <p className="text-muted-foreground max-w-3xl text-base md:text-lg leading-relaxed">
@@ -45,7 +45,7 @@ export const Features = () => {
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                 <feature.icon className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="font-medium text-xl mb-3">{feature.title}</h3>
+              <h3 className="font-semibold text-lg mb-3">{feature.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {feature.description}
               </p>
