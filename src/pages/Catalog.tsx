@@ -5,7 +5,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Sheet,
@@ -14,7 +14,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import { useProducts } from '@/hooks/useProducts';
 
+// Fallback images for products without image_url
 import bouquet1 from '@/assets/products/bouquet-1.jpg';
 import bouquet2 from '@/assets/products/bouquet-2.jpg';
 import bouquet3 from '@/assets/products/bouquet-3.jpg';
@@ -23,6 +25,17 @@ import bouquet5 from '@/assets/products/bouquet-5.jpg';
 import bouquet6 from '@/assets/products/bouquet-6.jpg';
 import bouquet7 from '@/assets/products/bouquet-7.jpg';
 import bouquet8 from '@/assets/products/bouquet-8.jpg';
+
+const fallbackImages: Record<string, string> = {
+  '/products/bouquet-1.jpg': bouquet1,
+  '/products/bouquet-2.jpg': bouquet2,
+  '/products/bouquet-3.jpg': bouquet3,
+  '/products/bouquet-4.jpg': bouquet4,
+  '/products/bouquet-5.jpg': bouquet5,
+  '/products/bouquet-6.jpg': bouquet6,
+  '/products/bouquet-7.jpg': bouquet7,
+  '/products/bouquet-8.jpg': bouquet8,
+};
 
 const categories = [
   { id: 'all', name: 'Все' },
@@ -40,105 +53,6 @@ const categories = [
   { id: 'toys', name: 'Игрушки' },
 ];
 
-const products = [
-  {
-    id: '1',
-    name: 'Небесный букет-комплимент с ароматной маттиолой',
-    description: 'Изысканный букет из свежих розовых пионов с зеленью',
-    price: 1850,
-    image: bouquet1,
-    category: 'aromatic',
-  },
-  {
-    id: '2',
-    name: 'Комплимент в нежных оттенках с герберами',
-    description: 'Нежный букет из роз и ранункулюсов в пастельных тонах',
-    price: 2500,
-    image: bouquet2,
-    category: 'mono',
-  },
-  {
-    id: '3',
-    name: 'Мини 3 кустовых розы',
-    description: 'Яркий букет из тюльпанов разных оттенков',
-    price: 2150,
-    image: bouquet3,
-    category: 'mono',
-  },
-  {
-    id: '4',
-    name: 'Красивый букет с розами',
-    description: 'Классический букет из красных роз премиум-класса',
-    price: 6500,
-    image: bouquet4,
-    category: 'author',
-  },
-  {
-    id: '5',
-    name: 'Пионы розовые',
-    description: 'Букет из полевых цветов с лавандой и ромашками',
-    price: 3950,
-    image: bouquet5,
-    category: 'mono',
-  },
-  {
-    id: '6',
-    name: 'Герберы микс',
-    description: 'Яркий букет из подсолнухов и хризантем',
-    price: 2990,
-    image: bouquet6,
-    category: 'mono',
-  },
-  {
-    id: '7',
-    name: 'Персиковая роза с ароматной маттиолой',
-    description: 'Авторская композиция из садовых роз',
-    price: 6350,
-    image: bouquet7,
-    category: 'aromatic',
-  },
-  {
-    id: '8',
-    name: 'Сборный букет с 30-ти эустом',
-    description: 'Монобукет из белых пионов с эвкалиптом',
-    price: 36350,
-    image: bouquet8,
-    category: 'author',
-  },
-  {
-    id: '9',
-    name: 'Классический сборный розовый',
-    description: 'Сборный букет в нежных тонах',
-    price: 3350,
-    image: bouquet1,
-    category: 'author',
-  },
-  {
-    id: '10',
-    name: 'Нежный сборный букет с кустовой',
-    description: 'Букет с кустовыми розами',
-    price: 3400,
-    image: bouquet2,
-    category: 'author',
-  },
-  {
-    id: '11',
-    name: 'Пышный букет с розами и гортензией',
-    description: 'Роскошный букет с гортензией',
-    price: 11500,
-    image: bouquet3,
-    category: 'author',
-  },
-  {
-    id: '12',
-    name: 'Букет с кустовыми розами',
-    description: 'Элегантный букет с кустовыми розами',
-    price: 3950,
-    image: bouquet4,
-    category: 'mono',
-  },
-];
-
 const MIN_PRICE = 0;
 const MAX_PRICE = 50000;
 
@@ -151,39 +65,38 @@ const Catalog = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [priceRange, setPriceRange] = useState<[number, number]>([MIN_PRICE, MAX_PRICE]);
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc'>('default');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // Fetch products from database
+  const { data: products = [], isLoading, error } = useProducts({
+    category: activeCategory === 'all' ? 'all' : activeCategory as any,
+    search: searchQuery || undefined,
+    minPrice: priceRange[0],
+    maxPrice: priceRange[1],
+    sortBy,
+  });
 
   // Sync with URL category
   useEffect(() => {
     setActiveCategory(categoryFromUrl);
     setVisibleCount(12);
   }, [categoryFromUrl]);
-  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ru-RU').format(price);
   };
 
-  const filteredProducts = useMemo(() => {
-    let result = products.filter(product => {
-      const matchesCategory = activeCategory === 'all' || product.category === activeCategory;
-      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           product.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
-      return matchesCategory && matchesSearch && matchesPrice;
-    });
+  // Map products with fallback images
+  const mappedProducts = useMemo(() => {
+    return products.map(product => ({
+      ...product,
+      image: product.image_url ? (fallbackImages[product.image_url] || product.image_url) : bouquet1,
+      oldPrice: product.old_price,
+    }));
+  }, [products]);
 
-    // Sort
-    if (sortBy === 'price-asc') {
-      result = [...result].sort((a, b) => a.price - b.price);
-    } else if (sortBy === 'price-desc') {
-      result = [...result].sort((a, b) => b.price - a.price);
-    }
-
-    return result;
-  }, [activeCategory, searchQuery, priceRange, sortBy]);
-
-  const visibleProducts = filteredProducts.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredProducts.length;
+  const visibleProducts = mappedProducts.slice(0, visibleCount);
+  const hasMore = visibleCount < mappedProducts.length;
 
   const hasActiveFilters = priceRange[0] !== MIN_PRICE || priceRange[1] !== MAX_PRICE || sortBy !== 'default';
 
@@ -395,38 +308,53 @@ const Catalog = () => {
             <div className="flex-1">
               {/* Results count */}
               <p className="text-sm text-muted-foreground mb-4">
-                Найдено: {filteredProducts.length} товаров
+                {isLoading ? 'Загрузка...' : `Найдено: ${mappedProducts.length} товаров`}
               </p>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                {visibleProducts.map((product) => (
-                  <ProductCard key={product.id} {...product} />
-                ))}
-              </div>
-
-              {visibleProducts.length === 0 && (
+              {isLoading ? (
+                <div className="flex items-center justify-center py-20">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : error ? (
                 <div className="text-center py-12">
-                  <p className="text-muted-foreground mb-4">Товары не найдены</p>
-                  <Button variant="outline" onClick={() => {
-                    setSearchQuery('');
-                    setActiveCategory('all');
-                    resetFilters();
-                  }}>
-                    Сбросить все фильтры
+                  <p className="text-destructive mb-4">Ошибка загрузки товаров</p>
+                  <Button variant="outline" onClick={() => window.location.reload()}>
+                    Попробовать снова
                   </Button>
                 </div>
-              )}
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                    {visibleProducts.map((product) => (
+                      <ProductCard key={product.id} {...product} />
+                    ))}
+                  </div>
 
-              {hasMore && (
-                <div className="flex justify-center mt-12">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setVisibleCount(prev => prev + 8)}
-                    className="px-8"
-                  >
-                    Загрузить ещё
-                  </Button>
-                </div>
+                  {visibleProducts.length === 0 && (
+                    <div className="text-center py-12">
+                      <p className="text-muted-foreground mb-4">Товары не найдены</p>
+                      <Button variant="outline" onClick={() => {
+                        setSearchQuery('');
+                        setActiveCategory('all');
+                        resetFilters();
+                      }}>
+                        Сбросить все фильтры
+                      </Button>
+                    </div>
+                  )}
+
+                  {hasMore && (
+                    <div className="flex justify-center mt-12">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setVisibleCount(prev => prev + 8)}
+                        className="px-8"
+                      >
+                        Загрузить ещё
+                      </Button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
