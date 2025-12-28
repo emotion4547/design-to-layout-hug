@@ -25,26 +25,26 @@ const deliveryOptions = [
 
 export const Delivery = () => {
   return (
-    <section id="delivery" className="py-16 bg-background">
+    <section id="delivery" className="py-16 md:py-20 bg-background">
       <div className="container">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Наша доставка
+        <div className="mb-12">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+            Наша<br />доставка
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl text-base md:text-lg leading-relaxed">
             Мы осуществляем доставку лучших букетов из цветов по г. Сергиев Посад 
             и всему городскому округу.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {deliveryOptions.map((option) => (
             <div 
               key={option.title}
-              className="p-6 border border-border rounded-lg"
+              className="group p-6 bg-secondary/50 rounded-lg hover:bg-secondary transition-colors"
             >
-              <option.icon className="h-8 w-8 mb-4 text-foreground/80" />
-              <h3 className="font-semibold text-lg mb-2">{option.title}</h3>
+              <option.icon className="h-8 w-8 mb-4 text-foreground/70 group-hover:text-foreground transition-colors" />
+              <h3 className="font-semibold text-lg mb-3">{option.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {option.description}
               </p>

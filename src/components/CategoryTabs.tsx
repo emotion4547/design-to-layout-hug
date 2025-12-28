@@ -32,13 +32,13 @@ export const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsP
   };
 
   return (
-    <div className="relative py-4 border-b border-border">
+    <div className="py-4">
       <div className="container relative">
-        {/* Scroll buttons */}
+        {/* Scroll buttons - Desktop */}
         <Button
           variant="ghost"
           size="icon"
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 hidden md:flex bg-background/80 backdrop-blur-sm"
+          className="absolute -left-2 top-1/2 -translate-y-1/2 z-10 hidden lg:flex h-8 w-8 bg-background/80 backdrop-blur-sm shadow-sm"
           onClick={() => scroll('left')}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -46,7 +46,8 @@ export const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsP
 
         <div
           ref={scrollRef}
-          className="flex items-center gap-1 overflow-x-auto scrollbar-hide px-8 md:px-12"
+          className="flex items-center overflow-x-auto scrollbar-hide lg:mx-8"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {categories.map((category, index) => (
             <button
@@ -61,7 +62,7 @@ export const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsP
             >
               {category.name}
               {index < categories.length - 1 && (
-                <span className="ml-4 text-border">|</span>
+                <span className="ml-4 text-border select-none">|</span>
               )}
             </button>
           ))}
@@ -70,7 +71,7 @@ export const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsP
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 hidden md:flex bg-background/80 backdrop-blur-sm"
+          className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 hidden lg:flex h-8 w-8 bg-background/80 backdrop-blur-sm shadow-sm"
           onClick={() => scroll('right')}
         >
           <ChevronRight className="h-4 w-4" />

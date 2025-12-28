@@ -19,9 +19,9 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
   };
 
   return (
-    <article className="group animate-fade-in">
+    <article className="group animate-fade-in cursor-pointer">
       {/* Image Container */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-secondary mb-4">
+      <div className="relative aspect-[3/4] overflow-hidden bg-secondary rounded-lg mb-4">
         <img
           src={image}
           alt={name}
@@ -30,8 +30,11 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
         
         {/* Like Button */}
         <button
-          onClick={() => setIsLiked(!isLiked)}
-          className="absolute top-3 right-3 p-2 rounded-full bg-background/80 backdrop-blur-sm transition-colors hover:bg-background"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsLiked(!isLiked);
+          }}
+          className="absolute top-3 right-3 p-2 rounded-full bg-background/80 backdrop-blur-sm transition-all hover:bg-background hover:scale-110"
           aria-label={isLiked ? "Убрать из избранного" : "Добавить в избранное"}
         >
           <Heart
@@ -45,23 +48,23 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
 
       {/* Content */}
       <div className="space-y-2">
-        <h3 className="font-semibold text-sm leading-tight line-clamp-2">
-          {name}
-        </h3>
-        
         {/* Prices */}
         <div className="flex items-center gap-3">
+          <span className="font-bold text-lg">
+            {formatPrice(price)} ₽
+          </span>
           {oldPrice && (
             <span className="text-sm text-muted-foreground line-through">
               {formatPrice(oldPrice)} ₽
             </span>
           )}
-          <span className="font-bold text-base">
-            {formatPrice(price)} ₽
-          </span>
         </div>
 
-        <p className="text-xs text-muted-foreground line-clamp-2">
+        <h3 className="font-medium text-sm leading-tight line-clamp-2 text-foreground/90">
+          {name}
+        </h3>
+
+        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
           {description}
         </p>
       </div>
