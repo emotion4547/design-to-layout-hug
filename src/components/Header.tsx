@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navigation = [
-  { name: 'Каталог', href: '/', hasDropdown: true },
+  { name: 'Каталог', href: '/catalog', hasDropdown: true },
   { name: 'Акции', href: '/promotions' },
   { name: 'Новости', href: '/news' },
   { name: 'Доставка', href: '/delivery' },

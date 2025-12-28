@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -19,9 +20,9 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
   };
 
   return (
-    <article className="group animate-fade-in cursor-pointer">
+    <article className="group animate-fade-in">
       {/* Image Container */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-secondary rounded-lg mb-4">
+      <Link to={`/catalog/${id}`} className="block relative aspect-[3/4] overflow-hidden bg-secondary rounded-lg mb-4">
         <img
           src={image}
           alt={name}
@@ -31,6 +32,7 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
         {/* Like Button */}
         <button
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             setIsLiked(!isLiked);
           }}
@@ -44,10 +46,10 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
             )}
           />
         </button>
-      </div>
+      </Link>
 
       {/* Content */}
-      <div className="space-y-2">
+      <Link to={`/catalog/${id}`} className="block space-y-2">
         {/* Prices */}
         <div className="flex items-center gap-3">
           <span className="font-bold text-lg">
@@ -60,14 +62,14 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
           )}
         </div>
 
-        <h3 className="font-medium text-sm leading-tight line-clamp-2 text-foreground/90">
+        <h3 className="font-medium text-sm leading-tight line-clamp-2 text-foreground/90 group-hover:text-foreground transition-colors">
           {name}
         </h3>
 
         <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
           {description}
         </p>
-      </div>
+      </Link>
     </article>
   );
 };
