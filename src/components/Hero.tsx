@@ -1,3 +1,5 @@
+import heroLogo from '@/assets/hero-logo.png';
+
 export const Hero = () => {
   return (
     <section className="pt-8 pb-4 md:pt-12 md:pb-6 bg-background">
@@ -5,13 +7,20 @@ export const Hero = () => {
         {/* Two-column layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Left column - Logo and tagline */}
-          <div className="text-center md:text-left">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-3">
-              Бутон в тон
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground">
-              букеты, наполненные чувствами
-            </p>
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <img 
+              src={heroLogo} 
+              alt="Бутон в тон - букеты цветов" 
+              className="w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 object-contain"
+            />
+            <div className="text-center md:text-left">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2">
+                Бутон в тон
+              </h1>
+              <p className="text-base md:text-lg text-muted-foreground">
+                букеты, наполненные чувствами
+              </p>
+            </div>
           </div>
           
           {/* Right column - Offer text */}
