@@ -25,13 +25,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Plus, Pencil, Trash2, Loader2, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ImageUpload } from '@/components/ImageUpload';
 import { MultiImageUpload } from '@/components/MultiImageUpload';
+import { useCategories } from '@/hooks/useCategories';
 import {
   getAllProducts, 
   createProduct, 
@@ -39,36 +39,20 @@ import {
   deleteProduct,
   Product,
   ProductInsert,
-  ProductCategory 
 } from '@/services/products';
-
-const categories: { value: ProductCategory; label: string }[] = [
-  { value: 'aromatic', label: 'Ароматные' },
-  { value: 'new-year', label: 'Новогодние композиции' },
-  { value: 'mono', label: 'Монобукеты' },
-  { value: 'author', label: 'Авторские букеты' },
-  { value: 'edible', label: 'Съедобные букеты' },
-  { value: 'wedding', label: 'Свадебные букеты' },
-  { value: 'box', label: 'Цветы в коробках' },
-  { value: 'gifts', label: 'Подарки' },
-  { value: 'balloons', label: 'Воздушные шары' },
-  { value: 'vases', label: 'Вазы' },
-  { value: 'certificates', label: 'Сертификаты' },
-  { value: 'toys', label: 'Игрушки' },
-];
 
 const AdminProducts = () => {
   const [search, setSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [formData, setFormData] = useState<Partial<ProductInsert> & { images?: string[] }>({
+  const [formData, setFormData] = useState<Partial<ProductInsert> & { images?: string[]; category_id?: string }>({
     name: '',
     description: '',
     price: 0,
     old_price: null,
     image_url: '',
     images: [],
-    category: 'mono',
+    category_id: '',
     article: '',
     size: '',
     in_stock: true,
@@ -81,6 +65,8 @@ const AdminProducts = () => {
     queryKey: ['admin', 'products'],
     queryFn: getAllProducts,
   });
+
+  const { data: categories, isLoading: categoriesLoading } = useCategories();
 
   const createMutation = useMutation({
     mutationFn: createProduct,
@@ -128,7 +114,7 @@ const AdminProducts = () => {
       old_price: null,
       image_url: '',
       images: [],
-      category: 'mono',
+      category_id: categories?.[0]?.id || '',
       article: '',
       size: '',
       in_stock: true,
@@ -145,7 +131,7 @@ const AdminProducts = () => {
       old_price: product.old_price,
       image_url: product.image_url,
       images: product.images || [],
-      category: product.category,
+      category_id: (product as any).category_id || '',
       article: product.article || '',
       size: product.size || '',
       in_stock: product.in_stock,
@@ -250,16 +236,16 @@ const AdminProducts = () => {
                 <div>
                   <Label htmlFor="category">Категория</Label>
                   <Select
-                    value={formData.category}
-                    onValueChange={(value) => setFormData({ ...formData, category: value as ProductCategory })}
+                    value={formData.category_id}
+                    onValueChange={(value) => setFormData({ ...formData, category_id: value })}
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Выберите категорию" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat.value} value={cat.value}>
-                          {cat.label}
+                      {categories?.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -358,7 +344,7 @@ const AdminProducts = () => {
                   <TableRow key={product.id}>
                     <TableCell className="font-medium">{product.name}</TableCell>
                     <TableCell>
-                      {categories.find(c => c.value === product.category)?.label || product.category}
+                      {categories?.find(c => c.id === (product as any).category_id)?.name || product.category || '—'}
                     </TableCell>
                     <TableCell>{formatPrice(product.price)} ₽</TableCell>
                     <TableCell>
