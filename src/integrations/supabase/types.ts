@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          name: string
+          slug: string
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name: string
+          slug: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       news: {
         Row: {
           category: string | null
@@ -153,6 +189,7 @@ export type Database = {
         Row: {
           article: string | null
           category: Database["public"]["Enums"]["product_category"] | null
+          category_id: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -168,6 +205,7 @@ export type Database = {
         Insert: {
           article?: string | null
           category?: Database["public"]["Enums"]["product_category"] | null
+          category_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -183,6 +221,7 @@ export type Database = {
         Update: {
           article?: string | null
           category?: Database["public"]["Enums"]["product_category"] | null
+          category_id?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -195,7 +234,15 @@ export type Database = {
           size?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       promotions: {
         Row: {
