@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ProductCard } from './ProductCard';
 import { CategoryTabs } from './CategoryTabs';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
+import { useProducts, type ProductCategory } from '@/hooks/useProducts';
 
 import bouquet1 from '@/assets/products/bouquet-1.jpg';
 import bouquet2 from '@/assets/products/bouquet-2.jpg';
@@ -12,84 +14,36 @@ import bouquet6 from '@/assets/products/bouquet-6.jpg';
 import bouquet7 from '@/assets/products/bouquet-7.jpg';
 import bouquet8 from '@/assets/products/bouquet-8.jpg';
 
-const products = [
-  {
-    id: '1',
-    name: 'Нежность пионов',
-    description: 'Изысканный букет из свежих розовых пионов с зеленью',
-    price: 3000,
-    oldPrice: 3500,
-    image: bouquet1,
-    category: 'new-year',
-  },
-  {
-    id: '2',
-    name: 'Розовое облако',
-    description: 'Нежный букет из роз и ранункулюсов в пастельных тонах',
-    price: 2550,
-    image: bouquet2,
-    category: 'new-year',
-  },
-  {
-    id: '3',
-    name: 'Весенняя свежесть',
-    description: 'Яркий букет из тюльпанов разных оттенков',
-    price: 2650,
-    image: bouquet3,
-    category: 'new-year',
-  },
-  {
-    id: '4',
-    name: 'Элегантная роза',
-    description: 'Классический букет из красных роз премиум-класса',
-    price: 3500,
-    image: bouquet4,
-    category: 'new-year',
-  },
-  {
-    id: '5',
-    name: 'Полевое настроение',
-    description: 'Букет из полевых цветов с лавандой и ромашками',
-    price: 2500,
-    image: bouquet5,
-    category: 'gifts',
-  },
-  {
-    id: '6',
-    name: 'Солнечный день',
-    description: 'Яркий букет из подсолнухов и хризантем',
-    price: 6400,
-    image: bouquet6,
-    category: 'edible',
-  },
-  {
-    id: '7',
-    name: 'Романтика роз',
-    description: 'Авторская композиция из садовых роз',
-    price: 3300,
-    image: bouquet7,
-    category: 'author',
-  },
-  {
-    id: '8',
-    name: 'Нежные пионы',
-    description: 'Монобукет из белых пионов с эвкалиптом',
-    price: 3600,
-    image: bouquet8,
-    category: 'mono',
-  },
-];
+const fallbackImages: Record<string, string> = {
+  '/products/bouquet-1.jpg': bouquet1,
+  '/products/bouquet-2.jpg': bouquet2,
+  '/products/bouquet-3.jpg': bouquet3,
+  '/products/bouquet-4.jpg': bouquet4,
+  '/products/bouquet-5.jpg': bouquet5,
+  '/products/bouquet-6.jpg': bouquet6,
+  '/products/bouquet-7.jpg': bouquet7,
+  '/products/bouquet-8.jpg': bouquet8,
+};
 
 export const ProductGrid = () => {
-  const [activeCategory, setActiveCategory] = useState('new-year');
+  const [activeCategory, setActiveCategory] = useState<ProductCategory | 'all'>('new-year');
   const [visibleCount, setVisibleCount] = useState(8);
 
-  const filteredProducts = activeCategory === 'all' 
-    ? products 
-    : products.filter(p => p.category === activeCategory);
+  const { data: products = [], isLoading, error } = useProducts({
+    category: activeCategory,
+  });
 
-  const visibleProducts = filteredProducts.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredProducts.length;
+  // Map products with fallback images
+  const mappedProducts = useMemo(() => {
+    return products.map(product => ({
+      ...product,
+      image: product.image_url ? (fallbackImages[product.image_url] || product.image_url) : bouquet1,
+      oldPrice: product.old_price,
+    }));
+  }, [products]);
+
+  const visibleProducts = mappedProducts.slice(0, visibleCount);
+  const hasMore = visibleCount < mappedProducts.length;
 
   const loadMore = () => {
     setVisibleCount(prev => prev + 4);
@@ -100,28 +54,46 @@ export const ProductGrid = () => {
       <CategoryTabs 
         activeCategory={activeCategory} 
         onCategoryChange={(id) => {
-          setActiveCategory(id);
+          setActiveCategory(id as ProductCategory | 'all');
           setVisibleCount(8);
         }} 
       />
       
       <div className="container py-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {visibleProducts.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
-
-        {hasMore && (
-          <div className="flex justify-center mt-12">
-            <Button 
-              variant="outline" 
-              onClick={loadMore}
-              className="px-8"
-            >
-              Загрузить ещё
-            </Button>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-destructive mb-4">Ошибка загрузки товаров</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {visibleProducts.map((product) => (
+                <ProductCard key={product.id} {...product} />
+              ))}
+            </div>
+
+            {visibleProducts.length === 0 && !isLoading && (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Товары не найдены</p>
+              </div>
+            )}
+
+            {hasMore && (
+              <div className="flex justify-center mt-12">
+                <Button 
+                  variant="outline" 
+                  onClick={loadMore}
+                  className="px-8"
+                >
+                  Загрузить ещё
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>
