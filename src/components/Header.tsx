@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Search, Menu, X, ShoppingBag, Heart, ChevronDown } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,9 +61,29 @@ const MessengerIcon = () => (
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileCatalogOpen, setMobileCatalogOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const { totalItems } = useCart();
   const { totalFavorites } = useFavorites();
+
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/catalog?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchQuery('');
+      setMobileMenuOpen(false);
+    }
+  };
 
   const isActive = (href: string) => {
     if (href === '/') return location.pathname === '/';
@@ -184,7 +205,10 @@ export const Header = () => {
 
             {/* Action Icons */}
             <div className="flex items-center gap-1">
-              <button className="p-2 text-white/90 hover:text-white transition-colors">
+              <button 
+                onClick={() => setSearchOpen(!searchOpen)}
+                className="p-2 text-white/90 hover:text-white transition-colors"
+              >
                 <Search className="h-5 w-5" />
               </button>
               <Link to="/favorites" className="relative p-2 text-white/90 hover:text-white transition-colors">
@@ -218,6 +242,36 @@ export const Header = () => {
             )}
           </button>
         </nav>
+
+        {/* Desktop Search Bar */}
+        <div
+          className={cn(
+            "hidden lg:block mt-2 overflow-hidden transition-all duration-300",
+            searchOpen ? "max-h-20 opacity-100" : "max-h-0 opacity-0"
+          )}
+        >
+          <form onSubmit={handleSearch} className="bg-[hsl(195,35%,32%)] rounded-full px-4 py-2 flex items-center gap-3">
+            <Search className="h-5 w-5 text-white/60" />
+            <Input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Поиск товаров..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 bg-transparent border-none text-white placeholder:text-white/50 focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setSearchOpen(false);
+                setSearchQuery('');
+              }}
+              className="p-1 text-white/60 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </form>
+        </div>
 
         {/* Mobile Menu */}
         <div
@@ -298,11 +352,22 @@ export const Header = () => {
               </a>
             </div>
 
+            {/* Mobile Search */}
+            <form onSubmit={handleSearch} className="flex items-center gap-2 pt-2">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
+                <Input
+                  type="text"
+                  placeholder="Поиск товаров..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus-visible:ring-white/30"
+                />
+              </div>
+            </form>
+
             {/* Action Icons - Mobile */}
             <div className="flex items-center gap-2 pt-2">
-              <button className="p-2 text-white/90 hover:text-white">
-                <Search className="h-5 w-5" />
-              </button>
               <Link 
                 to="/favorites" 
                 className="relative p-2 text-white/90 hover:text-white"
