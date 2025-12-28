@@ -31,6 +31,7 @@ import { Switch } from '@/components/ui/switch';
 import { Plus, Pencil, Trash2, Loader2, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '@/components/ImageUpload';
+import { MultiImageUpload } from '@/components/MultiImageUpload';
 import {
   getAllProducts, 
   createProduct, 
@@ -60,12 +61,13 @@ const AdminProducts = () => {
   const [search, setSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [formData, setFormData] = useState<Partial<ProductInsert>>({
+  const [formData, setFormData] = useState<Partial<ProductInsert> & { images?: string[] }>({
     name: '',
     description: '',
     price: 0,
     old_price: null,
-    image_url: '/products/bouquet-1.jpg',
+    image_url: '',
+    images: [],
     category: 'mono',
     article: '',
     size: '',
@@ -124,7 +126,8 @@ const AdminProducts = () => {
       description: '',
       price: 0,
       old_price: null,
-      image_url: '/products/bouquet-1.jpg',
+      image_url: '',
+      images: [],
       category: 'mono',
       article: '',
       size: '',
@@ -141,6 +144,7 @@ const AdminProducts = () => {
       price: product.price,
       old_price: product.old_price,
       image_url: product.image_url,
+      images: product.images || [],
       category: product.category,
       article: product.article || '',
       size: product.size || '',
@@ -157,10 +161,16 @@ const AdminProducts = () => {
       return;
     }
 
+    // Set first gallery image as main image_url if not set
+    const dataToSave = {
+      ...formData,
+      image_url: formData.image_url || (formData.images && formData.images[0]) || '',
+    };
+
     if (editingProduct) {
-      updateMutation.mutate({ id: editingProduct.id, data: formData });
+      updateMutation.mutate({ id: editingProduct.id, data: dataToSave });
     } else {
-      createMutation.mutate(formData as ProductInsert);
+      createMutation.mutate(dataToSave as ProductInsert);
     }
   };
 
@@ -273,11 +283,16 @@ const AdminProducts = () => {
                   />
                 </div>
                 <div className="col-span-2">
-                  <ImageUpload
-                    value={formData.image_url || ''}
-                    onChange={(url) => setFormData({ ...formData, image_url: url })}
+                  <MultiImageUpload
+                    value={formData.images || []}
+                    onChange={(urls) => setFormData({ 
+                      ...formData, 
+                      images: urls,
+                      image_url: urls[0] || formData.image_url || ''
+                    })}
                     folder="products"
-                    label="Изображение товара"
+                    label="Галерея изображений"
+                    maxImages={8}
                   />
                 </div>
                 <div className="col-span-2 flex items-center gap-2">
