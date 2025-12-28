@@ -26,11 +26,14 @@ const fallbackImages: Record<string, string> = {
 };
 
 export const ProductGrid = () => {
-  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [activeCategories, setActiveCategories] = useState<string[]>(['all']);
   const [visibleCount, setVisibleCount] = useState(8);
 
+  // Filter out 'all' to get actual category IDs for the query
+  const categoryIdsForQuery = activeCategories.filter(id => id !== 'all');
+
   const { data: products = [], isLoading, error } = useProducts({
-    categoryId: activeCategory !== 'all' ? activeCategory : undefined,
+    categoryIds: categoryIdsForQuery.length > 0 ? categoryIdsForQuery : undefined,
   });
 
   // Map products with fallback images
@@ -52,11 +55,12 @@ export const ProductGrid = () => {
   return (
     <section id="catalog" className="py-12">
       <CategoryTabs 
-        activeCategory={activeCategory} 
-        onCategoryChange={(id) => {
-          setActiveCategory(id);
+        activeCategories={activeCategories} 
+        onCategoryChange={(ids) => {
+          setActiveCategories(ids);
           setVisibleCount(8);
-        }} 
+        }}
+        multiSelect
       />
       
       <div className="container py-8">

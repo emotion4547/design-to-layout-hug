@@ -3,6 +3,7 @@ import { getProducts, getProductById, Product, ProductCategory, ProductWithCateg
 
 interface UseProductsOptions {
   categoryId?: string;
+  categoryIds?: string[];
   categorySlug?: string;
   category?: ProductCategory | 'all'; // Legacy support
   search?: string;

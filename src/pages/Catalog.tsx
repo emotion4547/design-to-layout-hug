@@ -5,7 +5,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { Search, SlidersHorizontal, X, Loader2 } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Loader2, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Sheet,
@@ -46,7 +46,7 @@ const Catalog = () => {
   const [searchParams] = useSearchParams();
   const categoryFromUrl = searchParams.get('category') || 'all';
   
-  const [activeCategory, setActiveCategory] = useState(categoryFromUrl);
+  const [activeCategories, setActiveCategories] = useState<string[]>([categoryFromUrl]);
   const [visibleCount, setVisibleCount] = useState(12);
   const [searchQuery, setSearchQuery] = useState('');
   const [priceRange, setPriceRange] = useState<[number, number]>([MIN_PRICE, MAX_PRICE]);
@@ -62,22 +62,31 @@ const Catalog = () => {
     ...dbCategories,
   ], [dbCategories]);
 
-  // Find active category name for display
-  const activeCategoryName = useMemo(() => {
-    return categories.find(c => c.id === activeCategory)?.name || 'Все';
-  }, [categories, activeCategory]);
+  // Get active category names for display
+  const activeCategoryNames = useMemo(() => {
+    if (activeCategories.includes('all') || activeCategories.length === 0) {
+      return [];
+    }
+    return activeCategories
+      .map(id => categories.find(c => c.id === id)?.name)
+      .filter(Boolean) as string[];
+  }, [categories, activeCategories]);
+
+  // Filter out 'all' to get actual category IDs for the query
+  const categoryIdsForQuery = activeCategories.filter(id => id !== 'all');
 
   // Fetch products from database
   const { data: products = [], isLoading, error } = useProducts({
-    categoryId: activeCategory !== 'all' ? activeCategory : undefined,
+    categoryIds: categoryIdsForQuery.length > 0 ? categoryIdsForQuery : undefined,
     search: searchQuery || undefined,
     minPrice: priceRange[0],
     maxPrice: priceRange[1],
     sortBy,
   });
+
   // Sync with URL category
   useEffect(() => {
-    setActiveCategory(categoryFromUrl);
+    setActiveCategories([categoryFromUrl]);
     setVisibleCount(12);
   }, [categoryFromUrl]);
 
@@ -231,7 +240,7 @@ const Catalog = () => {
           </div>
 
           {/* Active filters chips */}
-          {(searchQuery || hasActiveFilters || activeCategory !== 'all') && (
+          {(searchQuery || hasActiveFilters || activeCategoryNames.length > 0) && (
             <div className="flex flex-wrap gap-2 mt-4">
               {searchQuery && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
@@ -241,14 +250,23 @@ const Catalog = () => {
                   </button>
                 </span>
               )}
-              {activeCategory !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                  {activeCategoryName}
-                  <button onClick={() => setActiveCategory('all')} className="ml-1 hover:text-primary">
+              {activeCategoryNames.map((name, index) => (
+                <span key={index} className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
+                  {name}
+                  <button 
+                    onClick={() => {
+                      const categoryId = categories.find(c => c.name === name)?.id;
+                      if (categoryId) {
+                        const newCategories = activeCategories.filter(id => id !== categoryId);
+                        setActiveCategories(newCategories.length > 0 ? newCategories : ['all']);
+                      }
+                    }} 
+                    className="ml-1 hover:text-primary"
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </span>
-              )}
+              ))}
               {(priceRange[0] !== MIN_PRICE || priceRange[1] !== MAX_PRICE) && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
                   {formatPrice(priceRange[0])} — {formatPrice(priceRange[1])} ₽
@@ -285,23 +303,46 @@ const Catalog = () => {
                 </div>
               ) : (
                 <nav className="space-y-1 mb-8">
-                  {categories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => {
-                        setActiveCategory(category.id);
-                        setVisibleCount(12);
-                      }}
-                      className={cn(
-                        "w-full text-left px-4 py-2.5 rounded-lg text-sm transition-colors",
-                        activeCategory === category.id
-                          ? "bg-primary text-primary-foreground font-medium"
-                          : "text-foreground/80 hover:bg-secondary"
-                      )}
-                    >
-                      {category.name}
-                    </button>
-                  ))}
+                  {categories.map((category) => {
+                    const isActive = category.id === 'all' 
+                      ? activeCategories.includes('all') || activeCategories.length === 0
+                      : activeCategories.includes(category.id);
+                    return (
+                      <button
+                        key={category.id}
+                        onClick={() => {
+                          if (category.id === 'all') {
+                            setActiveCategories(['all']);
+                          } else {
+                            const currentCategories = activeCategories.filter(id => id !== 'all');
+                            if (currentCategories.includes(category.id)) {
+                              const newCategories = currentCategories.filter(id => id !== category.id);
+                              setActiveCategories(newCategories.length > 0 ? newCategories : ['all']);
+                            } else {
+                              setActiveCategories([...currentCategories, category.id]);
+                            }
+                          }
+                          setVisibleCount(12);
+                        }}
+                        className={cn(
+                          "w-full text-left px-4 py-2.5 rounded-lg text-sm transition-colors flex items-center gap-2",
+                          isActive
+                            ? "bg-primary text-primary-foreground font-medium"
+                            : "text-foreground/80 hover:bg-secondary"
+                        )}
+                      >
+                        {category.id !== 'all' && (
+                          <span className={cn(
+                            "w-4 h-4 rounded border flex items-center justify-center",
+                            isActive ? "bg-primary-foreground border-primary-foreground" : "border-current"
+                          )}>
+                            {isActive && <Check className="h-3 w-3 text-primary" />}
+                          </span>
+                        )}
+                        {category.name}
+                      </button>
+                    );
+                  })}
                 </nav>
               )}
 
@@ -342,7 +383,7 @@ const Catalog = () => {
                       <p className="text-muted-foreground mb-4">Товары не найдены</p>
                       <Button variant="outline" onClick={() => {
                         setSearchQuery('');
-                        setActiveCategory('all');
+                        setActiveCategories(['all']);
                         resetFilters();
                       }}>
                         Сбросить все фильтры
