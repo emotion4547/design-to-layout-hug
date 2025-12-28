@@ -1,7 +1,7 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useFavorites } from '@/contexts/FavoritesContext';
 
 interface ProductCardProps {
   id: string;
@@ -13,10 +13,17 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ id, name, description, price, oldPrice, image }: ProductCardProps) => {
-  const [isLiked, setIsLiked] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const isLiked = isFavorite(id);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ru-RU').format(price);
+  };
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite({ id, name, description, price, oldPrice, image });
   };
 
   return (
@@ -31,11 +38,7 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
         
         {/* Like Button */}
         <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsLiked(!isLiked);
-          }}
+          onClick={handleToggleFavorite}
           className="absolute top-3 right-3 p-2 rounded-full bg-background/80 backdrop-blur-sm transition-all hover:bg-background hover:scale-110"
           aria-label={isLiked ? "Убрать из избранного" : "Добавить в избранное"}
         >

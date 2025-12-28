@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Search, Menu, X, ShoppingBag, Heart, ChevronDown } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useCart } from '@/contexts/CartContext';
+import { useFavorites } from '@/contexts/FavoritesContext';
 
 const navigation = [
   { name: 'Каталог', href: '/catalog', hasDropdown: true },
@@ -39,6 +41,8 @@ const MessengerIcon = () => (
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { totalItems } = useCart();
+  const { totalFavorites } = useFavorites();
 
   const isActive = (href: string) => {
     if (href === '/') return location.pathname === '/';
@@ -131,12 +135,22 @@ export const Header = () => {
               <button className="p-2 text-white/90 hover:text-white transition-colors">
                 <Search className="h-5 w-5" />
               </button>
-              <button className="p-2 text-white/90 hover:text-white transition-colors">
+              <Link to="/favorites" className="relative p-2 text-white/90 hover:text-white transition-colors">
                 <Heart className="h-5 w-5" />
-              </button>
-              <button className="p-2 text-white/90 hover:text-white transition-colors">
+                {totalFavorites > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {totalFavorites}
+                  </span>
+                )}
+              </Link>
+              <Link to="/cart" className="relative p-2 text-white/90 hover:text-white transition-colors">
                 <ShoppingBag className="h-5 w-5" />
-              </button>
+                {totalItems > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </Link>
             </div>
           </div>
 
@@ -199,12 +213,30 @@ export const Header = () => {
               <button className="p-2 text-white/90 hover:text-white">
                 <Search className="h-5 w-5" />
               </button>
-              <button className="p-2 text-white/90 hover:text-white">
+              <Link 
+                to="/favorites" 
+                className="relative p-2 text-white/90 hover:text-white"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 <Heart className="h-5 w-5" />
-              </button>
-              <button className="p-2 text-white/90 hover:text-white">
+                {totalFavorites > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {totalFavorites}
+                  </span>
+                )}
+              </Link>
+              <Link 
+                to="/cart" 
+                className="relative p-2 text-white/90 hover:text-white"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 <ShoppingBag className="h-5 w-5" />
-              </button>
+                {totalItems > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
+              </Link>
             </div>
           </div>
         </div>

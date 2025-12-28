@@ -1,0 +1,263 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { PageLayout } from '@/components/PageLayout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useCart } from '@/contexts/CartContext';
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+const Cart = () => {
+  const { items, updateQuantity, removeFromCart, clearCart, totalPrice } = useCart();
+  const { toast } = useToast();
+  const [isCheckout, setIsCheckout] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    address: '',
+    date: '',
+    time: '',
+    comment: '',
+  });
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('ru-RU').format(price);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast({
+      title: "Заказ оформлен!",
+      description: "Мы свяжемся с вами для подтверждения заказа.",
+    });
+    clearCart();
+    setIsCheckout(false);
+  };
+
+  if (items.length === 0 && !isCheckout) {
+    return (
+      <PageLayout>
+        <section className="py-16">
+          <div className="container text-center">
+            <ShoppingBag className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+            <h1 className="text-2xl font-bold mb-2">Корзина пуста</h1>
+            <p className="text-muted-foreground mb-6">
+              Добавьте товары из каталога, чтобы оформить заказ
+            </p>
+            <Link to="/catalog">
+              <Button>Перейти в каталог</Button>
+            </Link>
+          </div>
+        </section>
+      </PageLayout>
+    );
+  }
+
+  return (
+    <PageLayout>
+      <section className="py-8 md:py-12">
+        <div className="container">
+          <nav className="text-sm text-muted-foreground mb-6">
+            <Link to="/" className="hover:text-foreground">Главная</Link>
+            <span className="mx-2">/</span>
+            <span className="text-foreground">Корзина</span>
+          </nav>
+
+          <h1 className="text-2xl md:text-3xl font-bold mb-8">
+            {isCheckout ? 'Оформление заказа' : 'Корзина'}
+          </h1>
+
+          {!isCheckout ? (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Cart Items */}
+              <div className="lg:col-span-2 space-y-4">
+                {items.map((item) => {
+                  const addonsPrice = item.addons?.reduce((a, addon) => a + addon.price, 0) || 0;
+                  const itemTotal = (item.price + addonsPrice) * item.quantity;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex gap-4 p-4 border border-border rounded-lg"
+                    >
+                      <Link to={`/catalog/${item.id}`} className="flex-shrink-0">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-24 h-24 object-cover rounded-lg"
+                        />
+                      </Link>
+
+                      <div className="flex-1 min-w-0">
+                        <Link to={`/catalog/${item.id}`}>
+                          <h3 className="font-medium line-clamp-2 hover:text-primary transition-colors">
+                            {item.name}
+                          </h3>
+                        </Link>
+                        
+                        {item.addons && item.addons.length > 0 && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            + {item.addons.map(a => a.name).join(', ')}
+                          </p>
+                        )}
+
+                        <div className="flex items-center justify-between mt-3">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="p-1 rounded border border-border hover:bg-secondary"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </button>
+                            <span className="w-8 text-center">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="p-1 rounded border border-border hover:bg-secondary"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <span className="font-bold">{formatPrice(itemTotal)} ₽</span>
+                            <button
+                              onClick={() => removeFromCart(item.id)}
+                              className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Summary */}
+              <div className="lg:col-span-1">
+                <div className="sticky top-24 p-6 bg-secondary/50 rounded-lg space-y-4">
+                  <h2 className="font-bold text-lg">Итого</h2>
+                  
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Товары ({items.length})</span>
+                    <span>{formatPrice(totalPrice)} ₽</span>
+                  </div>
+
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Доставка</span>
+                    <span>Рассчитывается</span>
+                  </div>
+
+                  <div className="pt-4 border-t border-border">
+                    <div className="flex justify-between font-bold text-lg">
+                      <span>К оплате</span>
+                      <span>{formatPrice(totalPrice)} ₽</span>
+                    </div>
+                  </div>
+
+                  <Button 
+                    className="w-full gap-2" 
+                    size="lg"
+                    onClick={() => setIsCheckout(true)}
+                  >
+                    Оформить заказ
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Checkout Form */
+            <form onSubmit={handleSubmit} className="max-w-xl space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Ваше имя *</label>
+                  <Input
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Введите имя"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Телефон *</label>
+                  <Input
+                    required
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="+7 (___) ___-__-__"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Адрес доставки *</label>
+                <Input
+                  required
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="Город, улица, дом, квартира"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Дата доставки *</label>
+                  <Input
+                    required
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Время доставки</label>
+                  <Input
+                    type="time"
+                    value={formData.time}
+                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Комментарий к заказу</label>
+                <Textarea
+                  value={formData.comment}
+                  onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                  placeholder="Пожелания к заказу, текст открытки..."
+                  rows={4}
+                />
+              </div>
+
+              <div className="p-4 bg-secondary/50 rounded-lg">
+                <div className="flex justify-between font-bold text-lg">
+                  <span>К оплате</span>
+                  <span>{formatPrice(totalPrice)} ₽</span>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setIsCheckout(false)}
+                >
+                  Назад
+                </Button>
+                <Button type="submit" className="flex-1">
+                  Подтвердить заказ
+                </Button>
+              </div>
+            </form>
+          )}
+        </div>
+      </section>
+    </PageLayout>
+  );
+};
+
+export default Cart;

@@ -4,6 +4,9 @@ import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { Heart, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useCart } from '@/contexts/CartContext';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import { useToast } from '@/hooks/use-toast';
 
 import bouquet1 from '@/assets/products/bouquet-1.jpg';
 import bouquet2 from '@/assets/products/bouquet-2.jpg';
@@ -120,10 +123,14 @@ const Product = () => {
   const { id } = useParams<{ id: string }>();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+  
+  const { addToCart } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { toast } = useToast();
 
   const product = id ? productsData[id] : null;
+  const isLiked = product ? isFavorite(product.id) : false;
 
   if (!product) {
     return (
@@ -150,11 +157,34 @@ const Product = () => {
     );
   };
 
-  const totalAddonsPrice = addons
-    .filter(addon => selectedAddons.includes(addon.id))
-    .reduce((sum, addon) => sum + addon.price, 0);
-
+  const selectedAddonItems = addons.filter(addon => selectedAddons.includes(addon.id));
+  const totalAddonsPrice = selectedAddonItems.reduce((sum, addon) => sum + addon.price, 0);
   const totalPrice = (product.price + totalAddonsPrice) * quantity;
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+      addons: selectedAddonItems,
+    }, quantity);
+    
+    toast({
+      title: "Добавлено в корзину",
+      description: `${product.name} (${quantity} шт.)`,
+    });
+  };
+
+  const handleToggleFavorite = () => {
+    toggleFavorite({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      image: product.images[0],
+    });
+  };
 
   return (
     <PageLayout>
@@ -180,7 +210,7 @@ const Product = () => {
                   className="w-full h-full object-cover"
                 />
                 <button
-                  onClick={() => setIsLiked(!isLiked)}
+                  onClick={handleToggleFavorite}
                   className="absolute top-4 right-4 p-3 rounded-full bg-background/80 backdrop-blur-sm transition-all hover:bg-background hover:scale-110"
                 >
                   <Heart
@@ -288,7 +318,7 @@ const Product = () => {
 
                 {/* Total & Add to Cart */}
                 <div className="flex items-center gap-4">
-                  <Button size="lg" className="flex-1 gap-2">
+                  <Button size="lg" className="flex-1 gap-2" onClick={handleAddToCart}>
                     <ShoppingBag className="h-5 w-5" />
                     Добавить в корзину
                   </Button>
