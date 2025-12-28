@@ -1,20 +1,24 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/contexts/CartContext';
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createOrder } from '@/services/orders';
 
 const Cart = () => {
   const { items, updateQuantity, removeFromCart, clearCart, totalPrice } = useCart();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isCheckout, setIsCheckout] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
+    email: '',
     address: '',
     date: '',
     time: '',
@@ -25,14 +29,40 @@ const Cart = () => {
     return new Intl.NumberFormat('ru-RU').format(price);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Заказ оформлен!",
-      description: "Мы свяжемся с вами для подтверждения заказа.",
-    });
-    clearCart();
-    setIsCheckout(false);
+    setIsSubmitting(true);
+
+    try {
+      await createOrder({
+        customerName: formData.name,
+        customerPhone: formData.phone,
+        customerEmail: formData.email || undefined,
+        deliveryAddress: formData.address,
+        deliveryDate: formData.date,
+        deliveryTime: formData.time || undefined,
+        comment: formData.comment || undefined,
+        items,
+        totalPrice,
+      });
+
+      toast({
+        title: "Заказ оформлен!",
+        description: "Мы свяжемся с вами для подтверждения заказа.",
+      });
+      clearCart();
+      setIsCheckout(false);
+      navigate('/');
+    } catch (error) {
+      console.error('Order error:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось оформить заказ. Попробуйте позже.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (items.length === 0 && !isCheckout) {
@@ -79,13 +109,13 @@ const Cart = () => {
                   return (
                     <div
                       key={item.id}
-                      className="flex gap-4 p-4 border border-border rounded-lg"
+                      className="flex gap-4 p-4 border border-border rounded-2xl"
                     >
                       <Link to={`/catalog/${item.id}`} className="flex-shrink-0">
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="w-24 h-24 object-cover rounded-lg"
+                          className="w-24 h-24 object-cover rounded-xl"
                         />
                       </Link>
 
@@ -137,7 +167,7 @@ const Cart = () => {
 
               {/* Summary */}
               <div className="lg:col-span-1">
-                <div className="sticky top-24 p-6 bg-secondary/50 rounded-lg space-y-4">
+                <div className="sticky top-24 p-6 bg-secondary/50 rounded-2xl space-y-4">
                   <h2 className="font-bold text-lg">Итого</h2>
                   
                   <div className="flex justify-between text-sm">
@@ -179,6 +209,7 @@ const Cart = () => {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Введите имя"
+                    disabled={isSubmitting}
                   />
                 </div>
                 <div className="space-y-2">
@@ -189,8 +220,20 @@ const Cart = () => {
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="+7 (___) ___-__-__"
+                    disabled={isSubmitting}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Email</label>
+                <Input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="email@example.com"
+                  disabled={isSubmitting}
+                />
               </div>
 
               <div className="space-y-2">
@@ -200,6 +243,7 @@ const Cart = () => {
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   placeholder="Город, улица, дом, квартира"
+                  disabled={isSubmitting}
                 />
               </div>
 
@@ -211,6 +255,7 @@ const Cart = () => {
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    disabled={isSubmitting}
                   />
                 </div>
                 <div className="space-y-2">
@@ -219,6 +264,7 @@ const Cart = () => {
                     type="time"
                     value={formData.time}
                     onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                    disabled={isSubmitting}
                   />
                 </div>
               </div>
@@ -230,10 +276,11 @@ const Cart = () => {
                   onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
                   placeholder="Пожелания к заказу, текст открытки..."
                   rows={4}
+                  disabled={isSubmitting}
                 />
               </div>
 
-              <div className="p-4 bg-secondary/50 rounded-lg">
+              <div className="p-4 bg-secondary/50 rounded-2xl">
                 <div className="flex justify-between font-bold text-lg">
                   <span>К оплате</span>
                   <span>{formatPrice(totalPrice)} ₽</span>
@@ -245,11 +292,19 @@ const Cart = () => {
                   type="button" 
                   variant="outline" 
                   onClick={() => setIsCheckout(false)}
+                  disabled={isSubmitting}
                 >
                   Назад
                 </Button>
-                <Button type="submit" className="flex-1">
-                  Подтвердить заказ
+                <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Оформление...
+                    </>
+                  ) : (
+                    'Подтвердить заказ'
+                  )}
                 </Button>
               </div>
             </form>
