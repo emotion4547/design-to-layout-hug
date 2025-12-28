@@ -1,36 +1,50 @@
+import heroFlowers from '@/assets/hero-flowers.jpg';
+
 const bonusPoints = [
-  { prefix: 'никаких баллов', text: '— бонусная система работает в процентах' },
-  { prefix: 'оплатить можно', text: '15% от суммы заказа в любой день, за 3х — 30%' },
-  { prefix: 'всегда с вами', text: '— бонусы привязаны к номеру телефона' },
-  { prefix: 'приятный подарок', text: '— приветственные бонусы уже ждут вас' },
-  { prefix: 'система имеет несколько уровней', text: '— чем больше покупок, тем больше бонусов' },
-  { prefix: 'бонусы не сгорают', text: '6 месяцев с момента последнего пополнения' },
+  'никаких баллов - бонусная система 1 бонус - 1 рубль',
+  'оплатить можно 15% от суммы заказа в любой день, за исключением праздничных',
+  'всегда с вами - бонусы привязаны к номеру телефона',
+  'приятный подарок - приветственные бонусы при регистрации',
+  'система имеет несколько уровней начисления',
+  'бонусы не сгорают 6 месяцев с момента последнего начисления',
 ];
 
 export const BonusSystem = () => {
   return (
-    <section className="py-16 md:py-20 bg-secondary/30">
+    <section className="py-16 md:py-20 bg-background">
       <div className="container">
-        <div className="max-w-4xl">
-          <div className="mb-10">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              Бонусная система
-            </h2>
-            <p className="text-muted-foreground text-base md:text-lg">
-              Порадуй своих близких и получай бонусы за каждую покупку!
-            </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start">
+          {/* Left column - Image with overlay */}
+          <div className="relative rounded-2xl overflow-hidden aspect-[4/3]">
+            <img 
+              src={heroFlowers} 
+              alt="Цветочный магазин" 
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2">
+                Бонусная система
+              </h2>
+              <p className="text-white/90 text-sm md:text-base leading-relaxed">
+                Порадуй своих близких, а затем порадуй себя
+              </p>
+            </div>
           </div>
 
-          <ul className="space-y-4">
-            {bonusPoints.map((point, index) => (
-              <li key={index} className="flex items-start gap-3 text-base">
-                <span className="text-foreground/40 mt-1">•</span>
-                <span className="text-foreground/90 leading-relaxed">
-                  <strong className="font-semibold">{point.prefix}</strong> {point.text}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {/* Right column - Bullet list */}
+          <div className="py-4">
+            <ul className="space-y-5">
+              {bonusPoints.map((point, index) => (
+                <li key={index} className="flex items-start gap-3 text-base md:text-lg">
+                  <span className="text-foreground mt-1.5 text-sm">•</span>
+                  <span className="text-foreground leading-relaxed">
+                    {point}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>
