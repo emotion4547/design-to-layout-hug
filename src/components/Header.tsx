@@ -63,11 +63,23 @@ export const Header = () => {
   const [mobileCatalogOpen, setMobileCatalogOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [cartPulse, setCartPulse] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const prevTotalItemsRef = useRef<number>(0);
   const location = useLocation();
   const navigate = useNavigate();
   const { totalItems } = useCart();
   const { totalFavorites } = useFavorites();
+
+  // Trigger pulse animation when items are added to cart
+  useEffect(() => {
+    if (totalItems > prevTotalItemsRef.current) {
+      setCartPulse(true);
+      const timer = setTimeout(() => setCartPulse(false), 600);
+      return () => clearTimeout(timer);
+    }
+    prevTotalItemsRef.current = totalItems;
+  }, [totalItems]);
 
   useEffect(() => {
     if (searchOpen && searchInputRef.current) {
@@ -211,9 +223,15 @@ export const Header = () => {
                 )}
               </Link>
               <Link to="/cart" className="relative p-2 text-white/90 hover:text-white transition-colors">
-                <ShoppingBag className="h-5 w-5" />
+                <ShoppingBag className={cn(
+                  "h-5 w-5 transition-transform",
+                  cartPulse && "animate-[pulse_0.6s_ease-in-out]"
+                )} />
                 {totalItems > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className={cn(
+                    "absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center transition-transform",
+                    cartPulse && "animate-[bounce_0.6s_ease-in-out]"
+                  )}>
                     {totalItems}
                   </span>
                 )}
@@ -379,9 +397,15 @@ export const Header = () => {
                 className="relative p-2 text-white/90 hover:text-white"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <ShoppingBag className="h-5 w-5" />
+                <ShoppingBag className={cn(
+                  "h-5 w-5 transition-transform",
+                  cartPulse && "animate-[pulse_0.6s_ease-in-out]"
+                )} />
                 {totalItems > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className={cn(
+                    "absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center transition-transform",
+                    cartPulse && "animate-[bounce_0.6s_ease-in-out]"
+                  )}>
                     {totalItems}
                   </span>
                 )}
