@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 export interface FavoriteItem {
   id: string;
@@ -52,8 +53,16 @@ export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
   const toggleFavorite = (item: FavoriteItem) => {
     if (isFavorite(item.id)) {
       removeFromFavorites(item.id);
+      toast({
+        title: "Удалено из избранного",
+        description: item.name,
+      });
     } else {
       addToFavorites(item);
+      toast({
+        title: "Добавлено в избранное",
+        description: item.name,
+      });
     }
   };
 
