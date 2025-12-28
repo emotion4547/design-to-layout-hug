@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
 import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
@@ -142,11 +143,20 @@ const MIN_PRICE = 0;
 const MAX_PRICE = 50000;
 
 const Catalog = () => {
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [searchParams] = useSearchParams();
+  const categoryFromUrl = searchParams.get('category') || 'all';
+  
+  const [activeCategory, setActiveCategory] = useState(categoryFromUrl);
   const [visibleCount, setVisibleCount] = useState(12);
   const [searchQuery, setSearchQuery] = useState('');
   const [priceRange, setPriceRange] = useState<[number, number]>([MIN_PRICE, MAX_PRICE]);
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc'>('default');
+
+  // Sync with URL category
+  useEffect(() => {
+    setActiveCategory(categoryFromUrl);
+    setVisibleCount(12);
+  }, [categoryFromUrl]);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const formatPrice = (price: number) => {

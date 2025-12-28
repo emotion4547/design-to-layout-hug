@@ -4,6 +4,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const navigation = [
   { name: 'Каталог', href: '/catalog', hasDropdown: true },
@@ -11,6 +17,19 @@ const navigation = [
   { name: 'Новости', href: '/news' },
   { name: 'Доставка', href: '/delivery' },
   { name: 'Контакты', href: '/contacts' },
+];
+
+const catalogCategories = [
+  { id: 'all', name: 'Все букеты', href: '/catalog' },
+  { id: 'aromatic', name: 'Ароматные', href: '/catalog?category=aromatic' },
+  { id: 'new-year', name: 'Новогодние композиции', href: '/catalog?category=new-year' },
+  { id: 'mono', name: 'Монобукеты', href: '/catalog?category=mono' },
+  { id: 'author', name: 'Авторские букеты', href: '/catalog?category=author' },
+  { id: 'edible', name: 'Съедобные букеты', href: '/catalog?category=edible' },
+  { id: 'wedding', name: 'Свадебные букеты', href: '/catalog?category=wedding' },
+  { id: 'box', name: 'Цветы в коробках', href: '/catalog?category=box' },
+  { id: 'gifts', name: 'Подарки', href: '/catalog?category=gifts' },
+  { id: 'balloons', name: 'Воздушные шары', href: '/catalog?category=balloons' },
 ];
 
 // Social icons as SVG components
@@ -40,6 +59,7 @@ const MessengerIcon = () => (
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileCatalogOpen, setMobileCatalogOpen] = useState(false);
   const location = useLocation();
   const { totalItems } = useCart();
   const { totalFavorites } = useFavorites();
@@ -75,19 +95,51 @@ export const Header = () => {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-6">
             {navigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  "flex items-center gap-1 text-sm transition-colors",
-                  isActive(item.href) 
-                    ? "text-white font-medium" 
-                    : "text-white/80 hover:text-white"
-                )}
-              >
-                {item.name}
-                {item.hasDropdown && <ChevronDown className="h-4 w-4" />}
-              </Link>
+              item.hasDropdown ? (
+                <DropdownMenu key={item.name}>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className={cn(
+                        "flex items-center gap-1 text-sm transition-colors outline-none",
+                        isActive(item.href) 
+                          ? "text-white font-medium" 
+                          : "text-white/80 hover:text-white"
+                      )}
+                    >
+                      {item.name}
+                      <ChevronDown className="h-4 w-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent 
+                    align="start" 
+                    className="w-56 bg-background border border-border shadow-lg z-[100]"
+                  >
+                    {catalogCategories.map((category) => (
+                      <DropdownMenuItem key={category.id} asChild>
+                        <Link 
+                          to={category.href}
+                          className="cursor-pointer"
+                        >
+                          {category.name}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={cn(
+                    "flex items-center gap-1 text-sm transition-colors",
+                    isActive(item.href) 
+                      ? "text-white font-medium" 
+                      : "text-white/80 hover:text-white"
+                  )}
+                >
+                  {item.name}
+                </Link>
+              )
             ))}
           </div>
 
@@ -171,25 +223,63 @@ export const Header = () => {
         <div
           className={cn(
             "lg:hidden mt-2 bg-[hsl(195,35%,32%)] rounded-2xl overflow-hidden transition-all duration-300",
-            mobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+            mobileMenuOpen ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"
           )}
         >
           <div className="p-4 space-y-3">
             {navigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  "flex items-center justify-between py-2 border-b border-white/10",
-                  isActive(item.href) 
-                    ? "text-white font-medium" 
-                    : "text-white/80"
-                )}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.name}
-                {item.hasDropdown && <ChevronDown className="h-4 w-4" />}
-              </Link>
+              item.hasDropdown ? (
+                <div key={item.name}>
+                  <button
+                    onClick={() => setMobileCatalogOpen(!mobileCatalogOpen)}
+                    className={cn(
+                      "w-full flex items-center justify-between py-2 border-b border-white/10",
+                      isActive(item.href) 
+                        ? "text-white font-medium" 
+                        : "text-white/80"
+                    )}
+                  >
+                    {item.name}
+                    <ChevronDown className={cn(
+                      "h-4 w-4 transition-transform",
+                      mobileCatalogOpen && "rotate-180"
+                    )} />
+                  </button>
+                  
+                  {/* Mobile Categories Submenu */}
+                  <div className={cn(
+                    "overflow-hidden transition-all duration-300",
+                    mobileCatalogOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                  )}>
+                    <div className="pl-4 py-2 space-y-1">
+                      {catalogCategories.map((category) => (
+                        <Link
+                          key={category.id}
+                          to={category.href}
+                          className="block py-2 text-sm text-white/70 hover:text-white transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {category.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={cn(
+                    "flex items-center justify-between py-2 border-b border-white/10",
+                    isActive(item.href) 
+                      ? "text-white font-medium" 
+                      : "text-white/80"
+                  )}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              )
             ))}
             
             {/* Social Icons - Mobile */}
