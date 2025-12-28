@@ -1,4 +1,4 @@
-import heroFlowers from '@/assets/hero-flowers.jpg';
+import bonusFlowers from '@/assets/bonus-flowers.avif';
 
 const bonusPoints = [
   'никаких баллов - бонусная система 1 бонус - 1 рубль',
@@ -17,7 +17,7 @@ export const BonusSystem = () => {
           {/* Left column - Image with overlay */}
           <div className="relative rounded-2xl overflow-hidden aspect-[4/3]">
             <img 
-              src={heroFlowers} 
+              src={bonusFlowers} 
               alt="Цветочный магазин" 
               className="w-full h-full object-cover"
             />
