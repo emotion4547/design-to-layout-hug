@@ -154,6 +154,94 @@ export interface Database {
           created_at?: string
         }
       }
+      news: {
+        Row: {
+          id: string
+          title: string
+          slug: string
+          excerpt: string | null
+          content: string | null
+          image_url: string | null
+          category: string | null
+          is_published: boolean
+          published_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          slug: string
+          excerpt?: string | null
+          content?: string | null
+          image_url?: string | null
+          category?: string | null
+          is_published?: boolean
+          published_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          slug?: string
+          excerpt?: string | null
+          content?: string | null
+          image_url?: string | null
+          category?: string | null
+          is_published?: boolean
+          published_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      promotions: {
+        Row: {
+          id: string
+          title: string
+          slug: string
+          description: string | null
+          content: string | null
+          image_url: string | null
+          badge: string | null
+          discount_percent: number | null
+          is_active: boolean
+          start_date: string | null
+          end_date: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          slug: string
+          description?: string | null
+          content?: string | null
+          image_url?: string | null
+          badge?: string | null
+          discount_percent?: number | null
+          is_active?: boolean
+          start_date?: string | null
+          end_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          slug?: string
+          description?: string | null
+          content?: string | null
+          image_url?: string | null
+          badge?: string | null
+          discount_percent?: number | null
+          is_active?: boolean
+          start_date?: string | null
+          end_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

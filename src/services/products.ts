@@ -3,6 +3,7 @@ import { Database } from '@/types/database';
 
 export type Product = Database['public']['Tables']['products']['Row'];
 export type ProductInsert = Database['public']['Tables']['products']['Insert'];
+export type ProductUpdate = Database['public']['Tables']['products']['Update'];
 export type ProductCategory = Database['public']['Enums']['product_category'];
 
 export async function getProducts(options?: {
@@ -84,6 +85,64 @@ export async function getProductsByIds(ids: string[]) {
 
   if (error) {
     console.error('Error fetching products:', error);
+    throw error;
+  }
+
+  return data;
+}
+
+// Admin functions
+export async function createProduct(product: ProductInsert) {
+  const { data, error } = await supabase
+    .from('products')
+    .insert(product)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating product:', error);
+    throw error;
+  }
+
+  return data;
+}
+
+export async function updateProduct(id: string, product: ProductUpdate) {
+  const { data, error } = await supabase
+    .from('products')
+    .update(product)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating product:', error);
+    throw error;
+  }
+
+  return data;
+}
+
+export async function deleteProduct(id: string) {
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting product:', error);
+    throw error;
+  }
+}
+
+export async function getAllProducts() {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching all products:', error);
     throw error;
   }
 
