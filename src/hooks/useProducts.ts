@@ -9,7 +9,7 @@ interface UseProductsOptions {
   search?: string;
   minPrice?: number;
   maxPrice?: number;
-  sortBy?: 'default' | 'price-asc' | 'price-desc';
+  sortBy?: 'default' | 'price-asc' | 'price-desc' | 'newest';
   limit?: number;
   offset?: number;
   inStockOnly?: boolean;
