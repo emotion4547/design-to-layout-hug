@@ -12,6 +12,7 @@ import { useFavorites } from '@/contexts/FavoritesContext';
 import { useCart } from '@/contexts/CartContext';
 import { useProduct } from '@/hooks/useProducts';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 interface QuickViewModalProps {
   productId: string;
@@ -23,6 +24,7 @@ export const QuickViewModal = ({ productId, open, onOpenChange }: QuickViewModal
   const { data: product, isLoading } = useProduct(productId);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { addToCart } = useCart();
+  const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -38,6 +40,10 @@ export const QuickViewModal = ({ productId, open, onOpenChange }: QuickViewModal
       price: product.price,
       image: product.image_url,
     }, quantity);
+    toast({
+      title: "Добавлено в корзину",
+      description: `${product.name} (${quantity} шт.)`,
+    });
     onOpenChange(false);
   };
 
