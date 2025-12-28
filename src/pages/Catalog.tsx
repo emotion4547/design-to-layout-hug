@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/sheet';
 import { useProducts } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
+import { useProductCounts } from '@/hooks/useProductCounts';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Fallback images for products without image_url
@@ -55,6 +56,7 @@ const Catalog = () => {
 
   // Fetch categories from database
   const { data: dbCategories = [], isLoading: categoriesLoading } = useCategories({ activeOnly: true });
+  const { data: productCounts } = useProductCounts();
   
   // Build categories list with "All" option
   const categories = useMemo(() => [
@@ -307,6 +309,9 @@ const Catalog = () => {
                     const isActive = category.id === 'all' 
                       ? activeCategories.includes('all') || activeCategories.length === 0
                       : activeCategories.includes(category.id);
+                    const count = category.id === 'all' 
+                      ? productCounts?.total 
+                      : productCounts?.byCategoryId[category.id];
                     return (
                       <button
                         key={category.id}
@@ -339,7 +344,17 @@ const Catalog = () => {
                             {isActive && <Check className="h-3 w-3 text-primary" />}
                           </span>
                         )}
-                        {category.name}
+                        <span className="flex-1">{category.name}</span>
+                        {count !== undefined && (
+                          <span className={cn(
+                            "text-xs px-1.5 py-0.5 rounded-full min-w-[20px] text-center",
+                            isActive 
+                              ? "bg-primary-foreground/20" 
+                              : "bg-muted text-muted-foreground"
+                          )}>
+                            {count}
+                          </span>
+                        )}
                       </button>
                     );
                   })}
