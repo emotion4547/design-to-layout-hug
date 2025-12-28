@@ -60,6 +60,8 @@ const Catalog = () => {
   const [searchQuery, setSearchQuery] = useState(searchFromUrl);
   const [priceRange, setPriceRange] = useState<[number, number]>([MIN_PRICE, MAX_PRICE]);
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'newest'>('default');
+  const [inStockOnly, setInStockOnly] = useState(true);
+  const [withDiscountOnly, setWithDiscountOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Fetch categories from database
@@ -92,6 +94,8 @@ const Catalog = () => {
     minPrice: priceRange[0],
     maxPrice: priceRange[1],
     sortBy,
+    inStockOnly,
+    withDiscountOnly,
   });
 
   // Sync with URL params
@@ -117,11 +121,13 @@ const Catalog = () => {
   const visibleProducts = mappedProducts.slice(0, visibleCount);
   const hasMore = visibleCount < mappedProducts.length;
 
-  const hasActiveFilters = priceRange[0] !== MIN_PRICE || priceRange[1] !== MAX_PRICE || sortBy !== 'default';
+  const hasActiveFilters = priceRange[0] !== MIN_PRICE || priceRange[1] !== MAX_PRICE || sortBy !== 'default' || !inStockOnly || withDiscountOnly;
 
   const resetFilters = () => {
     setPriceRange([MIN_PRICE, MAX_PRICE]);
     setSortBy('default');
+    setInStockOnly(true);
+    setWithDiscountOnly(false);
   };
 
   const FiltersContent = () => (
@@ -155,6 +161,31 @@ const Catalog = () => {
             min={priceRange[0]}
             max={MAX_PRICE}
           />
+        </div>
+      </div>
+
+      {/* Additional Filters */}
+      <div className="space-y-3">
+        <h3 className="font-medium">Наличие</h3>
+        <div className="space-y-2">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={inStockOnly}
+              onChange={(e) => setInStockOnly(e.target.checked)}
+              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+            />
+            <span className="text-sm">Только в наличии</span>
+          </label>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={withDiscountOnly}
+              onChange={(e) => setWithDiscountOnly(e.target.checked)}
+              className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+            />
+            <span className="text-sm">Со скидкой</span>
+          </label>
         </div>
       </div>
 
@@ -305,6 +336,22 @@ const Catalog = () => {
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
                   {sortBy === 'price-asc' ? 'Сначала дешевые' : sortBy === 'price-desc' ? 'Сначала дорогие' : 'По новизне'}
                   <button onClick={() => setSortBy('default')} className="ml-1 hover:text-primary">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+              {!inStockOnly && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
+                  Включая не в наличии
+                  <button onClick={() => setInStockOnly(true)} className="ml-1 hover:text-primary">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+              {withDiscountOnly && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
+                  Со скидкой
+                  <button onClick={() => setWithDiscountOnly(false)} className="ml-1 hover:text-primary">
                     <X className="h-3 w-3" />
                   </button>
                 </span>

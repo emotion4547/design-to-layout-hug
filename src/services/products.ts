@@ -60,6 +60,7 @@ export async function getProducts(options?: {
   limit?: number;
   offset?: number;
   inStockOnly?: boolean;
+  withDiscountOnly?: boolean;
 }) {
   let query = supabase
     .from('products')
@@ -99,6 +100,11 @@ export async function getProducts(options?: {
 
   if (options?.maxPrice !== undefined) {
     query = query.lte('price', options.maxPrice);
+  }
+
+  // Filter by discount (has old_price)
+  if (options?.withDiscountOnly) {
+    query = query.not('old_price', 'is', null);
   }
 
   if (options?.sortBy === 'price-asc') {
