@@ -63,7 +63,7 @@ export const Header = () => {
             
             {/* Brand */}
             <div className="text-white">
-              <span className="text-xl font-bold tracking-wide">МУРАШКИ</span>
+              <span className="text-xl font-bold tracking-wide">Бутон в тон</span>
               <p className="text-[10px] text-white/70 -mt-0.5">букеты, наполненные чувствами</p>
             </div>
           </Link>
@@ -108,7 +108,7 @@ export const Header = () => {
                 <TelegramIcon />
               </a>
               <a 
-                href="https://wa.me" 
+                href="https://wa.me/89644560066" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
@@ -186,7 +186,7 @@ export const Header = () => {
               <a href="https://t.me" className="p-2 rounded-full bg-white/10 text-white/90">
                 <TelegramIcon />
               </a>
-              <a href="https://wa.me" className="p-2 rounded-full bg-white/10 text-white/90">
+              <a href="https://wa.me/89644560066" className="p-2 rounded-full bg-white/10 text-white/90">
                 <WhatsAppIcon />
               </a>
               <a href="#" className="p-2 rounded-full bg-white/10 text-white/90">

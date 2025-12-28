@@ -57,7 +57,7 @@ export const Footer = () => {
                   </svg>
                 </div>
                 <div>
-                  <span className="text-2xl font-bold tracking-wide">МУРАШКИ</span>
+                  <span className="text-2xl font-bold tracking-wide">Бутон в тон</span>
                   <p className="text-sm text-white/70">букеты, наполненные чувствами</p>
                 </div>
               </div>
@@ -67,14 +67,13 @@ export const Footer = () => {
                 <h3 className="text-xl font-medium italic mb-4">Мы всегда на связи!</h3>
                 <p className="text-white/90">
                   <span className="text-white/70">Телефон:</span>{' '}
-                  <a href="tel:+79959184956" className="hover:text-white transition-colors">
-                    +7 995 918 49 56
+                  <a href="tel:89644560066" className="hover:text-white transition-colors">
+                    8 964 456 00 66
                   </a>
                 </p>
                 <p className="text-white/90">
-                  <span className="text-white/70">Адрес:</span> г. Сергиев Посад ул. Инженерная д.8
+                  <span className="text-white/70">Адрес:</span> г. Новороссийск
                 </p>
-                <p className="text-white/90">ТЦ "Престиж" 2ой этаж</p>
               </div>
             </div>
 
@@ -105,7 +104,7 @@ export const Footer = () => {
                   <TelegramIcon />
                 </a>
                 <a 
-                  href="https://wa.me" 
+                  href="https://wa.me/89644560066" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="p-3 rounded-full border border-white/30 text-white/90 hover:bg-white/10 hover:text-white transition-colors"
