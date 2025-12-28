@@ -67,7 +67,7 @@ export const News = () => {
           {displayItems.map((item) => (
             <article 
               key={item.id}
-              className="group bg-background rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+              className="group bg-background rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="aspect-[4/3] overflow-hidden">
                 <img 
