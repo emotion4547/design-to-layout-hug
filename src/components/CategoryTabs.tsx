@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useCategories } from '@/hooks/useCategories';
+import { useProductCounts } from '@/hooks/useProductCounts';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface CategoryTabsProps {
@@ -18,6 +19,7 @@ export const CategoryTabs = ({
 }: CategoryTabsProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { data: categories, isLoading } = useCategories({ activeOnly: true });
+  const { data: productCounts } = useProductCounts();
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -99,6 +101,9 @@ export const CategoryTabs = ({
         >
           {allCategories.map((category) => {
             const active = isActive(category.id);
+            const count = category.id === 'all' 
+              ? productCounts?.total 
+              : productCounts?.byCategoryId[category.id];
             return (
               <button
                 key={category.id}
@@ -115,6 +120,16 @@ export const CategoryTabs = ({
                     <Check className="h-3 w-3" />
                   )}
                   {category.name}
+                  {count !== undefined && (
+                    <span className={cn(
+                      "text-xs px-1.5 py-0.5 rounded-full",
+                      active 
+                        ? "bg-primary-foreground/20" 
+                        : "bg-muted"
+                    )}>
+                      {count}
+                    </span>
+                  )}
                 </span>
               </button>
             );
