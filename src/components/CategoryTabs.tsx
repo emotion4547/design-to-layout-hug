@@ -1,17 +1,9 @@
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-
-const categories = [
-  { id: 'new-year', name: 'Новогодняя коллекция' },
-  { id: 'all', name: 'Все товары' },
-  { id: 'mono', name: 'Монобукеты' },
-  { id: 'author', name: 'Авторские букеты' },
-  { id: 'edible', name: 'Съедобные букеты' },
-  { id: 'wedding', name: 'Свадебные букеты' },
-  { id: 'gifts', name: 'Подарки' },
-];
+import { useCategories } from '@/hooks/useCategories';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface CategoryTabsProps {
   activeCategory: string;
@@ -20,6 +12,7 @@ interface CategoryTabsProps {
 
 export const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { data: categories, isLoading } = useCategories({ activeOnly: true });
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -30,6 +23,26 @@ export const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsP
       });
     }
   };
+
+  // Add "All products" option at the beginning
+  const allCategories = [
+    { id: 'all', slug: 'all', name: 'Все товары' },
+    ...(categories || []),
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="py-4">
+        <div className="container">
+          <div className="flex items-center gap-4 overflow-x-auto">
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} className="h-8 w-32 flex-shrink-0" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-4">
@@ -49,7 +62,7 @@ export const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsP
           className="flex items-center overflow-x-auto scrollbar-hide lg:mx-8"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {categories.map((category, index) => (
+          {allCategories.map((category, index) => (
             <button
               key={category.id}
               onClick={() => onCategoryChange(category.id)}
@@ -61,7 +74,7 @@ export const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsP
               )}
             >
               {category.name}
-              {index < categories.length - 1 && (
+              {index < allCategories.length - 1 && (
                 <span className="ml-4 text-border select-none">|</span>
               )}
             </button>
