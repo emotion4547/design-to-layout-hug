@@ -1,14 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProducts, getProductById, Product, ProductCategory } from '@/services/products';
+import { getProducts, getProductById, Product, ProductCategory, ProductWithCategory } from '@/services/products';
 
 interface UseProductsOptions {
-  category?: ProductCategory | 'all';
+  categoryId?: string;
+  categorySlug?: string;
+  category?: ProductCategory | 'all'; // Legacy support
   search?: string;
   minPrice?: number;
   maxPrice?: number;
   sortBy?: 'default' | 'price-asc' | 'price-desc';
   limit?: number;
   offset?: number;
+  inStockOnly?: boolean;
   enabled?: boolean;
 }
 
@@ -32,4 +35,4 @@ export function useProduct(id: string | undefined) {
   });
 }
 
-export type { Product, ProductCategory };
+export type { Product, ProductCategory, ProductWithCategory };
