@@ -2,8 +2,6 @@ import { PageLayout } from '@/components/PageLayout';
 import { Phone, MapPin, Mail, Clock, Star, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-import mapScreenshot from '@/assets/map-screenshot.jpg';
-
 const contactInfo = [
   {
     icon: Phone,
@@ -71,25 +69,46 @@ const ContactsPage = () => {
         </div>
       </section>
 
-      {/* Map Section */}
-      <section className="pb-12">
-        <div className="container">
-          <div className="aspect-[16/9] md:aspect-[21/9] rounded-lg overflow-hidden bg-secondary/50 flex items-center justify-center">
-            <div className="text-center p-8">
-              <MapPin className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground mb-2 text-lg font-medium">
-                г. Новороссийск
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Доставка по всему городу и пригороду
-              </p>
+      {/* Full-width Map Section */}
+      <section className="w-full">
+        <div className="w-full h-[400px] md:h-[500px] relative">
+          <iframe
+            src="https://yandex.ru/map-widget/v1/?um=constructor%3A89d9f1b7c1f8d5b5e5a8f2c3d4e5f6a7&amp;source=constructor&amp;ll=37.770833%2C44.723889&amp;z=14&amp;pt=37.770833%2C44.723889%2Cpm2rdm"
+            width="100%"
+            height="100%"
+            frameBorder="0"
+            allowFullScreen
+            style={{ position: 'relative' }}
+            title="Карта с расположением магазина"
+            className="grayscale hover:grayscale-0 transition-all duration-500"
+          />
+          
+          {/* Map Overlay with Address */}
+          <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 bg-background/95 backdrop-blur-sm rounded-lg p-4 md:p-6 shadow-lg max-w-sm">
+            <div className="flex items-start gap-3">
+              <MapPin className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-foreground">г. Новороссийск</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Доставка по всему городу и пригороду
+                </p>
+                <a 
+                  href="https://yandex.ru/maps/-/CHQoiDYT"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm text-primary hover:underline mt-2"
+                >
+                  Открыть в Яндекс.Картах
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Contact Info Grid */}
-      <section className="pb-16">
+      <section className="py-12 md:py-16">
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {contactInfo.map((item) => (
