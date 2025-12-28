@@ -17,8 +17,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, Search, Eye } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Search, Eye, Gift, Truck, Store } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { OrderStatus } from '@/types/database';
@@ -41,9 +48,33 @@ const statusColors: Record<OrderStatus, string> = {
   cancelled: 'bg-red-100 text-red-800',
 };
 
+interface Order {
+  id: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string | null;
+  delivery_address: string;
+  delivery_date: string;
+  delivery_time: string | null;
+  comment: string | null;
+  status: OrderStatus;
+  total_price: number;
+  created_at: string;
+  updated_at: string;
+  sender_name: string | null;
+  sender_phone: string | null;
+  is_surprise: boolean | null;
+  recipient_name: string | null;
+  recipient_phone: string | null;
+  card_text: string | null;
+  delivery_type: string | null;
+  pickup_time: string | null;
+}
+
 const AdminOrders = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -56,7 +87,7 @@ const AdminOrders = () => {
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return data;
+      return data as Order[];
     },
   });
 
@@ -80,7 +111,8 @@ const AdminOrders = () => {
   const filteredOrders = orders?.filter(order => {
     const matchesSearch = 
       order.customer_name.toLowerCase().includes(search.toLowerCase()) ||
-      order.customer_phone.includes(search);
+      order.customer_phone.includes(search) ||
+      (order.recipient_name?.toLowerCase().includes(search.toLowerCase()) ?? false);
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   }) ?? [];
@@ -146,11 +178,12 @@ const AdminOrders = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Дата</TableHead>
-                  <TableHead>Клиент</TableHead>
-                  <TableHead>Телефон</TableHead>
-                  <TableHead>Адрес</TableHead>
+                  <TableHead>Отправитель</TableHead>
+                  <TableHead>Получатель</TableHead>
+                  <TableHead>Доставка</TableHead>
                   <TableHead>Сумма</TableHead>
                   <TableHead>Статус</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -159,10 +192,39 @@ const AdminOrders = () => {
                     <TableCell className="text-sm text-muted-foreground">
                       {formatDate(order.created_at)}
                     </TableCell>
-                    <TableCell className="font-medium">{order.customer_name}</TableCell>
-                    <TableCell>{order.customer_phone}</TableCell>
-                    <TableCell className="max-w-[200px] truncate">
-                      {order.delivery_address}
+                    <TableCell>
+                      <div className="font-medium">{order.sender_name || order.customer_name}</div>
+                      <div className="text-sm text-muted-foreground">{order.sender_phone || order.customer_phone}</div>
+                    </TableCell>
+                    <TableCell>
+                      {order.recipient_name ? (
+                        <div>
+                          <div className="font-medium flex items-center gap-1">
+                            {order.recipient_name}
+                            {order.is_surprise && (
+                              <Gift className="h-4 w-4 text-pink-500" />
+                            )}
+                          </div>
+                          <div className="text-sm text-muted-foreground">{order.recipient_phone}</div>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        {order.delivery_type === 'pickup' ? (
+                          <Store className="h-4 w-4 text-blue-500" />
+                        ) : (
+                          <Truck className="h-4 w-4 text-green-500" />
+                        )}
+                        <span className="text-sm">
+                          {order.delivery_type === 'pickup' ? 'Самовывоз' : 'Доставка'}
+                        </span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {order.delivery_date} {order.delivery_type === 'pickup' ? order.pickup_time : order.delivery_time}
+                      </div>
                     </TableCell>
                     <TableCell className="font-medium">
                       {formatPrice(order.total_price)} ₽
@@ -193,6 +255,15 @@ const AdminOrders = () => {
                         </SelectContent>
                       </Select>
                     </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setSelectedOrder(order)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -200,6 +271,127 @@ const AdminOrders = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Order Details Dialog */}
+      <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Детали заказа</DialogTitle>
+          </DialogHeader>
+          
+          {selectedOrder && (
+            <div className="space-y-6">
+              {/* Order Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Дата заказа</p>
+                  <p className="font-medium">{formatDate(selectedOrder.created_at)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Сумма</p>
+                  <p className="font-medium">{formatPrice(selectedOrder.total_price)} ₽</p>
+                </div>
+              </div>
+
+              {/* Sender */}
+              <div className="p-4 bg-secondary/50 rounded-lg space-y-2">
+                <h3 className="font-semibold">Отправитель</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Имя</p>
+                    <p>{selectedOrder.sender_name || selectedOrder.customer_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Телефон</p>
+                    <p>{selectedOrder.sender_phone || selectedOrder.customer_phone}</p>
+                  </div>
+                  {selectedOrder.customer_email && (
+                    <div className="col-span-2">
+                      <p className="text-muted-foreground">Email</p>
+                      <p>{selectedOrder.customer_email}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Recipient */}
+              {(selectedOrder.recipient_name || selectedOrder.recipient_phone) && (
+                <div className="p-4 bg-secondary/50 rounded-lg space-y-2">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    Получатель
+                    {selectedOrder.is_surprise && (
+                      <Badge variant="secondary" className="gap-1">
+                        <Gift className="h-3 w-3" /> Сюрприз
+                      </Badge>
+                    )}
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Имя</p>
+                      <p>{selectedOrder.recipient_name || '—'}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Телефон</p>
+                      <p>{selectedOrder.recipient_phone || '—'}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Card Text */}
+              {selectedOrder.card_text && (
+                <div className="p-4 bg-pink-50 dark:bg-pink-950/20 rounded-lg space-y-2">
+                  <h3 className="font-semibold">Текст открытки</h3>
+                  <p className="text-sm italic">"{selectedOrder.card_text}"</p>
+                </div>
+              )}
+
+              {/* Delivery */}
+              <div className="p-4 bg-secondary/50 rounded-lg space-y-2">
+                <h3 className="font-semibold flex items-center gap-2">
+                  {selectedOrder.delivery_type === 'pickup' ? (
+                    <>
+                      <Store className="h-4 w-4" /> Самовывоз
+                    </>
+                  ) : (
+                    <>
+                      <Truck className="h-4 w-4" /> Доставка
+                    </>
+                  )}
+                </h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  {selectedOrder.delivery_type !== 'pickup' && (
+                    <div className="col-span-2">
+                      <p className="text-muted-foreground">Адрес</p>
+                      <p>{selectedOrder.delivery_address}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-muted-foreground">Дата</p>
+                    <p>{selectedOrder.delivery_date}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Время</p>
+                    <p>
+                      {selectedOrder.delivery_type === 'pickup' 
+                        ? selectedOrder.pickup_time 
+                        : selectedOrder.delivery_time || '—'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Comment */}
+              {selectedOrder.comment && (
+                <div className="p-4 bg-secondary/50 rounded-lg space-y-2">
+                  <h3 className="font-semibold">Комментарий</h3>
+                  <p className="text-sm">{selectedOrder.comment}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

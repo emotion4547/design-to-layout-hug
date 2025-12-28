@@ -22,6 +22,15 @@ export interface Order {
   total_price: number;
   created_at: string;
   updated_at: string;
+  // New fields
+  sender_name: string | null;
+  sender_phone: string | null;
+  is_surprise: boolean;
+  recipient_name: string | null;
+  recipient_phone: string | null;
+  card_text: string | null;
+  delivery_type: string | null;
+  pickup_time: string | null;
 }
 
 export interface OrderItem {
@@ -47,13 +56,19 @@ export type OrderItemInsert = Omit<OrderItem, 'id' | 'created_at'> & {
 };
 
 interface CreateOrderData {
-  customerName: string;
-  customerPhone: string;
-  customerEmail?: string;
+  senderName: string;
+  senderPhone: string;
+  isSurprise?: boolean;
+  recipientName?: string;
+  recipientPhone?: string;
+  cardText?: string;
+  deliveryType: 'delivery' | 'pickup';
   deliveryAddress: string;
   deliveryDate: string;
   deliveryTime?: string;
+  pickupTime?: string;
   comment?: string;
+  customerEmail?: string;
   items: CartItem[];
   totalPrice: number;
 }
@@ -63,8 +78,8 @@ export async function createOrder(data: CreateOrderData) {
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .insert({
-      customer_name: data.customerName,
-      customer_phone: data.customerPhone,
+      customer_name: data.senderName,
+      customer_phone: data.senderPhone,
       customer_email: data.customerEmail,
       delivery_address: data.deliveryAddress,
       delivery_date: data.deliveryDate,
@@ -72,6 +87,15 @@ export async function createOrder(data: CreateOrderData) {
       comment: data.comment,
       total_price: data.totalPrice,
       status: 'pending',
+      // New fields
+      sender_name: data.senderName,
+      sender_phone: data.senderPhone,
+      is_surprise: data.isSurprise || false,
+      recipient_name: data.recipientName,
+      recipient_phone: data.recipientPhone,
+      card_text: data.cardText,
+      delivery_type: data.deliveryType,
+      pickup_time: data.pickupTime,
     })
     .select()
     .single();

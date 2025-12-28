@@ -4,10 +4,29 @@ import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useCart } from '@/contexts/CartContext';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createOrder } from '@/services/orders';
+
+const TIME_SLOTS = [
+  '9:00 - 11:00',
+  '11:00 - 13:00',
+  '13:00 - 15:00',
+  '15:00 - 17:00',
+  '17:00 - 19:00',
+  '19:00 - 21:00',
+];
 
 const Cart = () => {
   const { items, updateQuantity, removeFromCart, clearCart, totalPrice } = useCart();
@@ -16,13 +35,19 @@ const Cart = () => {
   const [isCheckout, setIsCheckout] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
+    senderName: '',
+    senderPhone: '',
+    isSurprise: false,
+    recipientName: '',
+    recipientPhone: '',
+    cardText: '',
+    deliveryType: 'delivery' as 'delivery' | 'pickup',
     address: '',
     date: '',
     time: '',
+    pickupTime: '',
     comment: '',
+    email: '',
   });
 
   const formatPrice = (price: number) => {
@@ -35,13 +60,19 @@ const Cart = () => {
 
     try {
       await createOrder({
-        customerName: formData.name,
-        customerPhone: formData.phone,
-        customerEmail: formData.email || undefined,
-        deliveryAddress: formData.address,
+        senderName: formData.senderName,
+        senderPhone: formData.senderPhone,
+        isSurprise: formData.isSurprise,
+        recipientName: formData.recipientName,
+        recipientPhone: formData.recipientPhone,
+        cardText: formData.cardText || undefined,
+        deliveryType: formData.deliveryType,
+        deliveryAddress: formData.deliveryType === 'delivery' ? formData.address : 'Самовывоз',
         deliveryDate: formData.date,
-        deliveryTime: formData.time || undefined,
+        deliveryTime: formData.deliveryType === 'delivery' ? formData.time : undefined,
+        pickupTime: formData.deliveryType === 'pickup' ? formData.pickupTime : undefined,
         comment: formData.comment || undefined,
+        customerEmail: formData.email || undefined,
         items,
         totalPrice,
       });
@@ -200,86 +231,227 @@ const Cart = () => {
             </div>
           ) : (
             /* Checkout Form */
-            <form onSubmit={handleSubmit} className="max-w-xl space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Ваше имя *</label>
-                  <Input
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Введите имя"
+            <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
+              {/* Sender Info */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold border-b border-border pb-2">Отправитель</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Имя (Отправитель) *</Label>
+                    <Input
+                      required
+                      value={formData.senderName}
+                      onChange={(e) => setFormData({ ...formData, senderName: e.target.value })}
+                      placeholder="Введите имя"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Телефон (Отправитель) *</Label>
+                    <Input
+                      required
+                      type="tel"
+                      value={formData.senderPhone}
+                      onChange={(e) => setFormData({ ...formData, senderPhone: e.target.value })}
+                      placeholder="+7 (___) ___-__-__"
+                      disabled={isSubmitting}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      На этот телефон мы пришлем фото готового букета
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="isSurprise"
+                    checked={formData.isSurprise}
+                    onCheckedChange={(checked) => 
+                      setFormData({ ...formData, isSurprise: checked as boolean })
+                    }
                     disabled={isSubmitting}
                   />
+                  <Label htmlFor="isSurprise" className="text-sm cursor-pointer">
+                    Будет сюрприз (до последнего не раскроем, что это доставка цветов и от кого)
+                  </Label>
                 </div>
+              </div>
+
+              {/* Recipient Info */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold border-b border-border pb-2">Получатель</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Имя (Получатель)</Label>
+                    <Input
+                      value={formData.recipientName}
+                      onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
+                      placeholder="Введите имя получателя"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Телефон (Получатель)</Label>
+                    <Input
+                      type="tel"
+                      value={formData.recipientPhone}
+                      onChange={(e) => setFormData({ ...formData, recipientPhone: e.target.value })}
+                      placeholder="+7 (___) ___-__-__"
+                      disabled={isSubmitting}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Контакт человека, которому вы хотите отправить букет
+                    </p>
+                  </div>
+                </div>
+
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Телефон *</label>
-                  <Input
-                    required
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+7 (___) ___-__-__"
+                  <Label>Текст для открытки</Label>
+                  <Textarea
+                    value={formData.cardText}
+                    onChange={(e) => setFormData({ ...formData, cardText: e.target.value })}
+                    placeholder="Введите текст для открытки (бесплатно)"
+                    rows={3}
                     disabled={isSubmitting}
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Email</label>
-                <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="email@example.com"
+              {/* Delivery Options */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold border-b border-border pb-2">Доставка</h2>
+                <p className="text-sm text-muted-foreground">
+                  При указании адреса, стоимость доставки вам рассчитает наш менеджер
+                </p>
+
+                <RadioGroup
+                  value={formData.deliveryType}
+                  onValueChange={(value) => setFormData({ ...formData, deliveryType: value as 'delivery' | 'pickup' })}
+                  className="space-y-3"
                   disabled={isSubmitting}
-                />
+                >
+                  <div className="flex items-center space-x-3">
+                    <RadioGroupItem value="pickup" id="pickup" />
+                    <Label htmlFor="pickup" className="cursor-pointer">Самовывоз</Label>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <RadioGroupItem value="delivery" id="delivery" />
+                    <Label htmlFor="delivery" className="cursor-pointer">Нужна доставка</Label>
+                  </div>
+                </RadioGroup>
+
+                {formData.deliveryType === 'delivery' && (
+                  <div className="space-y-4 pl-6 border-l-2 border-primary/20">
+                    <div className="space-y-2">
+                      <Label>Адрес доставки *</Label>
+                      <Input
+                        required
+                        value={formData.address}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        placeholder="Город, улица, дом, квартира"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Дата доставки *</Label>
+                        <Input
+                          required
+                          type="date"
+                          value={formData.date}
+                          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Время доставки</Label>
+                        <Select
+                          value={formData.time}
+                          onValueChange={(value) => setFormData({ ...formData, time: value })}
+                          disabled={isSubmitting}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите время" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TIME_SLOTS.map((slot) => (
+                              <SelectItem key={slot} value={slot}>
+                                {slot}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {formData.deliveryType === 'pickup' && (
+                  <div className="space-y-4 pl-6 border-l-2 border-primary/20">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Дата самовывоза *</Label>
+                        <Input
+                          required
+                          type="date"
+                          value={formData.date}
+                          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Время самовывоза *</Label>
+                        <Select
+                          value={formData.pickupTime}
+                          onValueChange={(value) => setFormData({ ...formData, pickupTime: value })}
+                          disabled={isSubmitting}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите время" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TIME_SLOTS.map((slot) => (
+                              <SelectItem key={slot} value={slot}>
+                                {slot}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Адрес доставки *</label>
-                <Input
-                  required
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder="Город, улица, дом, квартира"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Additional Info */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold border-b border-border pb-2">Дополнительно</h2>
+                
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Дата доставки *</label>
+                  <Label>Email</Label>
                   <Input
-                    required
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="email@example.com"
                     disabled={isSubmitting}
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Время доставки</label>
-                  <Input
-                    type="time"
-                    value={formData.time}
-                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                  <Label>Комментарий к заказу</Label>
+                  <Textarea
+                    value={formData.comment}
+                    onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                    placeholder="Дополнительные пожелания к заказу..."
+                    rows={4}
                     disabled={isSubmitting}
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Комментарий к заказу</label>
-                <Textarea
-                  value={formData.comment}
-                  onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
-                  placeholder="Пожелания к заказу, текст открытки..."
-                  rows={4}
-                  disabled={isSubmitting}
-                />
-              </div>
-
+              {/* Summary & Submit */}
               <div className="p-4 bg-secondary/50 rounded-2xl">
                 <div className="flex justify-between font-bold text-lg">
                   <span>К оплате</span>
