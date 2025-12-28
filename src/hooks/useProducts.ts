@@ -13,6 +13,7 @@ interface UseProductsOptions {
   limit?: number;
   offset?: number;
   inStockOnly?: boolean;
+  withDiscountOnly?: boolean;
   enabled?: boolean;
 }
 
