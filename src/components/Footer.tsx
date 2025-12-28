@@ -1,4 +1,4 @@
-import { Phone, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const VKIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
@@ -12,142 +12,149 @@ const TelegramIcon = () => (
   </svg>
 );
 
+const WhatsAppIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+);
+
+const MessengerIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
+    <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z"/>
+  </svg>
+);
+
 const footerLinks = {
-  main: [
+  left: [
     { name: 'Главная', href: '/' },
-    { name: 'Каталог', href: '#catalog' },
+    { name: 'Каталог', href: '/' },
+    { name: 'Доставка', href: '/delivery' },
   ],
-  info: [
-    { name: 'Акции', href: '#promotions' },
-    { name: 'Новости', href: '#news' },
-    { name: 'Доставка', href: '#delivery' },
-    { name: 'Контакты', href: '#contacts' },
-  ],
-  legal: [
-    { name: 'Мы всегда на связи!', href: '#' },
-    { name: 'О нас', href: '#about' },
+  right: [
+    { name: 'Акции', href: '/promotions' },
+    { name: 'Новости', href: '/news' },
+    { name: 'О нас', href: '/contacts' },
+    { name: 'Контакты', href: '/contacts' },
   ],
 };
 
 export const Footer = () => {
   return (
-    <footer id="contacts" className="bg-[hsl(195,35%,32%)] text-white">
-      <div className="container py-12">
-        {/* Brand Section */}
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8 mb-10">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="text-white/90">
-              <svg viewBox="0 0 40 40" className="h-12 w-12" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M20 35V20M20 20C20 20 12 15 12 10C12 6 15 4 20 8C25 4 28 6 28 10C28 15 20 20 20 20Z" />
-                <path d="M15 25C10 23 8 18 10 14M25 25C30 23 32 18 30 14" />
-                <path d="M20 8C20 8 18 4 14 4M20 8C20 8 22 4 26 4" />
-              </svg>
-            </div>
+    <footer className="py-8 bg-background">
+      <div className="container">
+        {/* Main footer content with rounded corners */}
+        <div className="bg-[hsl(195,35%,32%)] rounded-3xl px-8 md:px-12 py-10 text-white">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            {/* Left Side - Logo & Contact */}
             <div>
-              <h2 className="text-2xl font-bold tracking-wide">МУРАШКИ</h2>
-              <p className="text-sm text-white/70">букеты, наполненные чувствами</p>
+              {/* Logo */}
+              <div className="flex items-center gap-3 mb-8">
+                <div className="text-white/90">
+                  <svg viewBox="0 0 40 40" className="h-12 w-12" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M20 35V20M20 20C20 20 12 15 12 10C12 6 15 4 20 8C25 4 28 6 28 10C28 15 20 20 20 20Z" />
+                    <path d="M15 25C10 23 8 18 10 14M25 25C30 23 32 18 30 14" />
+                    <path d="M20 8C20 8 18 4 14 4M20 8C20 8 22 4 26 4" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="text-2xl font-bold tracking-wide">МУРАШКИ</span>
+                  <p className="text-sm text-white/70">букеты, наполненные чувствами</p>
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div className="space-y-3">
+                <h3 className="text-xl font-medium italic mb-4">Мы всегда на связи!</h3>
+                <p className="text-white/90">
+                  <span className="text-white/70">Телефон:</span>{' '}
+                  <a href="tel:+79959184956" className="hover:text-white transition-colors">
+                    +7 995 918 49 56
+                  </a>
+                </p>
+                <p className="text-white/90">
+                  <span className="text-white/70">Адрес:</span> г. Сергиев Посад ул. Инженерная д.8
+                </p>
+                <p className="text-white/90">ТЦ "Престиж" 2ой этаж</p>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
-          {/* Navigation Links */}
-          <div>
-            <ul className="space-y-2">
-              {footerLinks.main.map((link) => (
-                <li key={link.name}>
-                  <a 
-                    href={link.href}
-                    className="text-sm text-white/80 hover:text-white transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+            {/* Right Side - Navigation & Social */}
+            <div className="lg:text-right">
+              {/* Social Icons */}
+              <div className="flex lg:justify-end gap-3 mb-8">
+                <a 
+                  href="https://vk.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-3 rounded-full border border-white/30 text-white/90 hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  <VKIcon />
+                </a>
+                <a 
+                  href="#" 
+                  className="p-3 rounded-full border border-white/30 text-white/90 hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  <MessengerIcon />
+                </a>
+                <a 
+                  href="https://t.me" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-3 rounded-full border border-white/30 text-white/90 hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  <TelegramIcon />
+                </a>
+                <a 
+                  href="https://wa.me" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-3 rounded-full border border-white/30 text-white/90 hover:bg-white/10 hover:text-white transition-colors"
+                >
+                  <WhatsAppIcon />
+                </a>
+              </div>
 
-          <div>
-            <ul className="space-y-2">
-              {footerLinks.info.map((link) => (
-                <li key={link.name}>
-                  <a 
-                    href={link.href}
-                    className="text-sm text-white/80 hover:text-white transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+              {/* Navigation Links */}
+              <div className="flex flex-wrap lg:justify-end gap-x-12 gap-y-2 mb-8">
+                <div className="space-y-2">
+                  {footerLinks.left.map((link) => (
+                    <Link 
+                      key={link.name}
+                      to={link.href}
+                      className="block text-white/80 hover:text-white transition-colors"
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  {footerLinks.right.map((link) => (
+                    <Link 
+                      key={link.name}
+                      to={link.href}
+                      className="block text-white/80 hover:text-white transition-colors"
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
 
-          <div>
-            <ul className="space-y-2">
-              {footerLinks.legal.map((link) => (
-                <li key={link.name}>
-                  <a 
-                    href={link.href}
-                    className="text-sm text-white/80 hover:text-white transition-colors"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div className="space-y-3">
-            <a 
-              href="tel:+79959184956" 
-              className="flex items-center gap-2 text-sm text-white/80 hover:text-white transition-colors"
-            >
-              <Phone className="h-4 w-4" />
-              +7 995 918 49 56
-            </a>
-            <div className="flex items-start gap-2 text-sm text-white/80">
-              <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />
-              <span>
-                г. Сергиев Посад<br />
-                ул. Инженерная д.8<br />
-                ТЦ "Престиж" 2ой этаж
-              </span>
+              {/* Legal Links */}
+              <div className="text-sm text-white/60 space-y-1">
+                <a href="/privacy" className="hover:text-white/80 transition-colors underline block lg:inline">
+                  Политика обработки персональных данных
+                </a>
+                <div className="lg:inline lg:mx-2 hidden">|</div>
+                <a href="/terms" className="hover:text-white/80 transition-colors underline block lg:inline">
+                  Пользование сайтом
+                </a>
+                <div className="lg:inline lg:mx-2 hidden">|</div>
+                <a href="/return" className="hover:text-white/80 transition-colors underline block lg:inline">
+                  Возврат товара
+                </a>
+              </div>
             </div>
-          </div>
-        </div>
-
-        {/* Social & Legal */}
-        <div className="pt-8 border-t border-white/20 flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Social Icons */}
-          <div className="flex items-center gap-3">
-            <a 
-              href="https://vk.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
-            >
-              <VKIcon />
-            </a>
-            <a 
-              href="https://t.me" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
-            >
-              <TelegramIcon />
-            </a>
-          </div>
-
-          {/* Legal Links */}
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-white/60">
-            <a href="/privacy" className="hover:text-white/90 transition-colors">
-              Политика обработки персональных данных
-            </a>
-            <a href="/return" className="hover:text-white/90 transition-colors">
-              Возврат товара
-            </a>
           </div>
         </div>
       </div>

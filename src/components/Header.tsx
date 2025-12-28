@@ -46,164 +46,166 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full py-3 px-4 bg-background">
-      {/* Main header bar with rounded corners */}
-      <nav className="bg-[hsl(195,35%,32%)] rounded-full px-6 py-3 flex items-center justify-between">
-        {/* Logo Section */}
-        <Link to="/" className="flex items-center gap-3">
-          {/* Flower Icon */}
-          <div className="text-white/90">
-            <svg viewBox="0 0 40 40" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M20 35V20M20 20C20 20 12 15 12 10C12 6 15 4 20 8C25 4 28 6 28 10C28 15 20 20 20 20Z" />
-              <path d="M15 25C10 23 8 18 10 14M25 25C30 23 32 18 30 14" />
-              <path d="M20 8C20 8 18 4 14 4M20 8C20 8 22 4 26 4" />
-            </svg>
-          </div>
-          
-          {/* Brand */}
-          <div className="text-white">
-            <span className="text-xl font-bold tracking-wide">МУРАШКИ</span>
-            <p className="text-[10px] text-white/70 -mt-0.5">букеты, наполненные чувствами</p>
-          </div>
-        </Link>
+    <header className="sticky top-0 z-50 w-full py-4 bg-background">
+      <div className="container">
+        {/* Main header bar with rounded corners */}
+        <nav className="bg-[hsl(195,35%,32%)] rounded-full px-6 py-3 flex items-center justify-between">
+          {/* Logo Section */}
+          <Link to="/" className="flex items-center gap-3">
+            {/* Flower Icon */}
+            <div className="text-white/90">
+              <svg viewBox="0 0 40 40" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M20 35V20M20 20C20 20 12 15 12 10C12 6 15 4 20 8C25 4 28 6 28 10C28 15 20 20 20 20Z" />
+                <path d="M15 25C10 23 8 18 10 14M25 25C30 23 32 18 30 14" />
+                <path d="M20 8C20 8 18 4 14 4M20 8C20 8 22 4 26 4" />
+              </svg>
+            </div>
+            
+            {/* Brand */}
+            <div className="text-white">
+              <span className="text-xl font-bold tracking-wide">МУРАШКИ</span>
+              <p className="text-[10px] text-white/70 -mt-0.5">букеты, наполненные чувствами</p>
+            </div>
+          </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center gap-6">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={cn(
-                "flex items-center gap-1 text-sm transition-colors",
-                isActive(item.href) 
-                  ? "text-white font-medium" 
-                  : "text-white/80 hover:text-white"
-              )}
-            >
-              {item.name}
-              {item.hasDropdown && <ChevronDown className="h-4 w-4" />}
-            </Link>
-          ))}
-        </div>
-
-        {/* Desktop Right Side - Social + Actions */}
-        <div className="hidden lg:flex items-center gap-3">
-          {/* Social Icons */}
-          <div className="flex items-center gap-1">
-            <a 
-              href="https://vk.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
-            >
-              <VKIcon />
-            </a>
-            <a 
-              href="https://t.me" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
-            >
-              <TelegramIcon />
-            </a>
-            <a 
-              href="https://wa.me" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
-            >
-              <WhatsAppIcon />
-            </a>
-            <a 
-              href="#" 
-              className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
-            >
-              <MessengerIcon />
-            </a>
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-6">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-1 text-sm transition-colors",
+                  isActive(item.href) 
+                    ? "text-white font-medium" 
+                    : "text-white/80 hover:text-white"
+                )}
+              >
+                {item.name}
+                {item.hasDropdown && <ChevronDown className="h-4 w-4" />}
+              </Link>
+            ))}
           </div>
 
-          {/* Divider */}
-          <div className="w-px h-6 bg-white/20 mx-2" />
+          {/* Desktop Right Side - Social + Actions */}
+          <div className="hidden lg:flex items-center gap-3">
+            {/* Social Icons */}
+            <div className="flex items-center gap-1">
+              <a 
+                href="https://vk.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
+              >
+                <VKIcon />
+              </a>
+              <a 
+                href="https://t.me" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
+              >
+                <TelegramIcon />
+              </a>
+              <a 
+                href="https://wa.me" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
+              >
+                <WhatsAppIcon />
+              </a>
+              <a 
+                href="#" 
+                className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
+              >
+                <MessengerIcon />
+              </a>
+            </div>
 
-          {/* Action Icons */}
-          <div className="flex items-center gap-1">
-            <button className="p-2 text-white/90 hover:text-white transition-colors">
-              <Search className="h-5 w-5" />
-            </button>
-            <button className="p-2 text-white/90 hover:text-white transition-colors">
-              <Heart className="h-5 w-5" />
-            </button>
-            <button className="p-2 text-white/90 hover:text-white transition-colors">
-              <ShoppingBag className="h-5 w-5" />
-            </button>
+            {/* Divider */}
+            <div className="w-px h-6 bg-white/20 mx-2" />
+
+            {/* Action Icons */}
+            <div className="flex items-center gap-1">
+              <button className="p-2 text-white/90 hover:text-white transition-colors">
+                <Search className="h-5 w-5" />
+              </button>
+              <button className="p-2 text-white/90 hover:text-white transition-colors">
+                <Heart className="h-5 w-5" />
+              </button>
+              <button className="p-2 text-white/90 hover:text-white transition-colors">
+                <ShoppingBag className="h-5 w-5" />
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="lg:hidden p-2 text-white/90 hover:text-white"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
+          {/* Mobile Menu Button */}
+          <button
+            className="lg:hidden p-2 text-white/90 hover:text-white"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
+        </nav>
+
+        {/* Mobile Menu */}
+        <div
+          className={cn(
+            "lg:hidden mt-2 bg-[hsl(195,35%,32%)] rounded-2xl overflow-hidden transition-all duration-300",
+            mobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
           )}
-        </button>
-      </nav>
+        >
+          <div className="p-4 space-y-3">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex items-center justify-between py-2 border-b border-white/10",
+                  isActive(item.href) 
+                    ? "text-white font-medium" 
+                    : "text-white/80"
+                )}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.name}
+                {item.hasDropdown && <ChevronDown className="h-4 w-4" />}
+              </Link>
+            ))}
+            
+            {/* Social Icons - Mobile */}
+            <div className="flex items-center gap-2 pt-3">
+              <a href="https://vk.com" className="p-2 rounded-full bg-white/10 text-white/90">
+                <VKIcon />
+              </a>
+              <a href="https://t.me" className="p-2 rounded-full bg-white/10 text-white/90">
+                <TelegramIcon />
+              </a>
+              <a href="https://wa.me" className="p-2 rounded-full bg-white/10 text-white/90">
+                <WhatsAppIcon />
+              </a>
+              <a href="#" className="p-2 rounded-full bg-white/10 text-white/90">
+                <MessengerIcon />
+              </a>
+            </div>
 
-      {/* Mobile Menu */}
-      <div
-        className={cn(
-          "lg:hidden mt-2 bg-[hsl(195,35%,32%)] rounded-2xl overflow-hidden transition-all duration-300",
-          mobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-        )}
-      >
-        <div className="p-4 space-y-3">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={cn(
-                "flex items-center justify-between py-2 border-b border-white/10",
-                isActive(item.href) 
-                  ? "text-white font-medium" 
-                  : "text-white/80"
-              )}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {item.name}
-              {item.hasDropdown && <ChevronDown className="h-4 w-4" />}
-            </Link>
-          ))}
-          
-          {/* Social Icons - Mobile */}
-          <div className="flex items-center gap-2 pt-3">
-            <a href="https://vk.com" className="p-2 rounded-full bg-white/10 text-white/90">
-              <VKIcon />
-            </a>
-            <a href="https://t.me" className="p-2 rounded-full bg-white/10 text-white/90">
-              <TelegramIcon />
-            </a>
-            <a href="https://wa.me" className="p-2 rounded-full bg-white/10 text-white/90">
-              <WhatsAppIcon />
-            </a>
-            <a href="#" className="p-2 rounded-full bg-white/10 text-white/90">
-              <MessengerIcon />
-            </a>
-          </div>
-
-          {/* Action Icons - Mobile */}
-          <div className="flex items-center gap-2 pt-2">
-            <button className="p-2 text-white/90 hover:text-white">
-              <Search className="h-5 w-5" />
-            </button>
-            <button className="p-2 text-white/90 hover:text-white">
-              <Heart className="h-5 w-5" />
-            </button>
-            <button className="p-2 text-white/90 hover:text-white">
-              <ShoppingBag className="h-5 w-5" />
-            </button>
+            {/* Action Icons - Mobile */}
+            <div className="flex items-center gap-2 pt-2">
+              <button className="p-2 text-white/90 hover:text-white">
+                <Search className="h-5 w-5" />
+              </button>
+              <button className="p-2 text-white/90 hover:text-white">
+                <Heart className="h-5 w-5" />
+              </button>
+              <button className="p-2 text-white/90 hover:text-white">
+                <ShoppingBag className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
