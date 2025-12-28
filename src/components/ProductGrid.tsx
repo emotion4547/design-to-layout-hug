@@ -3,7 +3,7 @@ import { ProductCard } from './ProductCard';
 import { CategoryTabs } from './CategoryTabs';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
-import { useProducts, type ProductCategory } from '@/hooks/useProducts';
+import { useProducts } from '@/hooks/useProducts';
 
 import bouquet1 from '@/assets/products/bouquet-1.jpg';
 import bouquet2 from '@/assets/products/bouquet-2.jpg';
@@ -26,11 +26,11 @@ const fallbackImages: Record<string, string> = {
 };
 
 export const ProductGrid = () => {
-  const [activeCategory, setActiveCategory] = useState<ProductCategory | 'all'>('new-year');
+  const [activeCategory, setActiveCategory] = useState<string>('all');
   const [visibleCount, setVisibleCount] = useState(8);
 
   const { data: products = [], isLoading, error } = useProducts({
-    category: activeCategory,
+    categoryId: activeCategory !== 'all' ? activeCategory : undefined,
   });
 
   // Map products with fallback images
@@ -54,7 +54,7 @@ export const ProductGrid = () => {
       <CategoryTabs 
         activeCategory={activeCategory} 
         onCategoryChange={(id) => {
-          setActiveCategory(id as ProductCategory | 'all');
+          setActiveCategory(id);
           setVisibleCount(8);
         }} 
       />
