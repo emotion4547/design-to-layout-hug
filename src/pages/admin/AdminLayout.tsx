@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   LayoutDashboard, 
   Package, 
@@ -10,7 +11,8 @@ import {
   Percent,
   ChevronLeft,
   Menu,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 
 const navItems = [
@@ -45,12 +47,17 @@ const navItems = [
 const AdminLayout = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   const isActive = (path: string, end?: boolean) => {
     if (end) {
       return location.pathname === path;
     }
     return location.pathname.startsWith(path);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
   };
 
   return (
@@ -82,23 +89,38 @@ const AdminLayout = () => {
           <h1 className="text-xl font-bold mt-4">Админ-панель</h1>
         </div>
 
-        <nav className="p-4 mt-16 lg:mt-0">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setSidebarOpen(false)}
-              className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors",
-                isActive(item.path, item.end)
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-              )}
+        <nav className="p-4 mt-16 lg:mt-0 flex flex-col h-[calc(100%-4rem)] lg:h-[calc(100%-6rem)]">
+          <div className="flex-1">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setSidebarOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors",
+                  isActive(item.path, item.end)
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                <span className="font-medium">{item.label}</span>
+              </Link>
+            ))}
+          </div>
+          
+          <div className="border-t border-border pt-4 mt-4">
+            <div className="px-4 py-2 text-sm text-muted-foreground truncate">
+              {user?.email}
+            </div>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
             >
-              <item.icon className="h-5 w-5" />
-              <span className="font-medium">{item.label}</span>
-            </Link>
-          ))}
+              <LogOut className="h-5 w-5" />
+              <span className="font-medium">Выйти</span>
+            </button>
+          </div>
         </nav>
       </aside>
 
