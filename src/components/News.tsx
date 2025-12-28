@@ -1,0 +1,74 @@
+import { Button } from '@/components/ui/button';
+
+import bouquet1 from '@/assets/products/bouquet-1.jpg';
+import bouquet2 from '@/assets/products/bouquet-2.jpg';
+import bouquet3 from '@/assets/products/bouquet-3.jpg';
+
+const newsItems = [
+  {
+    id: '1',
+    title: 'Новогодняя коллекция уже доступна!',
+    excerpt: 'Встречайте праздники с нашими новыми букетами и композициями',
+    date: '25.12.2025',
+    image: bouquet1,
+  },
+  {
+    id: '2',
+    title: 'Новинки в ассортименте',
+    excerpt: 'Добавили новые авторские букеты к праздникам',
+    date: '22.12.2025',
+    image: bouquet2,
+  },
+  {
+    id: '3',
+    title: 'Праздничная атмосфера в вашем доме',
+    excerpt: 'Создайте уют с нашими праздничными композициями',
+    date: '04.12.2025',
+    image: bouquet3,
+  },
+];
+
+export const News = () => {
+  return (
+    <section id="news" className="py-16 bg-secondary/30">
+      <div className="container">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Моменты
+          </h2>
+          <p className="text-muted-foreground">
+            Узнайте интересное и актуальное из нашей работы
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {newsItems.map((item) => (
+            <article 
+              key={item.id}
+              className="bg-background rounded-lg overflow-hidden border border-border hover:shadow-md transition-shadow"
+            >
+              <div className="aspect-[4/3] overflow-hidden">
+                <img 
+                  src={item.image} 
+                  alt={item.title}
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                />
+              </div>
+              <div className="p-5">
+                <p className="text-xs text-muted-foreground mb-2">{item.date}</p>
+                <h3 className="font-semibold text-base mb-2 line-clamp-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground line-clamp-2">{item.excerpt}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="flex justify-center mt-8">
+          <Button variant="outline">
+            Все моменты
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+};
