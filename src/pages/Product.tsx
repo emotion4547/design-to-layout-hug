@@ -203,7 +203,7 @@ const Product = () => {
             {/* Image Gallery */}
             <div className="space-y-4">
               {/* Main Image */}
-              <div className="relative aspect-square rounded-lg overflow-hidden bg-secondary">
+              <div className="relative aspect-square rounded-2xl overflow-hidden bg-secondary">
                 <img
                   src={product.images[selectedImage]}
                   alt={product.name}
