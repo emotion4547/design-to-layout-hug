@@ -142,6 +142,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          card_text: string | null
           comment: string | null
           created_at: string | null
           customer_email: string | null
@@ -150,12 +151,20 @@ export type Database = {
           delivery_address: string
           delivery_date: string
           delivery_time: string | null
+          delivery_type: string | null
           id: string
+          is_surprise: boolean | null
+          pickup_time: string | null
+          recipient_name: string | null
+          recipient_phone: string | null
+          sender_name: string | null
+          sender_phone: string | null
           status: Database["public"]["Enums"]["order_status"] | null
           total_price: number
           updated_at: string | null
         }
         Insert: {
+          card_text?: string | null
           comment?: string | null
           created_at?: string | null
           customer_email?: string | null
@@ -164,12 +173,20 @@ export type Database = {
           delivery_address: string
           delivery_date: string
           delivery_time?: string | null
+          delivery_type?: string | null
           id?: string
+          is_surprise?: boolean | null
+          pickup_time?: string | null
+          recipient_name?: string | null
+          recipient_phone?: string | null
+          sender_name?: string | null
+          sender_phone?: string | null
           status?: Database["public"]["Enums"]["order_status"] | null
           total_price: number
           updated_at?: string | null
         }
         Update: {
+          card_text?: string | null
           comment?: string | null
           created_at?: string | null
           customer_email?: string | null
@@ -178,7 +195,14 @@ export type Database = {
           delivery_address?: string
           delivery_date?: string
           delivery_time?: string | null
+          delivery_type?: string | null
           id?: string
+          is_surprise?: boolean | null
+          pickup_time?: string | null
+          recipient_name?: string | null
+          recipient_phone?: string | null
+          sender_name?: string | null
+          sender_phone?: string | null
           status?: Database["public"]["Enums"]["order_status"] | null
           total_price?: number
           updated_at?: string | null
