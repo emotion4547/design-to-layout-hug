@@ -1,16 +1,21 @@
 import { useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useCategories } from '@/hooks/useCategories';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface CategoryTabsProps {
-  activeCategory: string;
-  onCategoryChange: (categoryId: string) => void;
+  activeCategories: string[];
+  onCategoryChange: (categoryIds: string[]) => void;
+  multiSelect?: boolean;
 }
 
-export const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsProps) => {
+export const CategoryTabs = ({ 
+  activeCategories, 
+  onCategoryChange, 
+  multiSelect = false 
+}: CategoryTabsProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { data: categories, isLoading } = useCategories({ activeOnly: true });
 
@@ -22,6 +27,36 @@ export const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsP
         behavior: 'smooth',
       });
     }
+  };
+
+  const handleCategoryClick = (categoryId: string) => {
+    if (categoryId === 'all') {
+      onCategoryChange(['all']);
+      return;
+    }
+
+    if (multiSelect) {
+      // Remove 'all' if selecting specific categories
+      const currentCategories = activeCategories.filter(id => id !== 'all');
+      
+      if (currentCategories.includes(categoryId)) {
+        // Remove category
+        const newCategories = currentCategories.filter(id => id !== categoryId);
+        onCategoryChange(newCategories.length > 0 ? newCategories : ['all']);
+      } else {
+        // Add category
+        onCategoryChange([...currentCategories, categoryId]);
+      }
+    } else {
+      onCategoryChange([categoryId]);
+    }
+  };
+
+  const isActive = (categoryId: string) => {
+    if (categoryId === 'all') {
+      return activeCategories.includes('all') || activeCategories.length === 0;
+    }
+    return activeCategories.includes(categoryId);
   };
 
   // Add "All products" option at the beginning
@@ -59,26 +94,31 @@ export const CategoryTabs = ({ activeCategory, onCategoryChange }: CategoryTabsP
 
         <div
           ref={scrollRef}
-          className="flex items-center overflow-x-auto scrollbar-hide lg:mx-8"
+          className="flex items-center overflow-x-auto scrollbar-hide lg:mx-8 gap-2"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {allCategories.map((category, index) => (
-            <button
-              key={category.id}
-              onClick={() => onCategoryChange(category.id)}
-              className={cn(
-                "flex-shrink-0 px-4 py-2 text-sm transition-colors whitespace-nowrap",
-                activeCategory === category.id
-                  ? "font-semibold text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {category.name}
-              {index < allCategories.length - 1 && (
-                <span className="ml-4 text-border select-none">|</span>
-              )}
-            </button>
-          ))}
+          {allCategories.map((category) => {
+            const active = isActive(category.id);
+            return (
+              <button
+                key={category.id}
+                onClick={() => handleCategoryClick(category.id)}
+                className={cn(
+                  "flex-shrink-0 px-4 py-2 text-sm transition-all whitespace-nowrap rounded-full border",
+                  active
+                    ? "bg-primary text-primary-foreground border-primary font-medium"
+                    : "bg-background text-muted-foreground border-border hover:border-primary/50 hover:text-foreground"
+                )}
+              >
+                <span className="flex items-center gap-1.5">
+                  {multiSelect && active && category.id !== 'all' && (
+                    <Check className="h-3 w-3" />
+                  )}
+                  {category.name}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         <Button

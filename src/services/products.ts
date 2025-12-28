@@ -50,6 +50,7 @@ export type ProductUpdate = Partial<ProductInsert>;
 
 export async function getProducts(options?: {
   categoryId?: string;
+  categoryIds?: string[];
   categorySlug?: string;
   category?: ProductCategory | 'all'; // Legacy support
   search?: string;
@@ -69,8 +70,12 @@ export async function getProducts(options?: {
     query = query.eq('in_stock', true);
   }
 
-  // Filter by category_id (new way)
-  if (options?.categoryId) {
+  // Filter by multiple category_ids (new way - multi-select)
+  if (options?.categoryIds && options.categoryIds.length > 0) {
+    query = query.in('category_id', options.categoryIds);
+  }
+  // Filter by single category_id
+  else if (options?.categoryId) {
     query = query.eq('category_id', options.categoryId);
   }
 
@@ -80,7 +85,7 @@ export async function getProducts(options?: {
   }
 
   // Legacy: filter by enum category
-  if (options?.category && options.category !== 'all' && !options.categoryId && !options.categorySlug) {
+  if (options?.category && options.category !== 'all' && !options.categoryId && !options.categoryIds && !options.categorySlug) {
     query = query.eq('category', options.category);
   }
 
