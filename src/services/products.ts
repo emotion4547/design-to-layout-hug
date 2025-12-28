@@ -56,7 +56,7 @@ export async function getProducts(options?: {
   search?: string;
   minPrice?: number;
   maxPrice?: number;
-  sortBy?: 'default' | 'price-asc' | 'price-desc';
+  sortBy?: 'default' | 'price-asc' | 'price-desc' | 'newest';
   limit?: number;
   offset?: number;
   inStockOnly?: boolean;
@@ -105,8 +105,11 @@ export async function getProducts(options?: {
     query = query.order('price', { ascending: true });
   } else if (options?.sortBy === 'price-desc') {
     query = query.order('price', { ascending: false });
-  } else {
+  } else if (options?.sortBy === 'newest') {
     query = query.order('created_at', { ascending: false });
+  } else {
+    // default - по популярности (сначала со скидкой, потом по дате)
+    query = query.order('old_price', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false });
   }
 
   if (options?.limit) {

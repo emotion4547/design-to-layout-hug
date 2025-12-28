@@ -5,7 +5,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { Search, SlidersHorizontal, X, Loader2, Check } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Loader2, Check, ArrowUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Sheet,
@@ -14,6 +14,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useProducts } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
 import { useProductCounts } from '@/hooks/useProductCounts';
@@ -52,7 +59,7 @@ const Catalog = () => {
   const [visibleCount, setVisibleCount] = useState(12);
   const [searchQuery, setSearchQuery] = useState(searchFromUrl);
   const [priceRange, setPriceRange] = useState<[number, number]>([MIN_PRICE, MAX_PRICE]);
-  const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc'>('default');
+  const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc' | 'newest'>('default');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Fetch categories from database
@@ -156,7 +163,8 @@ const Catalog = () => {
         <h3 className="font-medium">Сортировка</h3>
         <div className="space-y-2">
           {[
-            { id: 'default', label: 'По умолчанию' },
+            { id: 'default', label: 'По популярности' },
+            { id: 'newest', label: 'По новизне' },
             { id: 'price-asc', label: 'Сначала дешевые' },
             { id: 'price-desc', label: 'Сначала дорогие' },
           ].map((option) => (
@@ -201,9 +209,9 @@ const Catalog = () => {
             Каталог
           </h1>
 
-          {/* Search & Filter Toggle */}
-          <div className="flex gap-3 max-w-md">
-            <div className="relative flex-1">
+          {/* Search & Sort & Filter Toggle */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
                 type="text"
@@ -222,10 +230,24 @@ const Catalog = () => {
               )}
             </div>
             
+            {/* Sorting Select */}
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
+              <SelectTrigger className="w-full sm:w-[200px]">
+                <ArrowUpDown className="h-4 w-4 mr-2 text-muted-foreground" />
+                <SelectValue placeholder="Сортировка" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">По популярности</SelectItem>
+                <SelectItem value="newest">По новизне</SelectItem>
+                <SelectItem value="price-asc">Сначала дешевые</SelectItem>
+                <SelectItem value="price-desc">Сначала дорогие</SelectItem>
+              </SelectContent>
+            </Select>
+            
             {/* Mobile Filter Button */}
             <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="lg:hidden relative">
+                <Button variant="outline" size="icon" className="lg:hidden relative shrink-0">
                   <SlidersHorizontal className="h-4 w-4" />
                   {hasActiveFilters && (
                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" />
@@ -281,7 +303,7 @@ const Catalog = () => {
               )}
               {sortBy !== 'default' && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                  {sortBy === 'price-asc' ? 'Сначала дешевые' : 'Сначала дорогие'}
+                  {sortBy === 'price-asc' ? 'Сначала дешевые' : sortBy === 'price-desc' ? 'Сначала дорогие' : 'По новизне'}
                   <button onClick={() => setSortBy('default')} className="ml-1 hover:text-primary">
                     <X className="h-3 w-3" />
                   </button>
