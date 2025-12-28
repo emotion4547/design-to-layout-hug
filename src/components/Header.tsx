@@ -99,10 +99,10 @@ export const Header = () => {
         {/* Main header bar with rounded corners */}
         <nav className="bg-primary rounded-full px-6 py-3 flex items-center justify-between">
           {/* Logo Section */}
-          <Link to="/" className="flex flex-col items-center text-center">
+          <Link to="/" className="flex items-center gap-3">
             {/* Flower Icon */}
             <div className="text-white/90">
-              <svg viewBox="0 0 40 40" className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg viewBox="0 0 40 40" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M20 35V20M20 20C20 20 12 15 12 10C12 6 15 4 20 8C25 4 28 6 28 10C28 15 20 20 20 20Z" />
                 <path d="M15 25C10 23 8 18 10 14M25 25C30 23 32 18 30 14" />
                 <path d="M20 8C20 8 18 4 14 4M20 8C20 8 22 4 26 4" />
@@ -111,8 +111,8 @@ export const Header = () => {
             
             {/* Brand */}
             <div className="text-white">
-              <span className="text-lg font-bold tracking-wide">Бутон в тон</span>
-              <p className="text-[9px] text-white/70">букеты, наполненные чувствами</p>
+              <span className="text-xl font-bold tracking-wide">Бутон в тон</span>
+              <p className="text-[10px] text-white/70 -mt-0.5">букеты, наполненные чувствами</p>
             </div>
           </Link>
 
