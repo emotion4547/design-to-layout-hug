@@ -55,9 +55,9 @@ const Promotions = () => {
             {promotions.map((promo) => (
               <article 
                 key={promo.id}
-                className="group bg-secondary/50 rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+                className="group bg-secondary/50 rounded-2xl overflow-hidden hover:shadow-lg transition-shadow"
               >
-                <div className="relative aspect-[4/3] overflow-hidden">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-t-2xl">
                   <img 
                     src={promo.image} 
                     alt={promo.title}

@@ -203,7 +203,7 @@ const Product = () => {
             {/* Image Gallery */}
             <div className="space-y-4">
               {/* Main Image */}
-              <div className="relative aspect-square rounded-lg overflow-hidden bg-secondary">
+              <div className="relative aspect-square rounded-2xl overflow-hidden bg-secondary">
                 <img
                   src={product.images[selectedImage]}
                   alt={product.name}
@@ -229,7 +229,7 @@ const Product = () => {
                     key={index}
                     onClick={() => setSelectedImage(index)}
                     className={cn(
-                      "w-20 h-20 rounded-lg overflow-hidden border-2 transition-all",
+                      "w-20 h-20 rounded-xl overflow-hidden border-2 transition-all",
                       selectedImage === index 
                         ? "border-primary" 
                         : "border-transparent hover:border-border"
