@@ -23,7 +23,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Plus, Pencil, Trash2, Loader2, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { 
+import { ImageUpload } from '@/components/ImageUpload';
+import {
   getAllPromotions, 
   createPromotion, 
   updatePromotion, 
@@ -246,14 +247,12 @@ const AdminPromotions = () => {
                     placeholder="Поддерживается HTML..."
                   />
                 </div>
-                <div>
-                  <Label htmlFor="image_url">URL изображения</Label>
-                  <Input
-                    id="image_url"
-                    value={formData.image_url || ''}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  />
-                </div>
+                <ImageUpload
+                  value={formData.image_url || ''}
+                  onChange={(url) => setFormData({ ...formData, image_url: url })}
+                  folder="promotions"
+                  label="Изображение"
+                />
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="start_date">Дата начала</Label>

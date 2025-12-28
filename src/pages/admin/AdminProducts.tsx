@@ -30,7 +30,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Plus, Pencil, Trash2, Loader2, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { 
+import { ImageUpload } from '@/components/ImageUpload';
+import {
   getAllProducts, 
   createProduct, 
   updateProduct, 
@@ -271,12 +272,12 @@ const AdminProducts = () => {
                     placeholder="20-25см"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="image_url">URL изображения</Label>
-                  <Input
-                    id="image_url"
+                <div className="col-span-2">
+                  <ImageUpload
                     value={formData.image_url || ''}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                    onChange={(url) => setFormData({ ...formData, image_url: url })}
+                    folder="products"
+                    label="Изображение товара"
                   />
                 </div>
                 <div className="col-span-2 flex items-center gap-2">

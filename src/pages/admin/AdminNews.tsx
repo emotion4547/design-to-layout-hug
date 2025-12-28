@@ -23,7 +23,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Plus, Pencil, Trash2, Loader2, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { 
+import { ImageUpload } from '@/components/ImageUpload';
+import {
   getAllNews, 
   createNews, 
   updateNews, 
@@ -233,14 +234,12 @@ const AdminNews = () => {
                     placeholder="Поддерживается HTML..."
                   />
                 </div>
-                <div>
-                  <Label htmlFor="image_url">URL изображения</Label>
-                  <Input
-                    id="image_url"
-                    value={formData.image_url || ''}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  />
-                </div>
+                <ImageUpload
+                  value={formData.image_url || ''}
+                  onChange={(url) => setFormData({ ...formData, image_url: url })}
+                  folder="news"
+                  label="Изображение"
+                />
                 <div className="flex items-center gap-2">
                   <Switch
                     id="is_published"
