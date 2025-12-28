@@ -17,8 +17,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
 
-    /* Primary - тёмный для кнопок и акцентов */
-    --primary: 0 0% 10%;
+    /* Primary - сине-лиловый для кнопок и акцентов */
+    --primary: 271 76% 53%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary - светлый серый */
@@ -39,14 +39,14 @@
     /* Границы и инпуты */
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 0 0% 10%;
+    --ring: 271 76% 53%;
 
     --radius: 0.25rem;
 
     /* Sidebar */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 26%;
-    --sidebar-primary: 0 0% 10%;
+    --sidebar-primary: 271 76% 53%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 0 0% 96%;
     --sidebar-accent-foreground: 0 0% 10%;
@@ -64,8 +64,8 @@
     --popover: 0 0% 8%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 10%;
+    --primary: 271 76% 63%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 98%;
@@ -81,11 +81,11 @@
 
     --border: 0 0% 18%;
     --input: 0 0% 18%;
-    --ring: 0 0% 84%;
+    --ring: 271 76% 63%;
 
     --sidebar-background: 0 0% 10%;
     --sidebar-foreground: 0 0% 96%;
-    --sidebar-primary: 0 0% 48%;
+    --sidebar-primary: 271 76% 63%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 16%;
     --sidebar-accent-foreground: 0 0% 96%;
