@@ -97,7 +97,7 @@ export const Header = () => {
     <header className="sticky top-0 z-50 w-full py-4 bg-background">
       <div className="container">
         {/* Main header bar with rounded corners */}
-        <nav className="bg-[hsl(195,35%,32%)] rounded-full px-6 py-3 flex items-center justify-between">
+        <nav className="bg-primary rounded-full px-6 py-3 flex items-center justify-between">
           {/* Logo Section */}
           <Link to="/" className="flex items-center gap-3">
             {/* Flower Icon */}
@@ -259,7 +259,7 @@ export const Header = () => {
             searchOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
           )}
         >
-          <div className="bg-[hsl(195,35%,32%)] rounded-full px-4 py-2">
+          <div className="bg-primary rounded-full px-4 py-2">
             <SearchAutocomplete
               value={searchQuery}
               onChange={setSearchQuery}
@@ -284,7 +284,7 @@ export const Header = () => {
         {/* Mobile Menu */}
         <div
           className={cn(
-            "lg:hidden mt-2 bg-[hsl(195,35%,32%)] rounded-2xl overflow-hidden transition-all duration-300",
+            "lg:hidden mt-2 bg-primary rounded-2xl overflow-hidden transition-all duration-300",
             mobileMenuOpen ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"
           )}
         >

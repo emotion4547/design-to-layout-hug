@@ -43,7 +43,7 @@ export const Footer = () => {
     <footer className="py-8 bg-background">
       <div className="container">
         {/* Main footer content with rounded corners */}
-        <div className="bg-[hsl(195,35%,32%)] rounded-3xl px-8 md:px-12 py-10 text-white">
+        <div className="bg-primary rounded-3xl px-8 md:px-12 py-10 text-primary-foreground">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Left Side - Logo & Contact */}
             <div>
