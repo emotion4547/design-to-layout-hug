@@ -1,10 +1,42 @@
 import { supabase } from '@/integrations/supabase/client';
-import { Database } from '@/types/database';
 
-export type Product = Database['public']['Tables']['products']['Row'];
-export type ProductInsert = Database['public']['Tables']['products']['Insert'];
-export type ProductUpdate = Database['public']['Tables']['products']['Update'];
-export type ProductCategory = Database['public']['Enums']['product_category'];
+export type ProductCategory =
+  | 'aromatic'
+  | 'new-year'
+  | 'mono'
+  | 'author'
+  | 'edible'
+  | 'wedding'
+  | 'box'
+  | 'gifts'
+  | 'balloons'
+  | 'vases'
+  | 'certificates'
+  | 'toys';
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  old_price: number | null;
+  image_url: string;
+  images: string[];
+  category: ProductCategory;
+  article: string | null;
+  size: string | null;
+  in_stock: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ProductInsert = Omit<Product, 'id' | 'created_at' | 'updated_at'> & {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type ProductUpdate = Partial<ProductInsert>;
 
 export async function getProducts(options?: {
   category?: ProductCategory | 'all';
@@ -59,7 +91,7 @@ export async function getProducts(options?: {
     throw error;
   }
 
-  return data;
+  return data as Product[];
 }
 
 export async function getProductById(id: string) {
@@ -74,7 +106,7 @@ export async function getProductById(id: string) {
     throw error;
   }
 
-  return data;
+  return data as Product | null;
 }
 
 export async function getProductsByIds(ids: string[]) {
@@ -88,7 +120,7 @@ export async function getProductsByIds(ids: string[]) {
     throw error;
   }
 
-  return data;
+  return data as Product[];
 }
 
 // Admin functions
@@ -104,7 +136,7 @@ export async function createProduct(product: ProductInsert) {
     throw error;
   }
 
-  return data;
+  return data as Product;
 }
 
 export async function updateProduct(id: string, product: ProductUpdate) {
@@ -120,7 +152,7 @@ export async function updateProduct(id: string, product: ProductUpdate) {
     throw error;
   }
 
-  return data;
+  return data as Product;
 }
 
 export async function deleteProduct(id: string) {
@@ -146,5 +178,5 @@ export async function getAllProducts() {
     throw error;
   }
 
-  return data;
+  return data as Product[];
 }

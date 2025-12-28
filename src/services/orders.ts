@@ -1,11 +1,50 @@
 import { supabase } from '@/integrations/supabase/client';
-import { Database } from '@/types/database';
 import { CartItem } from '@/contexts/CartContext';
 
-export type Order = Database['public']['Tables']['orders']['Row'];
-export type OrderInsert = Database['public']['Tables']['orders']['Insert'];
-export type OrderItem = Database['public']['Tables']['order_items']['Row'];
-export type OrderItemInsert = Database['public']['Tables']['order_items']['Insert'];
+export type OrderStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'processing'
+  | 'delivering'
+  | 'completed'
+  | 'cancelled';
+
+export interface Order {
+  id: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string | null;
+  delivery_address: string;
+  delivery_date: string;
+  delivery_time: string | null;
+  comment: string | null;
+  status: OrderStatus;
+  total_price: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id: string | null;
+  product_name: string;
+  product_price: number;
+  quantity: number;
+  addons: unknown;
+  created_at: string;
+}
+
+export type OrderInsert = Omit<Order, 'id' | 'created_at' | 'updated_at'> & {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type OrderItemInsert = Omit<OrderItem, 'id' | 'created_at'> & {
+  id?: string;
+  created_at?: string;
+};
 
 interface CreateOrderData {
   customerName: string;
@@ -42,9 +81,11 @@ export async function createOrder(data: CreateOrderData) {
     throw orderError;
   }
 
+  const typedOrder = order as Order;
+
   // Create order items
-  const orderItems: OrderItemInsert[] = data.items.map((item) => ({
-    order_id: order.id,
+  const orderItems = data.items.map((item) => ({
+    order_id: typedOrder.id,
     product_id: item.id,
     product_name: item.name,
     product_price: item.price,
@@ -61,5 +102,5 @@ export async function createOrder(data: CreateOrderData) {
     throw itemsError;
   }
 
-  return order;
+  return typedOrder;
 }
