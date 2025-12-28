@@ -15,6 +15,8 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { useProducts } from '@/hooks/useProducts';
+import { useCategories } from '@/hooks/useCategories';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Fallback images for products without image_url
 import bouquet1 from '@/assets/products/bouquet-1.jpg';
@@ -37,22 +39,6 @@ const fallbackImages: Record<string, string> = {
   '/products/bouquet-8.jpg': bouquet8,
 };
 
-const categories = [
-  { id: 'all', name: 'Все' },
-  { id: 'aromatic', name: 'Ароматные' },
-  { id: 'new-year', name: 'Новогодние композиции' },
-  { id: 'mono', name: 'Монобукеты' },
-  { id: 'author', name: 'Авторские букеты' },
-  { id: 'edible', name: 'Съедобные букеты' },
-  { id: 'wedding', name: 'Свадебные букеты' },
-  { id: 'box', name: 'Цветы в коробках / корзинах' },
-  { id: 'gifts', name: 'Подарки' },
-  { id: 'balloons', name: 'Сеты из воздушных шаров' },
-  { id: 'vases', name: 'Вазы' },
-  { id: 'certificates', name: 'Сертификаты' },
-  { id: 'toys', name: 'Игрушки' },
-];
-
 const MIN_PRICE = 0;
 const MAX_PRICE = 50000;
 
@@ -67,15 +53,28 @@ const Catalog = () => {
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc'>('default');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  // Fetch categories from database
+  const { data: dbCategories = [], isLoading: categoriesLoading } = useCategories({ activeOnly: true });
+  
+  // Build categories list with "All" option
+  const categories = useMemo(() => [
+    { id: 'all', slug: 'all', name: 'Все' },
+    ...dbCategories,
+  ], [dbCategories]);
+
+  // Find active category name for display
+  const activeCategoryName = useMemo(() => {
+    return categories.find(c => c.id === activeCategory)?.name || 'Все';
+  }, [categories, activeCategory]);
+
   // Fetch products from database
   const { data: products = [], isLoading, error } = useProducts({
-    category: activeCategory === 'all' ? 'all' : activeCategory as any,
+    categoryId: activeCategory !== 'all' ? activeCategory : undefined,
     search: searchQuery || undefined,
     minPrice: priceRange[0],
     maxPrice: priceRange[1],
     sortBy,
   });
-
   // Sync with URL category
   useEffect(() => {
     setActiveCategory(categoryFromUrl);
@@ -244,7 +243,7 @@ const Catalog = () => {
               )}
               {activeCategory !== 'all' && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                  {categories.find(c => c.id === activeCategory)?.name}
+                  {activeCategoryName}
                   <button onClick={() => setActiveCategory('all')} className="ml-1 hover:text-primary">
                     <X className="h-3 w-3" />
                   </button>
@@ -278,25 +277,33 @@ const Catalog = () => {
             {/* Sidebar - Categories & Filters (Desktop) */}
             <aside className="lg:w-64 shrink-0">
               {/* Categories */}
-              <nav className="space-y-1 mb-8">
-                {categories.map((category) => (
-                  <button
-                    key={category.id}
-                    onClick={() => {
-                      setActiveCategory(category.id);
-                      setVisibleCount(12);
-                    }}
-                    className={cn(
-                      "w-full text-left px-4 py-2.5 rounded-lg text-sm transition-colors",
-                      activeCategory === category.id
-                        ? "bg-primary text-primary-foreground font-medium"
-                        : "text-foreground/80 hover:bg-secondary"
-                    )}
-                  >
-                    {category.name}
-                  </button>
-                ))}
-              </nav>
+              {categoriesLoading ? (
+                <div className="space-y-2">
+                  {[...Array(8)].map((_, i) => (
+                    <Skeleton key={i} className="h-10 w-full rounded-lg" />
+                  ))}
+                </div>
+              ) : (
+                <nav className="space-y-1 mb-8">
+                  {categories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        setActiveCategory(category.id);
+                        setVisibleCount(12);
+                      }}
+                      className={cn(
+                        "w-full text-left px-4 py-2.5 rounded-lg text-sm transition-colors",
+                        activeCategory === category.id
+                          ? "bg-primary text-primary-foreground font-medium"
+                          : "text-foreground/80 hover:bg-secondary"
+                      )}
+                    >
+                      {category.name}
+                    </button>
+                  ))}
+                </nav>
+              )}
 
               {/* Desktop Filters */}
               <div className="hidden lg:block border-t border-border pt-6">
