@@ -7,12 +7,16 @@ import bouquet1 from '@/assets/products/bouquet-1.jpg';
 import bouquet2 from '@/assets/products/bouquet-2.jpg';
 import bouquet3 from '@/assets/products/bouquet-3.jpg';
 import bouquet4 from '@/assets/products/bouquet-4.jpg';
+import bouquet5 from '@/assets/products/bouquet-5.jpg';
+import bouquet6 from '@/assets/products/bouquet-6.jpg';
+import bouquet7 from '@/assets/products/bouquet-7.jpg';
+import bouquet8 from '@/assets/products/bouquet-8.jpg';
 
 const products = [
   {
     id: '1',
-    name: 'Ёлочка из Нобилиса с игрушками',
-    description: 'Натуральная ёлочка из нобилиса с праздничным декором и игрушками',
+    name: 'Нежность пионов',
+    description: 'Изысканный букет из свежих розовых пионов с зеленью',
     price: 3000,
     oldPrice: 3500,
     image: bouquet1,
@@ -20,58 +24,58 @@ const products = [
   },
   {
     id: '2',
-    name: 'Ёлочка из натуральных материалов',
-    description: 'Новогодняя композиция из натуральных веток с серебристым декором',
+    name: 'Розовое облако',
+    description: 'Нежный букет из роз и ранункулюсов в пастельных тонах',
     price: 2550,
     image: bouquet2,
     category: 'new-year',
   },
   {
     id: '3',
-    name: 'Ёлочка с натуральным наполнением',
-    description: 'Праздничная ёлочка из натурального нобилиса с шишками',
+    name: 'Весенняя свежесть',
+    description: 'Яркий букет из тюльпанов разных оттенков',
     price: 2650,
     image: bouquet3,
     category: 'new-year',
   },
   {
     id: '4',
-    name: 'Букет из натурального нобилиса',
-    description: 'Изысканный букет с праздничным настроением',
+    name: 'Элегантная роза',
+    description: 'Классический букет из красных роз премиум-класса',
     price: 3500,
     image: bouquet4,
     category: 'new-year',
   },
   {
     id: '5',
-    name: 'Мишка со стойким голубым оленем',
-    description: 'Мягкая игрушка с праздничным декором',
+    name: 'Полевое настроение',
+    description: 'Букет из полевых цветов с лавандой и ромашками',
     price: 2500,
-    image: bouquet1,
+    image: bouquet5,
     category: 'gifts',
   },
   {
     id: '6',
-    name: 'Новогодний букет с баранками',
-    description: 'Оригинальный букет с баранками и елочными украшениями',
+    name: 'Солнечный день',
+    description: 'Яркий букет из подсолнухов и хризантем',
     price: 6400,
-    image: bouquet2,
+    image: bouquet6,
     category: 'edible',
   },
   {
     id: '7',
-    name: 'Ёлочка в цветах работы',
-    description: 'Авторская работа с серебристым декором',
+    name: 'Романтика роз',
+    description: 'Авторская композиция из садовых роз',
     price: 3300,
-    image: bouquet3,
+    image: bouquet7,
     category: 'author',
   },
   {
     id: '8',
-    name: 'Букет "Свежесть и радость"',
-    description: 'Классический букет из свежих цветов',
+    name: 'Нежные пионы',
+    description: 'Монобукет из белых пионов с эвкалиптом',
     price: 3600,
-    image: bouquet4,
+    image: bouquet8,
     category: 'mono',
   },
 ];
