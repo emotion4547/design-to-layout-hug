@@ -1,25 +1,25 @@
-import { Package, Gift, Clock, Heart } from 'lucide-react';
+import { Clock, Leaf, Heart, Star } from 'lucide-react';
 
 const features = [
   {
-    icon: Package,
-    title: 'Сервис',
-    description: 'Обязательно согласовываем букет, привозим его в коробке, учитываем пожелания и гарантия на букет 24 часа.',
-  },
-  {
-    icon: Gift,
-    title: 'Упаковка',
-    description: 'Каждый букет мы упаковываем в красивую транспортировочную коробку.',
-  },
-  {
     icon: Clock,
-    title: 'Забота',
-    description: 'Нам важно, чтобы букет вас порадовал, поэтому цветы отпаиваю, питаю по технологии и цветочек подольше стоял.',
+    title: 'Сервис',
+    description: 'Обязательно согласовываем букеты перед отправкой. Заботимся о каждом цветочке и поэтому даем гарантию на каждый букет 24 часа.',
+  },
+  {
+    icon: Leaf,
+    title: 'Упаковка',
+    description: 'Каждый букет упаковывается в защитную пленку или транспортировочную коробку.',
   },
   {
     icon: Heart,
+    title: 'Забота',
+    description: 'Нам важно, чтобы букет вас радовал дольше, поэтому цветы доставляются в воде.',
+  },
+  {
+    icon: Star,
     title: 'Подарок',
-    description: 'К каждому букету мы прикладываем открытку, инструкцию по уходу, подкормку.',
+    description: 'К каждому букету мы прикладываем в подарок открытку, инструкцию по уходу, подкормку для цветов и промокод на следующую покупку.',
   },
 ];
 
@@ -28,22 +28,24 @@ export const Features = () => {
     <section className="py-16 md:py-20 bg-background">
       <div className="container">
         <div className="mb-12">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+          <h2 className="text-3xl md:text-4xl font-light mb-6">
             Чем мы<br />уникальны?
           </h2>
-          <p className="text-muted-foreground max-w-2xl text-base md:text-lg leading-relaxed">
-            Наша мастерская в г. Новороссийск предоставляет лучший сервис по доставке свежих цветов, съедобных букетов и подарков!
+          <p className="text-muted-foreground max-w-3xl text-base md:text-lg leading-relaxed">
+            Наша мастерская в г. Новороссийск предоставляет качественный и современный сервис по доставке свежих цветов, свадебной флористике, съедобных букетов и подарков!
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
           {features.map((feature) => (
             <div 
               key={feature.title}
-              className="group p-6 bg-secondary/50 rounded-lg hover:bg-secondary transition-colors"
+              className="flex flex-col items-start"
             >
-              <feature.icon className="h-8 w-8 mb-4 text-foreground/70 group-hover:text-foreground transition-colors" />
-              <h3 className="font-semibold text-lg mb-3">{feature.title}</h3>
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <feature.icon className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="font-medium text-xl mb-3">{feature.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {feature.description}
               </p>
