@@ -1,9 +1,28 @@
 import { supabase } from '@/integrations/supabase/client';
-import { Database } from '@/types/database';
 
-export type Promotion = Database['public']['Tables']['promotions']['Row'];
-export type PromotionInsert = Database['public']['Tables']['promotions']['Insert'];
-export type PromotionUpdate = Database['public']['Tables']['promotions']['Update'];
+export interface Promotion {
+  id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  content: string | null;
+  image_url: string | null;
+  badge: string | null;
+  discount_percent: number | null;
+  is_active: boolean;
+  start_date: string | null;
+  end_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type PromotionInsert = Omit<Promotion, 'id' | 'created_at' | 'updated_at'> & {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type PromotionUpdate = Partial<PromotionInsert>;
 
 export async function getPromotions(options?: {
   limit?: number;
@@ -34,7 +53,7 @@ export async function getPromotions(options?: {
     throw error;
   }
 
-  return data;
+  return data as Promotion[];
 }
 
 export async function getPromotionById(id: string) {
@@ -49,7 +68,7 @@ export async function getPromotionById(id: string) {
     throw error;
   }
 
-  return data;
+  return data as Promotion | null;
 }
 
 export async function getPromotionBySlug(slug: string) {
@@ -65,7 +84,7 @@ export async function getPromotionBySlug(slug: string) {
     throw error;
   }
 
-  return data;
+  return data as Promotion | null;
 }
 
 // Admin functions
@@ -81,7 +100,7 @@ export async function createPromotion(promotion: PromotionInsert) {
     throw error;
   }
 
-  return data;
+  return data as Promotion;
 }
 
 export async function updatePromotion(id: string, promotion: PromotionUpdate) {
@@ -97,7 +116,7 @@ export async function updatePromotion(id: string, promotion: PromotionUpdate) {
     throw error;
   }
 
-  return data;
+  return data as Promotion;
 }
 
 export async function deletePromotion(id: string) {
@@ -123,5 +142,5 @@ export async function getAllPromotions() {
     throw error;
   }
 
-  return data;
+  return data as Promotion[];
 }

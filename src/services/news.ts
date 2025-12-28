@@ -1,9 +1,26 @@
 import { supabase } from '@/integrations/supabase/client';
-import { Database } from '@/types/database';
 
-export type News = Database['public']['Tables']['news']['Row'];
-export type NewsInsert = Database['public']['Tables']['news']['Insert'];
-export type NewsUpdate = Database['public']['Tables']['news']['Update'];
+export interface News {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string | null;
+  image_url: string | null;
+  category: string | null;
+  is_published: boolean;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type NewsInsert = Omit<News, 'id' | 'created_at' | 'updated_at'> & {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type NewsUpdate = Partial<NewsInsert>;
 
 export async function getNews(options?: {
   limit?: number;
@@ -35,7 +52,7 @@ export async function getNews(options?: {
     throw error;
   }
 
-  return data;
+  return data as News[];
 }
 
 export async function getNewsById(id: string) {
@@ -50,7 +67,7 @@ export async function getNewsById(id: string) {
     throw error;
   }
 
-  return data;
+  return data as News | null;
 }
 
 export async function getNewsBySlug(slug: string) {
@@ -66,7 +83,7 @@ export async function getNewsBySlug(slug: string) {
     throw error;
   }
 
-  return data;
+  return data as News | null;
 }
 
 // Admin functions
@@ -82,7 +99,7 @@ export async function createNews(news: NewsInsert) {
     throw error;
   }
 
-  return data;
+  return data as News;
 }
 
 export async function updateNews(id: string, news: NewsUpdate) {
@@ -98,7 +115,7 @@ export async function updateNews(id: string, news: NewsUpdate) {
     throw error;
   }
 
-  return data;
+  return data as News;
 }
 
 export async function deleteNews(id: string) {
@@ -124,5 +141,5 @@ export async function getAllNews() {
     throw error;
   }
 
-  return data;
+  return data as News[];
 }

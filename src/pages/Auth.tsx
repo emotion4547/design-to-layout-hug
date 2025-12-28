@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { isSupabaseConfigured } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -129,9 +128,7 @@ const Auth = () => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">МУРАШКИ</CardTitle>
             <CardDescription>
-              {isSupabaseConfigured
-                ? 'Войдите или зарегистрируйтесь'
-                : 'Авторизация временно недоступна: не настроены ключи проекта (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).'}
+              Войдите или зарегистрируйтесь
             </CardDescription>
           </CardHeader>
           <CardContent>
