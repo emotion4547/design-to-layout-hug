@@ -43,6 +43,8 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -68,18 +70,28 @@ function SortableRow({ category, onEdit, onDelete }: SortableRowProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: category.id });
+  } = useSortable({ 
+    id: category.id,
+    transition: {
+      duration: 250,
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+    },
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    zIndex: isDragging ? 1 : 0,
   };
 
   return (
     <TableRow
       ref={setNodeRef}
       style={style}
-      className={cn(isDragging && 'opacity-50 bg-muted')}
+      className={cn(
+        'transition-colors duration-200',
+        isDragging && 'opacity-50 bg-primary/5 shadow-lg'
+      )}
     >
       <TableCell>
         <button
@@ -166,6 +178,7 @@ function SortableRow({ category, onEdit, onDelete }: SortableRowProps) {
 export default function AdminCategories() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [formData, setFormData] = useState<CategoryInsert>({
     slug: '',
     name: '',
@@ -180,15 +193,26 @@ export default function AdminCategories() {
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
 
+  const activeCategory = activeId ? categories?.find(c => c.id === activeId) : null;
+
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
+    setActiveId(null);
 
     if (over && active.id !== over.id && categories) {
       const oldIndex = categories.findIndex((c) => c.id === active.id);
@@ -210,6 +234,10 @@ export default function AdminCategories() {
         toast.error('Ошибка при обновлении порядка');
       }
     }
+  };
+
+  const handleDragCancel = () => {
+    setActiveId(null);
   };
 
   const handleEdit = (category: Category) => {
@@ -380,11 +408,13 @@ export default function AdminCategories() {
       ) : !categories?.length ? (
         <div className="text-center py-8 text-muted-foreground">Нет категорий</div>
       ) : (
-        <div className="border rounded-lg">
+        <div className="border rounded-lg overflow-hidden">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
           >
             <Table>
               <TableHeader>
@@ -413,6 +443,24 @@ export default function AdminCategories() {
                 </SortableContext>
               </TableBody>
             </Table>
+            <DragOverlay>
+              {activeCategory ? (
+                <div className="flex items-center gap-3 bg-background border rounded-lg p-3 shadow-xl animate-scale-in">
+                  <GripVertical className="w-4 h-4 text-muted-foreground" />
+                  {activeCategory.image_url && (
+                    <img
+                      src={activeCategory.image_url}
+                      alt={activeCategory.name}
+                      className="w-10 h-10 rounded object-cover"
+                    />
+                  )}
+                  <div>
+                    <div className="font-medium">{activeCategory.name}</div>
+                    <div className="text-sm text-muted-foreground">{activeCategory.slug}</div>
+                  </div>
+                </div>
+              ) : null}
+            </DragOverlay>
           </DndContext>
         </div>
       )}
