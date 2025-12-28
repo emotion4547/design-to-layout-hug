@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Search, Menu, X, ShoppingBag, Heart, ChevronDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navigation = [
-  { name: 'Каталог', href: '#catalog', hasDropdown: true },
-  { name: 'Акции', href: '#promotions' },
-  { name: 'Новости', href: '#news' },
-  { name: 'Доставка', href: '#delivery' },
-  { name: 'Контакты', href: '#contacts' },
+  { name: 'Каталог', href: '/', hasDropdown: true },
+  { name: 'Акции', href: '/promotions' },
+  { name: 'Новости', href: '/news' },
+  { name: 'Доставка', href: '/delivery' },
+  { name: 'Контакты', href: '/contacts' },
 ];
 
 // Social icons as SVG components
@@ -38,13 +38,19 @@ const MessengerIcon = () => (
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const isActive = (href: string) => {
+    if (href === '/') return location.pathname === '/';
+    return location.pathname.startsWith(href);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full py-3 px-4 bg-background">
       {/* Main header bar with rounded corners */}
       <nav className="bg-[hsl(195,35%,32%)] rounded-full px-6 py-3 flex items-center justify-between">
         {/* Logo Section */}
-        <div className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3">
           {/* Flower Icon */}
           <div className="text-white/90">
             <svg viewBox="0 0 40 40" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -59,19 +65,24 @@ export const Header = () => {
             <span className="text-xl font-bold tracking-wide">МУРАШКИ</span>
             <p className="text-[10px] text-white/70 -mt-0.5">букеты, наполненные чувствами</p>
           </div>
-        </div>
+        </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden lg:flex items-center gap-6">
           {navigation.map((item) => (
-            <a
+            <Link
               key={item.name}
-              href={item.href}
-              className="flex items-center gap-1 text-sm text-white/90 hover:text-white transition-colors"
+              to={item.href}
+              className={cn(
+                "flex items-center gap-1 text-sm transition-colors",
+                isActive(item.href) 
+                  ? "text-white font-medium" 
+                  : "text-white/80 hover:text-white"
+              )}
             >
               {item.name}
               {item.hasDropdown && <ChevronDown className="h-4 w-4" />}
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -150,15 +161,20 @@ export const Header = () => {
       >
         <div className="p-4 space-y-3">
           {navigation.map((item) => (
-            <a
+            <Link
               key={item.name}
-              href={item.href}
-              className="flex items-center justify-between text-white/90 hover:text-white py-2 border-b border-white/10"
+              to={item.href}
+              className={cn(
+                "flex items-center justify-between py-2 border-b border-white/10",
+                isActive(item.href) 
+                  ? "text-white font-medium" 
+                  : "text-white/80"
+              )}
               onClick={() => setMobileMenuOpen(false)}
             >
               {item.name}
               {item.hasDropdown && <ChevronDown className="h-4 w-4" />}
-            </a>
+            </Link>
           ))}
           
           {/* Social Icons - Mobile */}
