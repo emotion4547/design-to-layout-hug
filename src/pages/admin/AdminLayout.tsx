@@ -9,6 +9,7 @@ import {
   ShoppingCart, 
   Newspaper, 
   Percent,
+  FolderTree,
   ChevronLeft,
   Menu,
   X,
@@ -26,6 +27,11 @@ const navItems = [
     label: 'Товары', 
     path: '/admin/products', 
     icon: Package 
+  },
+  { 
+    label: 'Категории', 
+    path: '/admin/categories', 
+    icon: FolderTree 
   },
   { 
     label: 'Заказы', 
