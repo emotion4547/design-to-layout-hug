@@ -81,9 +81,9 @@ const NewsPage = () => {
             {newsItems.map((item) => (
               <article 
                 key={item.id}
-                className="group bg-background rounded-lg overflow-hidden border border-border hover:shadow-lg transition-shadow"
+                className="group bg-background rounded-2xl overflow-hidden border border-border hover:shadow-lg transition-shadow"
               >
-                <div className="relative aspect-[4/3] overflow-hidden">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-t-2xl">
                   <img 
                     src={item.image} 
                     alt={item.title}

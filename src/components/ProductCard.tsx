@@ -29,7 +29,7 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
   return (
     <article className="group animate-fade-in">
       {/* Image Container */}
-      <Link to={`/catalog/${id}`} className="block relative aspect-[3/4] overflow-hidden bg-secondary rounded-lg mb-4">
+      <Link to={`/catalog/${id}`} className="block relative aspect-[3/4] overflow-hidden bg-secondary rounded-2xl mb-4">
         <img
           src={image}
           alt={name}
