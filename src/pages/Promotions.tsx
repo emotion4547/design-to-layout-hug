@@ -2,16 +2,16 @@ import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 
-import promoBanner from '@/assets/promo-banner.jpg';
-import bouquet1 from '@/assets/products/bouquet-1.jpg';
-import bouquet2 from '@/assets/products/bouquet-2.jpg';
+import promoCombo from '@/assets/promo-combo.jpg';
+import promoWelcome from '@/assets/promo-welcome.jpg';
+import bouquet3 from '@/assets/products/bouquet-3.jpg';
 
 const promotions = [
   {
     id: '1',
     title: 'Комбо со скидкой 15%',
     description: 'Цветы + шары, цветы + шоколад, цветы + ваза — все комбо-наборы со скидкой. Выбери совместимые товары!',
-    image: promoBanner,
+    image: promoCombo,
     badge: '15%',
     link: '/catalog?promo=combo',
   },
@@ -19,7 +19,7 @@ const promotions = [
     id: '2',
     title: 'Welcome-скидка 10%',
     description: 'Новинка! Живые цветы для новых клиентов со скидкой 10% на первый заказ.',
-    image: bouquet1,
+    image: promoWelcome,
     badge: '10%',
     link: '/catalog?promo=welcome',
   },
@@ -27,7 +27,7 @@ const promotions = [
     id: '3',
     title: 'Качество нашего сервиса',
     description: 'Гарантия свежести букета 24 часа. Бесплатная доставка от 3000₽.',
-    image: bouquet2,
+    image: bouquet3,
     badge: null,
     link: '/delivery',
   },

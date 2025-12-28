@@ -1,10 +1,12 @@
 import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 
-import bouquet1 from '@/assets/products/bouquet-1.jpg';
-import bouquet2 from '@/assets/products/bouquet-2.jpg';
-import bouquet3 from '@/assets/products/bouquet-3.jpg';
-import bouquet4 from '@/assets/products/bouquet-4.jpg';
+import news1 from '@/assets/news/news-1.jpg';
+import news2 from '@/assets/news/news-2.jpg';
+import news3 from '@/assets/news/news-3.jpg';
+import news4 from '@/assets/news/news-4.jpg';
+import news5 from '@/assets/news/news-5.jpg';
+import news6 from '@/assets/news/news-6.jpg';
 
 const newsItems = [
   {
@@ -12,7 +14,7 @@ const newsItems = [
     title: 'Новогодняя коллекция уже доступна!',
     excerpt: 'Встречайте праздники с нашими новыми букетами и композициями. Ёлочки из нобилиса, праздничные венки и зимние букеты.',
     date: '25.12.2025',
-    image: bouquet1,
+    image: news1,
     category: 'Новинки',
   },
   {
@@ -20,7 +22,7 @@ const newsItems = [
     title: 'Новинки в ассортименте',
     excerpt: 'Добавили новые авторские букеты к праздникам. Уникальные композиции от наших флористов.',
     date: '22.12.2025',
-    image: bouquet2,
+    image: news2,
     category: 'Ассортимент',
   },
   {
@@ -28,7 +30,7 @@ const newsItems = [
     title: 'Праздничная атмосфера в вашем доме',
     excerpt: 'Создайте уют с нашими праздничными композициями. Свечи, гирлянды и живые цветы.',
     date: '04.12.2025',
-    image: bouquet3,
+    image: news3,
     category: 'Советы',
   },
   {
@@ -36,7 +38,7 @@ const newsItems = [
     title: 'Как ухаживать за зимними букетами',
     excerpt: 'Полезные советы по уходу за букетами в холодное время года. Продлите жизнь вашим цветам.',
     date: '28.11.2025',
-    image: bouquet4,
+    image: news4,
     category: 'Советы',
   },
   {
@@ -44,7 +46,7 @@ const newsItems = [
     title: 'Открытие нового сезона',
     excerpt: 'Мы рады представить обновлённую коллекцию осенних букетов с яркими красками.',
     date: '15.11.2025',
-    image: bouquet1,
+    image: news5,
     category: 'Новости',
   },
   {
@@ -52,7 +54,7 @@ const newsItems = [
     title: 'Благодарим наших клиентов',
     excerpt: 'Спасибо всем, кто выбирает нас! Более 1000 довольных клиентов за этот год.',
     date: '01.11.2025',
-    image: bouquet2,
+    image: news6,
     category: 'Новости',
   },
 ];
