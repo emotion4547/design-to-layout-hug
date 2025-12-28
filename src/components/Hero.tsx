@@ -1,25 +1,28 @@
 export const Hero = () => {
   return (
-    <section className="py-12 md:py-20 bg-background">
+    <section className="py-16 md:py-24 bg-background">
       <div className="container text-center">
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4">
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6">
           МУРАШКИ
         </h1>
-        <p className="text-lg md:text-xl text-muted-foreground mb-6">
+        <p className="text-xl md:text-2xl text-muted-foreground mb-8">
           букеты, наполненные чувствами
         </p>
-        <p className="text-base md:text-lg text-foreground/80 max-w-2xl mx-auto mb-8">
-          лучший сервис по доставке цветов и съедобных букетов
-          <br />
-          в городе Сергиев Посад
-        </p>
+        <div className="max-w-3xl mx-auto">
+          <p className="text-base md:text-lg text-foreground/80 leading-relaxed mb-4">
+            лучший сервис по доставке цветов и съедобных букетов
+          </p>
+          <p className="text-base md:text-lg text-foreground/80">
+            в городе Сергиев Посад
+          </p>
+        </div>
         
         {/* Scrolling tagline */}
-        <div className="relative overflow-hidden py-4 border-y border-border">
+        <div className="relative overflow-hidden py-6 mt-10 border-y border-border">
           <div className="flex animate-marquee whitespace-nowrap">
-            {[...Array(4)].map((_, i) => (
-              <span key={i} className="mx-8 text-sm text-muted-foreground">
-                онлайн витрина • готовый букет с доставкой за 30 минут • свежие цветы каждый день
+            {[...Array(6)].map((_, i) => (
+              <span key={i} className="mx-6 text-sm text-muted-foreground font-medium">
+                онлайн витрина готовый букет с доставкой за 30 минут
               </span>
             ))}
           </div>
