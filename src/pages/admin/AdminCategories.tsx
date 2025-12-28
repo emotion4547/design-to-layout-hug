@@ -35,6 +35,133 @@ import { ImageUpload } from '@/components/ImageUpload';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/hooks/useCategories';
 import { Category, CategoryInsert } from '@/services/categories';
 import { toast } from 'sonner';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { cn } from '@/lib/utils';
+
+interface SortableRowProps {
+  category: Category;
+  onEdit: (category: Category) => void;
+  onDelete: (id: string) => void;
+}
+
+function SortableRow({ category, onEdit, onDelete }: SortableRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <TableRow
+      ref={setNodeRef}
+      style={style}
+      className={cn(isDragging && 'opacity-50 bg-muted')}
+    >
+      <TableCell>
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
+        >
+          <GripVertical className="w-4 h-4 text-muted-foreground" />
+        </button>
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center gap-3">
+          {category.image_url && (
+            <img
+              src={category.image_url}
+              alt={category.name}
+              className="w-10 h-10 rounded object-cover"
+            />
+          )}
+          <div>
+            <div className="font-medium">{category.name}</div>
+            {category.description && (
+              <div className="text-sm text-muted-foreground line-clamp-1">
+                {category.description}
+              </div>
+            )}
+          </div>
+        </div>
+      </TableCell>
+      <TableCell className="text-muted-foreground">{category.slug}</TableCell>
+      <TableCell>{category.sort_order}</TableCell>
+      <TableCell>
+        {category.is_active ? (
+          <span className="inline-flex items-center gap-1 text-green-600">
+            <Eye className="w-4 h-4" />
+            Активна
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 text-muted-foreground">
+            <EyeOff className="w-4 h-4" />
+            Скрыта
+          </span>
+        )}
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onEdit(category)}
+          >
+            <Pencil className="w-4 h-4" />
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Trash2 className="w-4 h-4 text-destructive" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Удалить категорию?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Это действие нельзя отменить. Товары в этой категории потеряют привязку.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Отмена</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => onDelete(category.id)}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Удалить
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
 
 export default function AdminCategories() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -52,6 +179,38 @@ export default function AdminCategories() {
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id && categories) {
+      const oldIndex = categories.findIndex((c) => c.id === active.id);
+      const newIndex = categories.findIndex((c) => c.id === over.id);
+      
+      const reorderedCategories = arrayMove(categories, oldIndex, newIndex);
+      
+      // Update sort_order for all affected categories
+      try {
+        const updatePromises = reorderedCategories.map((category, index) =>
+          updateMutation.mutateAsync({
+            id: category.id,
+            category: { sort_order: index },
+          })
+        );
+        await Promise.all(updatePromises);
+        toast.success('Порядок категорий обновлён');
+      } catch (error) {
+        toast.error('Ошибка при обновлении порядка');
+      }
+    }
+  };
 
   const handleEdit = (category: Category) => {
     setEditingCategory(category);
@@ -77,7 +236,9 @@ export default function AdminCategories() {
         });
         toast.success('Категория обновлена');
       } else {
-        await createMutation.mutateAsync(formData);
+        // Set sort_order to be last
+        const newSortOrder = categories?.length || 0;
+        await createMutation.mutateAsync({ ...formData, sort_order: newSortOrder });
         toast.success('Категория создана');
       }
       resetForm();
@@ -120,7 +281,12 @@ export default function AdminCategories() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Управление категориями</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Управление категориями</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Перетаскивайте категории для изменения порядка
+          </p>
+        </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
           if (!open) resetForm();
           setIsDialogOpen(open);
@@ -187,16 +353,6 @@ export default function AdminCategories() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="sort_order">Порядок сортировки</Label>
-                <Input
-                  id="sort_order"
-                  type="number"
-                  value={formData.sort_order}
-                  onChange={(e) => setFormData(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
-                />
-              </div>
-
               <div className="flex items-center space-x-2">
                 <Switch
                   id="is_active"
@@ -225,96 +381,39 @@ export default function AdminCategories() {
         <div className="text-center py-8 text-muted-foreground">Нет категорий</div>
       ) : (
         <div className="border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12"></TableHead>
-                <TableHead>Название</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead className="w-20">Порядок</TableHead>
-                <TableHead className="w-24">Статус</TableHead>
-                <TableHead className="w-24">Действия</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {categories.map((category) => (
-                <TableRow key={category.id}>
-                  <TableCell>
-                    <GripVertical className="w-4 h-4 text-muted-foreground cursor-move" />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      {category.image_url && (
-                        <img
-                          src={category.image_url}
-                          alt={category.name}
-                          className="w-10 h-10 rounded object-cover"
-                        />
-                      )}
-                      <div>
-                        <div className="font-medium">{category.name}</div>
-                        {category.description && (
-                          <div className="text-sm text-muted-foreground line-clamp-1">
-                            {category.description}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{category.slug}</TableCell>
-                  <TableCell>{category.sort_order}</TableCell>
-                  <TableCell>
-                    {category.is_active ? (
-                      <span className="inline-flex items-center gap-1 text-green-600">
-                        <Eye className="w-4 h-4" />
-                        Активна
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-muted-foreground">
-                        <EyeOff className="w-4 h-4" />
-                        Скрыта
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(category)}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Удалить категорию?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Это действие нельзя отменить. Товары в этой категории потеряют привязку.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Отмена</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDelete(category.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Удалить
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12"></TableHead>
+                  <TableHead>Название</TableHead>
+                  <TableHead>Slug</TableHead>
+                  <TableHead className="w-20">Порядок</TableHead>
+                  <TableHead className="w-24">Статус</TableHead>
+                  <TableHead className="w-24">Действия</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                <SortableContext
+                  items={categories.map(c => c.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {categories.map((category) => (
+                    <SortableRow
+                      key={category.id}
+                      category={category}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </SortableContext>
+              </TableBody>
+            </Table>
+          </DndContext>
         </div>
       )}
     </div>
