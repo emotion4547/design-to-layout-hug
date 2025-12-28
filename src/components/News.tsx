@@ -1,10 +1,15 @@
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useNews } from '@/hooks/useNews';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
 import bouquet1 from '@/assets/products/bouquet-1.jpg';
 import bouquet2 from '@/assets/products/bouquet-2.jpg';
 import bouquet3 from '@/assets/products/bouquet-3.jpg';
 
-const newsItems = [
+// Fallback items when no news in database
+const fallbackItems = [
   {
     id: '1',
     title: 'Новогодняя коллекция уже доступна!',
@@ -29,6 +34,23 @@ const newsItems = [
 ];
 
 export const News = () => {
+  const { data: newsFromDb, isLoading } = useNews({ limit: 3 });
+
+  const hasDbNews = newsFromDb && newsFromDb.length > 0;
+
+  const displayItems = hasDbNews
+    ? newsFromDb.map((item) => ({
+        id: item.id,
+        title: item.title,
+        excerpt: item.excerpt || '',
+        date: item.published_at
+          ? format(new Date(item.published_at), 'dd.MM.yyyy', { locale: ru })
+          : '',
+        image: item.image_url || bouquet1,
+        slug: item.slug,
+      }))
+    : fallbackItems;
+
   return (
     <section id="news" className="py-16 md:py-20 bg-secondary/30">
       <div className="container">
@@ -42,7 +64,7 @@ export const News = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {newsItems.map((item) => (
+          {displayItems.map((item) => (
             <article 
               key={item.id}
               className="group bg-background rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
@@ -66,9 +88,11 @@ export const News = () => {
         </div>
 
         <div className="flex justify-center mt-10">
-          <Button variant="outline" className="px-8">
-            Все моменты
-          </Button>
+          <Link to="/news">
+            <Button variant="outline" className="px-8">
+              Все моменты
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
