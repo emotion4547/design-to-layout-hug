@@ -46,10 +46,11 @@ const MAX_PRICE = 50000;
 const Catalog = () => {
   const [searchParams] = useSearchParams();
   const categoryFromUrl = searchParams.get('category') || 'all';
+  const searchFromUrl = searchParams.get('search') || '';
   
   const [activeCategories, setActiveCategories] = useState<string[]>([categoryFromUrl]);
   const [visibleCount, setVisibleCount] = useState(12);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchFromUrl);
   const [priceRange, setPriceRange] = useState<[number, number]>([MIN_PRICE, MAX_PRICE]);
   const [sortBy, setSortBy] = useState<'default' | 'price-asc' | 'price-desc'>('default');
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -86,11 +87,12 @@ const Catalog = () => {
     sortBy,
   });
 
-  // Sync with URL category
+  // Sync with URL params
   useEffect(() => {
     setActiveCategories([categoryFromUrl]);
+    setSearchQuery(searchFromUrl);
     setVisibleCount(12);
-  }, [categoryFromUrl]);
+  }, [categoryFromUrl, searchFromUrl]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ru-RU').format(price);
