@@ -20,21 +20,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const checkAdminRole = async (userId: string) => {
+  const checkAdminRole = async (userId: string): Promise<boolean> => {
     try {
-      const { data, error } = await supabase.rpc('has_role', {
-        _user_id: userId,
-        _role: 'admin'
-      });
+      // First check if user_roles table exists and has admin role for this user
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
       
       if (error) {
-        console.error('Error checking admin role:', error);
+        // Table might not exist yet - fail silently
+        console.warn('Could not check admin role:', error.message);
         return false;
       }
       
-      return data === true;
+      return data !== null;
     } catch (error) {
-      console.error('Error checking admin role:', error);
+      console.warn('Error checking admin role:', error);
       return false;
     }
   };
