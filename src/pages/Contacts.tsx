@@ -8,35 +8,40 @@ const contactInfo = [
   {
     icon: Phone,
     label: 'Телефон',
-    value: '+7 995 918 49 56',
-    href: 'tel:+79959184956',
+    value: '8 964 456 00 66',
+    href: 'tel:89644560066',
   },
   {
     icon: MapPin,
     label: 'Адрес',
-    value: 'г. Сергиев Посад\nул. Инженерная д.8\nТЦ "Престиж", 2ой этаж',
+    value: 'г. Новороссийск',
     href: 'https://yandex.ru/maps/-/CHQoiDYT',
   },
   {
     icon: Mail,
     label: 'Email',
-    value: 'ftftsp88@gmail.com',
-    href: 'mailto:ftftsp88@gmail.com',
+    value: 'info@butonvton.ru',
+    href: 'mailto:info@butonvton.ru',
   },
   {
     icon: Clock,
     label: 'Режим работы',
-    value: 'Ежедневно с 9:15 до 21:00',
+    value: 'Ежедневно с 9:00 до 21:00',
     href: null,
   },
 ];
 
 const legalInfo = {
-  inn: '504227643663',
-  ogrn: '322508100047543',
-  account: '40802810900003026016',
-  bank: 'АО "Тинькофф Банк"',
+  orgName: 'ИП Момонт Регина Валерьевна',
+  legalAddress: '685000, Россия, Магаданская обл., г. Магадан, пл. Горького, д. 2, кв. 14',
+  inn: '490911638830',
+  ogrn: '309491013400087',
+  account: '40802810100000820138',
+  bank: 'АО «ТБанк»',
+  bankInn: '7710140679',
   bik: '044525974',
+  corrAccount: '30101810145250000974',
+  bankAddress: '127287, г. Москва, ул. Хуторская 2-я, д. 38А, стр. 26',
 };
 
 const VKIcon = () => (
@@ -61,7 +66,7 @@ const ContactsPage = () => {
             Контакты
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
-            Flowers and Toys — лучший сервис в городе
+            Бутон в тон — лучший сервис доставки цветов в Новороссийске
           </p>
         </div>
       </section>
@@ -69,12 +74,16 @@ const ContactsPage = () => {
       {/* Map Section */}
       <section className="pb-12">
         <div className="container">
-          <div className="aspect-[16/9] md:aspect-[21/9] rounded-lg overflow-hidden">
-            <img 
-              src={mapScreenshot} 
-              alt="Карта расположения магазина МУРАШКИ"
-              className="w-full h-full object-cover"
-            />
+          <div className="aspect-[16/9] md:aspect-[21/9] rounded-lg overflow-hidden bg-secondary/50 flex items-center justify-center">
+            <div className="text-center p-8">
+              <MapPin className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <p className="text-muted-foreground mb-2 text-lg font-medium">
+                г. Новороссийск
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Доставка по всему городу и пригороду
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -144,21 +153,19 @@ const ContactsPage = () => {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">Отзывы</h2>
             <p className="text-muted-foreground mb-8">
-              Отзыв на Яндекс Картах 1 место!<br />
-              Вы можете посмотреть или оставить свой отзыв на Flowers & Toys
+              Вы можете посмотреть или оставить свой отзыв о нашей работе
             </p>
             
             <div className="flex items-center justify-center gap-1 mb-6">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="h-6 w-6 fill-amber-400 text-amber-400" />
               ))}
-              <span className="ml-2 text-lg font-bold">4.9</span>
-              <span className="text-muted-foreground ml-1">от более чем 100 отзывов</span>
+              <span className="ml-2 text-lg font-bold">5.0</span>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a 
-                href="https://yandex.ru/maps/-/CHQoiDYT" 
+                href="https://yandex.ru/maps" 
                 target="_blank" 
                 rel="noopener noreferrer"
               >
@@ -168,7 +175,7 @@ const ContactsPage = () => {
                 </Button>
               </a>
               <a 
-                href="https://yandex.ru/maps/-/CHQoiDYT" 
+                href="https://yandex.ru/maps" 
                 target="_blank" 
                 rel="noopener noreferrer"
               >
@@ -185,27 +192,51 @@ const ContactsPage = () => {
       <section className="py-12 bg-secondary/30">
         <div className="container">
           <div className="max-w-4xl mx-auto">
-            <h3 className="font-semibold mb-4">Реквизиты</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <p className="text-muted-foreground">ИНН:</p>
-                <p className="font-medium">{legalInfo.inn}</p>
+            <h3 className="font-semibold text-lg mb-6">Реквизиты</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+              <div className="space-y-3">
+                <div>
+                  <p className="text-muted-foreground">Наименование организации:</p>
+                  <p className="font-medium">{legalInfo.orgName}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Юридический адрес:</p>
+                  <p className="font-medium">{legalInfo.legalAddress}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">ИНН:</p>
+                  <p className="font-medium">{legalInfo.inn}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">ОГРН:</p>
+                  <p className="font-medium">{legalInfo.ogrn}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Расчётный счёт:</p>
+                  <p className="font-medium">{legalInfo.account}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-muted-foreground">ОГРН:</p>
-                <p className="font-medium">{legalInfo.ogrn}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Р/С:</p>
-                <p className="font-medium">{legalInfo.account}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Банк:</p>
-                <p className="font-medium">{legalInfo.bank}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">БИК банка:</p>
-                <p className="font-medium">{legalInfo.bik}</p>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-muted-foreground">Банк:</p>
+                  <p className="font-medium">{legalInfo.bank}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">ИНН банка:</p>
+                  <p className="font-medium">{legalInfo.bankInn}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">БИК банка:</p>
+                  <p className="font-medium">{legalInfo.bik}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Корреспондентский счёт:</p>
+                  <p className="font-medium">{legalInfo.corrAccount}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Адрес банка:</p>
+                  <p className="font-medium">{legalInfo.bankAddress}</p>
+                </div>
               </div>
             </div>
           </div>

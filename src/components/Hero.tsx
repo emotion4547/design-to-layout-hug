@@ -3,7 +3,7 @@ export const Hero = () => {
     <section className="py-16 md:py-24 bg-background">
       <div className="container text-center">
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6">
-          МУРАШКИ
+          Бутон в тон
         </h1>
         <p className="text-xl md:text-2xl text-muted-foreground mb-8">
           букеты, наполненные чувствами
@@ -13,7 +13,7 @@ export const Hero = () => {
             лучший сервис по доставке цветов и съедобных букетов
           </p>
           <p className="text-base md:text-lg text-foreground/80">
-            в городе Сергиев Посад
+            в городе Новороссийск
           </p>
         </div>
         
