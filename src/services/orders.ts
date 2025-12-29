@@ -126,32 +126,47 @@ export async function createOrder(data: CreateOrderData) {
     throw itemsError;
   }
 
-  // Send to integrations (non-blocking)
+  // Send to integrations
   const integrationItems = orderItems.map(item => ({
     product_name: item.product_name,
     quantity: item.quantity,
     product_price: item.product_price,
   }));
 
-  sendToIntegrations(typedOrder, integrationItems).catch((err) => {
+  // Wait for integrations to be sent (but don't fail the order if they fail)
+  try {
+    await sendToIntegrations(typedOrder, integrationItems);
+  } catch (err) {
     console.error('Integration error:', err);
-  });
+  }
 
   return typedOrder;
 }
 
 async function sendToIntegrations(order: Order, items: { product_name: string; quantity: number; product_price: number }[]) {
-  // Send to AmoCRM
-  supabase.functions.invoke('amocrm-create-lead', {
-    body: { order },
-  }).then(({ error }) => {
-    if (error) console.error('AmoCRM error:', error);
-  }).catch(console.error);
+  console.log('Sending to integrations for order:', order.id);
+  
+  // Send to both integrations in parallel and wait for them
+  const results = await Promise.allSettled([
+    supabase.functions.invoke('amocrm-create-lead', {
+      body: { order },
+    }),
+    supabase.functions.invoke('telegram-notify', {
+      body: { order, items },
+    }),
+  ]);
 
-  // Send to Telegram
-  supabase.functions.invoke('telegram-notify', {
-    body: { order, items },
-  }).then(({ error }) => {
-    if (error) console.error('Telegram error:', error);
-  }).catch(console.error);
+  // Log results
+  results.forEach((result, index) => {
+    const name = index === 0 ? 'AmoCRM' : 'Telegram';
+    if (result.status === 'fulfilled') {
+      if (result.value.error) {
+        console.error(`${name} error:`, result.value.error);
+      } else {
+        console.log(`${name} sent successfully`);
+      }
+    } else {
+      console.error(`${name} failed:`, result.reason);
+    }
+  });
 }
