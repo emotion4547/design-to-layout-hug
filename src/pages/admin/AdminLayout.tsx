@@ -17,7 +17,8 @@ import {
   Layers,
   Settings,
   Palette,
-  Plug
+  Plug,
+  Globe
 } from 'lucide-react';
 
 const navItems = [
@@ -36,6 +37,11 @@ const navItems = [
     label: 'Категории', 
     path: '/admin/categories', 
     icon: FolderTree 
+  },
+  { 
+    label: 'Глобальные опции', 
+    path: '/admin/global-addons', 
+    icon: Globe 
   },
   { 
     label: 'Подборки', 

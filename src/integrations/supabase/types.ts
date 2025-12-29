@@ -52,30 +52,33 @@ export type Database = {
       }
       category_addons: {
         Row: {
-          category_id: string
+          category_id: string | null
           created_at: string | null
           id: string
           is_active: boolean | null
+          is_global: boolean | null
           name: string
           price: number
           sort_order: number | null
           updated_at: string | null
         }
         Insert: {
-          category_id: string
+          category_id?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
+          is_global?: boolean | null
           name: string
           price?: number
           sort_order?: number | null
           updated_at?: string | null
         }
         Update: {
-          category_id?: string
+          category_id?: string | null
           created_at?: string | null
           id?: string
           is_active?: boolean | null
+          is_global?: boolean | null
           name?: string
           price?: number
           sort_order?: number | null

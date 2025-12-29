@@ -50,24 +50,34 @@ const Product = () => {
   const { data: product, isLoading, error } = useProduct(id);
   const isLiked = product ? isFavorite(product.id) : false;
 
-  // Fetch addons based on product's category
+  // Fetch addons based on product's category + global addons
   useEffect(() => {
     const fetchAddons = async () => {
-      if (!product?.category_id) {
-        setAddons([]);
-        return;
-      }
-
-      const { data } = await supabase
+      // Fetch global addons first (always shown)
+      const { data: globalAddons } = await supabase
         .from('category_addons')
         .select('id, name, price')
-        .eq('category_id', product.category_id)
+        .eq('is_global', true)
         .eq('is_active', true)
         .order('sort_order');
 
-      if (data) {
-        setAddons(data);
+      // Fetch category-specific addons if product has a category
+      let categoryAddons: CategoryAddon[] = [];
+      if (product?.category_id) {
+        const { data } = await supabase
+          .from('category_addons')
+          .select('id, name, price')
+          .eq('category_id', product.category_id)
+          .eq('is_active', true)
+          .order('sort_order');
+        
+        if (data) {
+          categoryAddons = data;
+        }
       }
+
+      // Combine: category addons first, then global addons
+      setAddons([...categoryAddons, ...(globalAddons || [])]);
     };
 
     fetchAddons();
