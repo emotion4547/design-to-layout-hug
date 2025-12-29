@@ -57,21 +57,9 @@ const TelegramIcon = () => (
 const ContactsPage = () => {
   return (
     <PageLayout>
-      {/* Page Header */}
-      <section className="py-12 md:py-16 bg-background">
-        <div className="container">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            Контакты
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl">
-            Бутон в тон — лучший сервис доставки цветов в Новороссийске
-          </p>
-        </div>
-      </section>
-
-      {/* Full-width Map Section */}
-      <section className="w-full">
-        <div className="w-full h-[400px] md:h-[500px] relative">
+      {/* Full-width Map Section - At the very top */}
+      <section className="w-full -mt-20 pt-20">
+        <div className="w-full h-[400px] md:h-[450px] relative">
           <iframe
             src="https://yandex.ru/map-widget/v1/?um=constructor%3A89d9f1b7c1f8d5b5e5a8f2c3d4e5f6a7&amp;source=constructor&amp;ll=37.770833%2C44.723889&amp;z=14&amp;pt=37.770833%2C44.723889%2Cpm2rdm"
             width="100%"
@@ -80,7 +68,6 @@ const ContactsPage = () => {
             allowFullScreen
             style={{ position: 'relative' }}
             title="Карта с расположением магазина"
-            className="grayscale hover:grayscale-0 transition-all duration-500"
           />
           
           {/* Map Overlay with Address */}
@@ -104,6 +91,18 @@ const ContactsPage = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Page Header - After map */}
+      <section className="py-12 md:py-16 bg-background">
+        <div className="container">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+            Контакты
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl">
+            Бутон в тон — лучший сервис доставки цветов в Новороссийске
+          </p>
         </div>
       </section>
 
