@@ -50,6 +50,47 @@ export type Database = {
         }
         Relationships: []
       }
+      category_addons: {
+        Row: {
+          category_id: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          price: number
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          category_id: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price?: number
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          category_id?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price?: number
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "category_addons_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collection_products: {
         Row: {
           collection_id: string

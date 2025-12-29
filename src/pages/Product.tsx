@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useToast } from '@/hooks/use-toast';
 import { useProduct } from '@/hooks/useProducts';
+import { supabase } from '@/integrations/supabase/client';
 
 import bouquet1 from '@/assets/products/bouquet-1.jpg';
 import bouquet2 from '@/assets/products/bouquet-2.jpg';
@@ -29,34 +30,18 @@ const fallbackImages: Record<string, string> = {
   '/products/bouquet-8.jpg': bouquet8,
 };
 
-const categoryNames: Record<string, string> = {
-  'aromatic': 'Ароматные',
-  'new-year': 'Новогодние композиции',
-  'mono': 'Монобукеты',
-  'author': 'Авторские букеты',
-  'edible': 'Съедобные букеты',
-  'wedding': 'Свадебные букеты',
-  'box': 'Цветы в коробках',
-  'gifts': 'Подарки',
-  'balloons': 'Воздушные шары',
-  'vases': 'Вазы',
-  'certificates': 'Сертификаты',
-  'toys': 'Игрушки',
-};
-
-// Addon options
-const addons = [
-  { id: 'rafaello', name: 'Конфеты Rafaello', price: 850 },
-  { id: 'card', name: 'Открытка ручной работы', price: 250 },
-  { id: 'balloons', name: 'Воздушные шары в ассортименте', price: 500 },
-  { id: 'heart-balloons', name: 'Фигурные шары сердца', price: 750 },
-];
+interface CategoryAddon {
+  id: string;
+  name: string;
+  price: number;
+}
 
 const Product = () => {
   const { id } = useParams<{ id: string }>();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+  const [addons, setAddons] = useState<CategoryAddon[]>([]);
   
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -64,6 +49,29 @@ const Product = () => {
   
   const { data: product, isLoading, error } = useProduct(id);
   const isLiked = product ? isFavorite(product.id) : false;
+
+  // Fetch addons based on product's category
+  useEffect(() => {
+    const fetchAddons = async () => {
+      if (!product?.category_id) {
+        setAddons([]);
+        return;
+      }
+
+      const { data } = await supabase
+        .from('category_addons')
+        .select('id, name, price')
+        .eq('category_id', product.category_id)
+        .eq('is_active', true)
+        .order('sort_order');
+
+      if (data) {
+        setAddons(data);
+      }
+    };
+
+    fetchAddons();
+  }, [product?.category_id]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ru-RU').format(price);
@@ -236,28 +244,30 @@ const Product = () => {
               )}
 
               {/* Addons */}
-              <div className="space-y-3">
-                <p className="font-medium">Дополнительно:</p>
-                {addons.map((addon) => (
-                  <button
-                    key={addon.id}
-                    onClick={() => toggleAddon(addon.id)}
-                    className={cn(
-                      "w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left",
-                      selectedAddons.includes(addon.id)
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/50"
-                    )}
-                  >
-                    <span className={cn(
-                      selectedAddons.includes(addon.id) ? "font-medium" : ""
-                    )}>
-                      {addon.name}
-                    </span>
-                    <span className="text-sm text-muted-foreground">+{formatPrice(addon.price)} ₽</span>
-                  </button>
-                ))}
-              </div>
+              {addons.length > 0 && (
+                <div className="space-y-3">
+                  <p className="font-medium">Дополнительно:</p>
+                  {addons.map((addon) => (
+                    <button
+                      key={addon.id}
+                      onClick={() => toggleAddon(addon.id)}
+                      className={cn(
+                        "w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left",
+                        selectedAddons.includes(addon.id)
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/50"
+                      )}
+                    >
+                      <span className={cn(
+                        selectedAddons.includes(addon.id) ? "font-medium" : ""
+                      )}>
+                        {addon.name}
+                      </span>
+                      <span className="text-sm text-muted-foreground">+{formatPrice(addon.price)} ₽</span>
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Quantity & Add to Cart */}
               <div className="space-y-4 pt-4 border-t border-border">
