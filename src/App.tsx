@@ -29,6 +29,7 @@ import AdminNews from "./pages/admin/AdminNews";
 import AdminPromotions from "./pages/admin/AdminPromotions";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminCollections from "./pages/admin/AdminCollections";
+import AdminGlobalAddons from "./pages/admin/AdminGlobalAddons";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminDesign from "./pages/admin/AdminDesign";
 import AdminIntegrations from "./pages/admin/AdminIntegrations";
@@ -72,6 +73,7 @@ const App = () => (
                     <Route path="news" element={<AdminNews />} />
                     <Route path="promotions" element={<AdminPromotions />} />
                     <Route path="categories" element={<AdminCategories />} />
+                    <Route path="global-addons" element={<AdminGlobalAddons />} />
                     <Route path="collections" element={<AdminCollections />} />
                     <Route path="design" element={<AdminDesign />} />
                     <Route path="integrations" element={<AdminIntegrations />} />
