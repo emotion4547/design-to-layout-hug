@@ -21,6 +21,9 @@ import Cart from "./pages/Cart";
 import Favorites from "./pages/Favorites";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfUse from "./pages/TermsOfUse";
+import ReturnPolicy from "./pages/ReturnPolicy";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProducts from "./pages/admin/AdminProducts";
@@ -61,6 +64,9 @@ const App = () => (
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/favorites" element={<Favorites />} />
                   <Route path="/auth" element={<Auth />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<TermsOfUse />} />
+                  <Route path="/return" element={<ReturnPolicy />} />
                   {/* Admin Routes - Protected */}
                   <Route path="/admin" element={
                     <ProtectedRoute requireAdmin>
