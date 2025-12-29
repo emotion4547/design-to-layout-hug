@@ -163,7 +163,7 @@ const Cart = () => {
                           </p>
                         )}
 
-                        <div className="flex items-center justify-between mt-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-3">
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -180,8 +180,8 @@ const Cart = () => {
                             </button>
                           </div>
 
-                          <div className="flex items-center gap-3">
-                            <span className="font-bold">{formatPrice(itemTotal)} ₽</span>
+                          <div className="flex items-center justify-between sm:justify-end gap-3">
+                            <span className="font-bold whitespace-nowrap">{formatPrice(itemTotal)} ₽</span>
                             <button
                               onClick={() => removeFromCart(item.id)}
                               className="p-2 text-muted-foreground hover:text-destructive transition-colors"
