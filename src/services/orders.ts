@@ -126,26 +126,32 @@ export async function createOrder(data: CreateOrderData) {
     throw itemsError;
   }
 
-  // Send to AmoCRM (non-blocking)
-  sendToAmoCRM(typedOrder).catch((err) => {
-    console.error('AmoCRM integration error:', err);
+  // Send to integrations (non-blocking)
+  const integrationItems = orderItems.map(item => ({
+    product_name: item.product_name,
+    quantity: item.quantity,
+    product_price: item.product_price,
+  }));
+
+  sendToIntegrations(typedOrder, integrationItems).catch((err) => {
+    console.error('Integration error:', err);
   });
 
   return typedOrder;
 }
 
-async function sendToAmoCRM(order: Order) {
-  try {
-    const { data, error } = await supabase.functions.invoke('amocrm-create-lead', {
-      body: { order },
-    });
+async function sendToIntegrations(order: Order, items: { product_name: string; quantity: number; product_price: number }[]) {
+  // Send to AmoCRM
+  supabase.functions.invoke('amocrm-create-lead', {
+    body: { order },
+  }).then(({ error }) => {
+    if (error) console.error('AmoCRM error:', error);
+  }).catch(console.error);
 
-    if (error) {
-      console.error('Error calling AmoCRM edge function:', error);
-    } else {
-      console.log('AmoCRM response:', data);
-    }
-  } catch (err) {
-    console.error('Failed to send to AmoCRM:', err);
-  }
+  // Send to Telegram
+  supabase.functions.invoke('telegram-notify', {
+    body: { order, items },
+  }).then(({ error }) => {
+    if (error) console.error('Telegram error:', error);
+  }).catch(console.error);
 }
