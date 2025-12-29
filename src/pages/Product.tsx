@@ -188,7 +188,7 @@ const Product = () => {
                       key={index}
                       onClick={() => setSelectedImage(index)}
                       className={cn(
-                        "w-20 h-20 rounded-xl overflow-hidden border-2 transition-all",
+                        "w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all",
                         selectedImage === index 
                           ? "border-primary" 
                           : "border-transparent hover:border-border"
