@@ -232,7 +232,7 @@ export const QuickViewModal = ({ productId, open, onOpenChange }: QuickViewModal
               
               {/* View Full Page Link */}
               <Link
-                to={`/product/${product.id}`}
+                to={`/catalog/${product.id}`}
                 onClick={() => onOpenChange(false)}
                 className="text-sm text-primary hover:underline mt-4 text-center"
               >
