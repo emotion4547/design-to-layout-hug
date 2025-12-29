@@ -37,6 +37,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminDesign from "./pages/admin/AdminDesign";
 import AdminIntegrations from "./pages/admin/AdminIntegrations";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { CookieConsent } from "./components/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -87,6 +88,7 @@ const App = () => (
                   </Route>
                   <Route path="*" element={<NotFound />} />
                 </Routes>
+                <CookieConsent />
               </BrowserRouter>
             </FavoritesProvider>
           </CartProvider>
