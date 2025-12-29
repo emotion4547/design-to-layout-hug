@@ -109,8 +109,8 @@ const ColorSetting = ({ label, description, settingKey, defaultValue }: ColorSet
 
 const AdminDesign = () => {
   // Default values from index.css
-  const defaultPrimary = "275 76% 53%"; // #8a2be2 blue-violet
-  const defaultAccent = "210 40% 96%"; // light accent
+  const defaultPrimary = "271 76% 53%"; // purple for buttons
+  const defaultAccent = "340 82% 52%"; // pink-red for menu hover, hearts
 
   return (
     <div className="space-y-6">
@@ -146,13 +146,13 @@ const AdminDesign = () => {
               Акцентный цвет (Accent)
             </CardTitle>
             <CardDescription>
-              Дополнительный цвет для фонов и подсветки
+              Цвет выделения в меню, сердечек и hover-эффектов
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ColorSetting
               label="Accent цвет"
-              description="Используется для фонов карточек и подсветки"
+              description="Используется для hover в меню каталога и иконок избранного"
               settingKey="accent_color"
               defaultValue={defaultAccent}
             />
@@ -175,7 +175,7 @@ const AdminDesign = () => {
             <Button variant="outline">Outline</Button>
             <Button variant="ghost">Ghost</Button>
             <div className="px-4 py-2 bg-accent text-accent-foreground rounded-lg">
-              Accent фон
+              Accent фон (hover меню)
             </div>
             <div className="px-4 py-2 bg-primary text-primary-foreground rounded-lg">
               Primary фон
