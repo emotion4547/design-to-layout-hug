@@ -126,47 +126,30 @@ export async function createOrder(data: CreateOrderData) {
     throw itemsError;
   }
 
-  // Send to integrations
-  const integrationItems = orderItems.map(item => ({
+  // Send to integrations (non-blocking)
+  const integrationItems = orderItems.map((item) => ({
     product_name: item.product_name,
     quantity: item.quantity,
     product_price: item.product_price,
   }));
 
-  // Wait for integrations to be sent (but don't fail the order if they fail)
-  try {
-    await sendToIntegrations(typedOrder, integrationItems);
-  } catch (err) {
+  sendToIntegrations(typedOrder, integrationItems).catch((err) => {
     console.error('Integration error:', err);
-  }
+  });
 
   return typedOrder;
 }
 
-async function sendToIntegrations(order: Order, items: { product_name: string; quantity: number; product_price: number }[]) {
-  console.log('Sending to integrations for order:', order.id);
-  
-  // Send to both integrations in parallel and wait for them
-  const results = await Promise.allSettled([
-    supabase.functions.invoke('amocrm-create-lead', {
-      body: { order },
-    }),
-    supabase.functions.invoke('telegram-notify', {
-      body: { order, items },
-    }),
+async function sendToIntegrations(
+  order: Order,
+  items: { product_name: string; quantity: number; product_price: number }[],
+) {
+  // Fire-and-forget; errors are logged in the function + here
+  const [amo, tg] = await Promise.all([
+    supabase.functions.invoke('amocrm-create-lead', { body: { order } }),
+    supabase.functions.invoke('telegram-notify', { body: { order, items } }),
   ]);
 
-  // Log results
-  results.forEach((result, index) => {
-    const name = index === 0 ? 'AmoCRM' : 'Telegram';
-    if (result.status === 'fulfilled') {
-      if (result.value.error) {
-        console.error(`${name} error:`, result.value.error);
-      } else {
-        console.log(`${name} sent successfully`);
-      }
-    } else {
-      console.error(`${name} failed:`, result.reason);
-    }
-  });
+  if (amo.error) console.error('AmoCRM error:', amo.error);
+  if (tg.error) console.error('Telegram error:', tg.error);
 }
