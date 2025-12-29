@@ -6,7 +6,7 @@ export const Hero = () => {
       <div className="container">
         {/* Hero background with image */}
         <div 
-          className="relative rounded-full overflow-hidden bg-cover bg-center py-12 md:py-16"
+          className="relative rounded-3xl overflow-hidden bg-cover bg-center py-20 md:py-28 lg:py-36"
           style={{ backgroundImage: `url(${heroImage})` }}
         >
           {/* Overlay for better text readability */}
