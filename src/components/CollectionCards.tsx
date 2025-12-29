@@ -37,11 +37,12 @@ export const CollectionCards = () => {
         {collectionsTitle || 'Подборки на актуальные праздники'}
       </h2>
       <div className={`grid ${gridCols} gap-3`}>
-        {collections.map((collection) => (
+        {collections.map((collection, index) => (
           <Link
             key={collection.id}
             to={`/collection/${collection.slug}`}
-            className="group relative overflow-hidden rounded-xl h-20 bg-muted"
+            className="group relative overflow-hidden rounded-xl h-20 bg-muted animate-fade-in"
+            style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
           >
             {collection.image_url ? (
               <img
