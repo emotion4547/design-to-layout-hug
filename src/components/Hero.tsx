@@ -1,11 +1,22 @@
-import heroImage from '@/assets/hero-christmas.jpg';
+import heroImageDefault from '@/assets/hero-christmas.jpg';
 import { CollectionCards } from './CollectionCards';
 import { Snowfall } from './Snowfall';
+import { Confetti } from './Confetti';
+import { Fireworks } from './Fireworks';
 import { useSetting } from '@/hooks/useSettings';
 
 export const Hero = () => {
   const { data: snowEnabled } = useSetting('snow_enabled');
+  const { data: confettiEnabled } = useSetting('confetti_enabled');
+  const { data: fireworksEnabled } = useSetting('fireworks_enabled');
+  const { data: heroImageUrl } = useSetting('hero_image_url');
+  
   const showSnow = snowEnabled === 'true';
+  const showConfetti = confettiEnabled === 'true';
+  const showFireworks = fireworksEnabled === 'true';
+  
+  // Use custom hero image if set, otherwise use default
+  const heroImage = heroImageUrl && heroImageUrl.trim() !== '' ? heroImageUrl : heroImageDefault;
 
   return (
     <section className="pt-4 pb-8 md:pt-6 md:pb-12">
@@ -15,8 +26,10 @@ export const Hero = () => {
           className="relative rounded-3xl overflow-hidden bg-cover bg-center py-20 md:py-28 lg:py-36"
           style={{ backgroundImage: `url(${heroImage})` }}
         >
-          {/* Snow animation */}
+          {/* Effects */}
           {showSnow && <Snowfall />}
+          {showConfetti && <Confetti />}
+          {showFireworks && <Fireworks />}
           
           {/* Subtle gradient overlay for text readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />

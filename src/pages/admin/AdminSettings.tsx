@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Save, Phone, MapPin, MessageCircle, Snowflake } from 'lucide-react';
+import { Save, Phone, MapPin, MessageCircle, Snowflake, PartyPopper, Sparkles, Image as ImageIcon} from 'lucide-react';
 import { useSetting, useUpdateSetting } from '@/hooks/useSettings';
+import { ImageUpload } from '@/components/ImageUpload';
 
 interface SettingFieldProps {
   label: string;
@@ -105,6 +106,39 @@ const ToggleSetting = ({ label, description, settingKey, icon }: ToggleSettingPr
   );
 };
 
+interface ImageSettingProps {
+  label: string;
+  description: string;
+  settingKey: string;
+}
+
+const ImageSetting = ({ label, description, settingKey }: ImageSettingProps) => {
+  const { data: value, isLoading } = useSetting(settingKey);
+  const updateSetting = useUpdateSetting();
+
+  const handleChange = async (url: string) => {
+    try {
+      await updateSetting.mutateAsync({ key: settingKey, value: url });
+      toast.success(`${label} обновлено`);
+    } catch (error) {
+      toast.error('Ошибка при сохранении');
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <p className="font-medium">{label}</p>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+      <ImageUpload
+        value={value || ''}
+        onChange={handleChange}
+      />
+    </div>
+  );
+};
+
 const AdminSettings = () => {
   return (
     <div className="space-y-6">
@@ -173,23 +207,55 @@ const AdminSettings = () => {
           </CardContent>
         </Card>
 
+        {/* Hero Image */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5" />
+              Главный баннер
+            </CardTitle>
+            <CardDescription>
+              Фоновое изображение Hero-блока на главной странице
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ImageSetting
+              label="Изображение Hero-блока"
+              description="Рекомендуемый размер: 1920x800 пикселей. Оставьте пустым для использования изображения по умолчанию."
+              settingKey="hero_image_url"
+            />
+          </CardContent>
+        </Card>
+
         {/* Visual Effects */}
         <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Snowflake className="h-5 w-5" />
+              <Sparkles className="h-5 w-5" />
               Визуальные эффекты
             </CardTitle>
             <CardDescription>
               Праздничные эффекты и анимации на сайте
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6">
             <ToggleSetting
               label="Анимация снега"
-              description="Падающие снежинки в Hero-блоке на главной странице"
+              description="Падающие снежинки в Hero-блоке"
               settingKey="snow_enabled"
-              icon={<Snowflake className="h-5 w-5 text-primary" />}
+              icon={<Snowflake className="h-5 w-5 text-blue-400" />}
+            />
+            <ToggleSetting
+              label="Конфетти"
+              description="Падающее разноцветное конфетти"
+              settingKey="confetti_enabled"
+              icon={<PartyPopper className="h-5 w-5 text-pink-400" />}
+            />
+            <ToggleSetting
+              label="Фейерверк"
+              description="Анимированные вспышки фейерверка"
+              settingKey="fireworks_enabled"
+              icon={<Sparkles className="h-5 w-5 text-yellow-400" />}
             />
           </CardContent>
         </Card>
