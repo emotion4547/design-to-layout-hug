@@ -49,6 +49,7 @@ const Cart = () => {
     pickupTime: '',
     comment: '',
     email: '',
+    consentToDataProcessing: false,
   });
 
   const formatPrice = (price: number) => {
@@ -464,6 +465,30 @@ const Cart = () => {
                 </div>
               </div>
 
+              {/* Consent Checkbox */}
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="consent"
+                  checked={formData.consentToDataProcessing}
+                  onCheckedChange={(checked) => 
+                    setFormData({ ...formData, consentToDataProcessing: checked === true })
+                  }
+                  disabled={isSubmitting}
+                  className="mt-1"
+                />
+                <Label htmlFor="consent" className="text-sm text-muted-foreground font-normal cursor-pointer">
+                  Я даю согласие на обработку персональных данных в соответствии с{' '}
+                  <Link to="/privacy" className="text-primary hover:underline" target="_blank">
+                    Политикой конфиденциальности
+                  </Link>
+                  {' '}и принимаю условия{' '}
+                  <Link to="/terms" className="text-primary hover:underline" target="_blank">
+                    Пользовательского соглашения
+                  </Link>
+                  {' *'}
+                </Label>
+              </div>
+
               {/* Summary & Submit */}
               <div className="p-4 bg-secondary/50 rounded-2xl">
                 <div className="flex justify-between font-bold text-lg">
@@ -481,7 +506,11 @@ const Cart = () => {
                 >
                   Назад
                 </Button>
-                <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                <Button 
+                  type="submit" 
+                  className="flex-1" 
+                  disabled={isSubmitting || !formData.consentToDataProcessing}
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
