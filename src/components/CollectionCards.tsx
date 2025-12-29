@@ -24,12 +24,19 @@ export const CollectionCards = () => {
     return null;
   }
 
+  // Calculate grid columns based on collection count for centering
+  const gridCols = collections.length <= 2 
+    ? 'grid-cols-2 max-w-md mx-auto' 
+    : collections.length === 3 
+      ? 'grid-cols-2 md:grid-cols-3 max-w-2xl mx-auto' 
+      : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+
   return (
-    <div className="mt-6">
-      <h2 className="text-2xl md:text-3xl font-bold text-center mb-4">
+    <div className="mt-8">
+      <h2 className="text-2xl md:text-3xl font-bold text-center mb-6">
         {collectionsTitle || 'Подборки на актуальные праздники'}
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className={`grid ${gridCols} gap-3`}>
         {collections.map((collection) => (
           <Link
             key={collection.id}

@@ -3,7 +3,7 @@ import { CollectionCards } from './CollectionCards';
 
 export const Hero = () => {
   return (
-    <section className="pt-4 pb-4 md:pt-6 md:pb-6">
+    <section className="pt-4 pb-8 md:pt-6 md:pb-12">
       <div className="container">
         {/* Hero background with image */}
         <div 
