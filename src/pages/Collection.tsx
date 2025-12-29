@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useCollection, useCollectionProducts } from '@/hooks/useCollections';
+import { SEO, BreadcrumbSchema } from '@/components/SEO';
 
 // Fallback images
 import bouquet1 from '@/assets/products/bouquet-1.jpg';
@@ -72,6 +73,16 @@ const CollectionPage = () => {
 
   return (
     <PageLayout>
+      <SEO
+        title={collection.name}
+        description={collection.description || `Коллекция ${collection.name} в магазине Бутон в тон`}
+        image={collection.image_url || undefined}
+        url={`/collection/${collection.slug}`}
+      />
+      <BreadcrumbSchema items={[
+        { name: 'Главная', url: '/' },
+        { name: collection.name, url: `/collection/${collection.slug}` },
+      ]} />
       {/* Header with background */}
       <section className="relative overflow-hidden">
         {collection.image_url ? (

@@ -18,6 +18,7 @@ import { useCart } from '@/contexts/CartContext';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createOrder } from '@/services/orders';
+import { SEO } from '@/components/SEO';
 
 const TIME_SLOTS = [
   '9:00 - 11:00',
@@ -99,6 +100,12 @@ const Cart = () => {
   if (items.length === 0 && !isCheckout) {
     return (
       <PageLayout>
+        <SEO
+          title="Корзина"
+          description="Ваша корзина покупок в магазине Бутон в тон"
+          url="/cart"
+          noindex
+        />
         <section className="py-16">
           <div className="container text-center">
             <ShoppingBag className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
@@ -117,9 +124,15 @@ const Cart = () => {
 
   return (
     <PageLayout>
+      <SEO
+        title={isCheckout ? 'Оформление заказа' : 'Корзина'}
+        description="Ваша корзина покупок в магазине Бутон в тон"
+        url="/cart"
+        noindex
+      />
       <section className="py-8 md:py-12">
         <div className="container">
-          <nav className="text-sm text-muted-foreground mb-6">
+          <nav className="text-sm text-muted-foreground mb-6" aria-label="Хлебные крошки">
             <Link to="/" className="hover:text-foreground">Главная</Link>
             <span className="mx-2">/</span>
             <span className="text-foreground">Корзина</span>

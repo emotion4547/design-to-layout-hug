@@ -25,6 +25,7 @@ import { useProducts } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
 import { useProductCounts } from '@/hooks/useProductCounts';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SEO, BreadcrumbSchema } from '@/components/SEO';
 
 // Fallback images for products without image_url
 import bouquet1 from '@/assets/products/bouquet-1.jpg';
@@ -226,11 +227,21 @@ const Catalog = () => {
 
   return (
     <PageLayout>
+      <SEO
+        title="Каталог цветов и букетов"
+        description="Большой выбор букетов и цветочных композиций в Новороссийске. Авторские букеты, монобукеты, съедобные букеты, подарки. Быстрая доставка."
+        keywords="каталог цветов, купить букет Новороссийск, авторские букеты, монобукеты, съедобные букеты, цветочные композиции"
+        url="/catalog"
+      />
+      <BreadcrumbSchema items={[
+        { name: 'Главная', url: '/' },
+        { name: 'Каталог', url: '/catalog' },
+      ]} />
       {/* Page Header */}
       <section className="py-8 md:py-12 bg-background">
         <div className="container">
           {/* Breadcrumb */}
-          <nav className="text-sm text-muted-foreground mb-6">
+          <nav className="text-sm text-muted-foreground mb-6" aria-label="Хлебные крошки">
             <span>Главная</span>
             <span className="mx-2">/</span>
             <span className="text-foreground">Каталог</span>

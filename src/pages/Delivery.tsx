@@ -1,6 +1,7 @@
 import { PageLayout } from '@/components/PageLayout';
 import { MapPin, Clock, Truck, CheckCircle, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SEO, BreadcrumbSchema, FAQSchema } from '@/components/SEO';
 
 const deliveryZones = [
   {
@@ -41,6 +42,22 @@ const deliveryDetails = [
 const DeliveryPage = () => {
   return (
     <PageLayout>
+      <SEO
+        title="Доставка цветов"
+        description="Условия доставки цветов и букетов в Новороссийске. Бесплатная доставка по городу от 3000₽. Доставка за город. Самовывоз."
+        keywords="доставка цветов Новороссийск, бесплатная доставка букетов, курьерская доставка цветов, самовывоз цветов"
+        url="/delivery"
+      />
+      <BreadcrumbSchema items={[
+        { name: 'Главная', url: '/' },
+        { name: 'Доставка', url: '/delivery' },
+      ]} />
+      <FAQSchema items={[
+        { question: 'Сколько стоит доставка цветов в Новороссийске?', answer: 'Бесплатная доставка по городу от суммы заказа 3000₽. Доставка за город рассчитывается индивидуально.' },
+        { question: 'Какое время работы доставки?', answer: 'Доставка осуществляется ежедневно с 9:00 до 21:00.' },
+        { question: 'Можно ли заказать срочную доставку?', answer: 'Да, возможна срочная доставка за 30 минут.' },
+        { question: 'Как узнать, когда приедет курьер?', answer: 'Курьер позвонит за 15-30 минут до прибытия.' },
+      ]} />
       {/* Page Header */}
       <section className="py-12 md:py-16 bg-background">
         <div className="container">

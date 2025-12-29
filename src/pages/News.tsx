@@ -4,6 +4,7 @@ import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { useNews } from '@/hooks/useNews';
+import { SEO, BreadcrumbSchema } from '@/components/SEO';
 
 import news1 from '@/assets/news/news-1.jpg';
 import news2 from '@/assets/news/news-2.jpg';
@@ -105,6 +106,16 @@ const NewsPage = () => {
 
   return (
     <PageLayout>
+      <SEO
+        title="Новости и моменты"
+        description="Новости магазина цветов Бутон в тон. Новые коллекции, полезные советы по уходу за цветами, актуальные события."
+        keywords="новости цветочный магазин, советы уход за цветами, новые коллекции букетов Новороссийск"
+        url="/news"
+      />
+      <BreadcrumbSchema items={[
+        { name: 'Главная', url: '/' },
+        { name: 'Новости', url: '/news' },
+      ]} />
       {/* Page Header */}
       <section className="py-12 md:py-16 bg-background">
         <div className="container">
