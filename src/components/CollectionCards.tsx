@@ -23,6 +23,7 @@ export const CollectionCards = () => {
 
   return (
     <div className="mt-6">
+      <h2 className="text-xl font-semibold text-center mb-4">Подборки на актуальные праздники</h2>
       <div className="flex flex-wrap justify-center gap-3">
         {collections.map((collection) => (
           <Link
