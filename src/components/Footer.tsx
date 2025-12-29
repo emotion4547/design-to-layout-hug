@@ -33,7 +33,6 @@ const footerLinks = {
   right: [
     { name: 'Акции', href: '/promotions' },
     { name: 'Новости', href: '/news' },
-    { name: 'О нас', href: '/contacts' },
     { name: 'Контакты', href: '/contacts' },
   ],
 };
