@@ -45,7 +45,7 @@ const DeliveryPage = () => {
       <section className="py-12 md:py-16 bg-background">
         <div className="container">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            Наша<br />доставка
+            Наша доставка
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
             Мы осуществляем доставку лучших букетов из цветов по г. Новороссийск и пригороду.
