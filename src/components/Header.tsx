@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { SearchAutocomplete } from '@/components/SearchAutocomplete';
+import { useSetting } from '@/hooks/useSettings';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,6 +71,12 @@ export const Header = () => {
   const navigate = useNavigate();
   const { totalItems } = useCart();
   const { totalFavorites } = useFavorites();
+
+  // Get social URLs from settings
+  const { data: vkUrl } = useSetting('vk_url');
+  const { data: telegramUrl } = useSetting('telegram_url');
+  const { data: whatsappUrl } = useSetting('whatsapp_url');
+  const { data: instagramUrl } = useSetting('instagram_url');
 
   // Trigger pulse animation when items are added to cart
   useEffect(() => {
@@ -171,40 +178,52 @@ export const Header = () => {
           <div className="hidden lg:flex items-center gap-3">
             {/* Social Icons */}
             <div className="flex items-center gap-1">
-              <a 
-                href="https://vk.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
-              >
-                <VKIcon />
-              </a>
-              <a 
-                href="https://t.me" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
-              >
-                <TelegramIcon />
-              </a>
-              <a 
-                href="https://wa.me/89644560066" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
-              >
-                <WhatsAppIcon />
-              </a>
-              <a 
-                href="#" 
-                className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
-              >
-                <MessengerIcon />
-              </a>
+              {vkUrl && (
+                <a 
+                  href={vkUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
+                >
+                  <VKIcon />
+                </a>
+              )}
+              {telegramUrl && (
+                <a 
+                  href={telegramUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
+                >
+                  <TelegramIcon />
+                </a>
+              )}
+              {whatsappUrl && (
+                <a 
+                  href={whatsappUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
+                >
+                  <WhatsAppIcon />
+                </a>
+              )}
+              {instagramUrl && (
+                <a 
+                  href={instagramUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
+                >
+                  <MessengerIcon />
+                </a>
+              )}
             </div>
 
-            {/* Divider */}
-            <div className="w-px h-6 bg-white/20 mx-2" />
+            {/* Divider - only show if there are social links */}
+            {(vkUrl || telegramUrl || whatsappUrl || instagramUrl) && (
+              <div className="w-px h-6 bg-white/20 mx-2" />
+            )}
 
             {/* Action Icons */}
             <div className="flex items-center gap-1">
@@ -346,18 +365,26 @@ export const Header = () => {
             
             {/* Social Icons - Mobile */}
             <div className="flex items-center gap-2 pt-3">
-              <a href="https://vk.com" className="p-2 rounded-full bg-white/10 text-white/90">
-                <VKIcon />
-              </a>
-              <a href="https://t.me" className="p-2 rounded-full bg-white/10 text-white/90">
-                <TelegramIcon />
-              </a>
-              <a href="https://wa.me/89644560066" className="p-2 rounded-full bg-white/10 text-white/90">
-                <WhatsAppIcon />
-              </a>
-              <a href="#" className="p-2 rounded-full bg-white/10 text-white/90">
-                <MessengerIcon />
-              </a>
+              {vkUrl && (
+                <a href={vkUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
+                  <VKIcon />
+                </a>
+              )}
+              {telegramUrl && (
+                <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
+                  <TelegramIcon />
+                </a>
+              )}
+              {whatsappUrl && (
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
+                  <WhatsAppIcon />
+                </a>
+              )}
+              {instagramUrl && (
+                <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
+                  <MessengerIcon />
+                </a>
+              )}
             </div>
 
             {/* Mobile Search */}
