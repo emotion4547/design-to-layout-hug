@@ -1,6 +1,7 @@
 import { PageLayout } from '@/components/PageLayout';
 import { Phone, MapPin, Mail, Clock, Star, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SEO, BreadcrumbSchema, FAQSchema } from '@/components/SEO';
 
 const contactInfo = [
   {
@@ -57,6 +58,21 @@ const TelegramIcon = () => (
 const ContactsPage = () => {
   return (
     <PageLayout>
+      <SEO
+        title="Контакты"
+        description="Контактная информация магазина Бутон в тон в Новороссийске. Телефон, адрес, режим работы. Оставьте отзыв о нашей работе."
+        keywords="контакты Бутон в тон, цветочный магазин Новороссийск, доставка цветов телефон, адрес магазина цветов"
+        url="/contacts"
+      />
+      <BreadcrumbSchema items={[
+        { name: 'Главная', url: '/' },
+        { name: 'Контакты', url: '/contacts' },
+      ]} />
+      <FAQSchema items={[
+        { question: 'Как связаться с магазином Бутон в тон?', answer: 'Позвоните по телефону 8 964 456 00 66 или напишите на email info@butonvton.ru' },
+        { question: 'Где находится магазин цветов в Новороссийске?', answer: 'Мы находимся в городе Новороссийск. Работаем ежедневно с 9:00 до 21:00.' },
+        { question: 'Как оставить отзыв о работе магазина?', answer: 'Вы можете оставить отзыв на Яндекс Картах или связаться с нами напрямую.' },
+      ]} />
       {/* Full-width Map Section - At the very top, under header */}
       <section className="w-full -mt-4">
         <div className="w-full h-[400px] md:h-[450px]">

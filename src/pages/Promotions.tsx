@@ -4,6 +4,7 @@ import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Loader2 } from 'lucide-react';
 import { usePromotions } from '@/hooks/usePromotions';
+import { SEO, BreadcrumbSchema } from '@/components/SEO';
 
 import promoCombo from '@/assets/promo-combo.jpg';
 import promoWelcome from '@/assets/promo-welcome.jpg';
@@ -61,6 +62,16 @@ const Promotions = () => {
 
   return (
     <PageLayout>
+      <SEO
+        title="Акции и скидки"
+        description="Актуальные акции и скидки на цветы и букеты в Новороссийске. Скидки до 15% на комбо-наборы. Welcome-скидка 10% для новых клиентов."
+        keywords="акции на цветы Новороссийск, скидки на букеты, промокоды цветы, выгодные предложения цветы"
+        url="/promotions"
+      />
+      <BreadcrumbSchema items={[
+        { name: 'Главная', url: '/' },
+        { name: 'Акции', url: '/promotions' },
+      ]} />
       {/* Page Header */}
       <section className="py-12 md:py-16 bg-background">
         <div className="container">

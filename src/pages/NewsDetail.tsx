@@ -3,6 +3,7 @@ import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, Loader2 } from 'lucide-react';
 import { useNewsItem } from '@/hooks/useNews';
+import { SEO, ArticleSchema, BreadcrumbSchema } from '@/components/SEO';
 
 import news1 from '@/assets/news/news-1.jpg';
 
@@ -54,6 +55,29 @@ const NewsDetail = () => {
 
   return (
     <PageLayout>
+      <SEO
+        title={newsItem.title}
+        description={newsItem.excerpt || newsItem.title}
+        image={getImageUrl(newsItem.image_url)}
+        url={`/news/${newsItem.slug}`}
+        type="article"
+        article={{
+          publishedTime: newsItem.published_at || undefined,
+          section: newsItem.category || undefined,
+        }}
+      />
+      <ArticleSchema
+        title={newsItem.title}
+        description={newsItem.excerpt || undefined}
+        image={getImageUrl(newsItem.image_url)}
+        publishedTime={newsItem.published_at || undefined}
+        url={`/news/${newsItem.slug}`}
+      />
+      <BreadcrumbSchema items={[
+        { name: 'Главная', url: '/' },
+        { name: 'Новости', url: '/news' },
+        { name: newsItem.title, url: `/news/${newsItem.slug}` },
+      ]} />
       {/* Header */}
       <section className="py-6 border-b border-border">
         <div className="container">

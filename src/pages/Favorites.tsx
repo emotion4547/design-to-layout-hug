@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { ProductCard } from '@/components/ProductCard';
 import { Heart } from 'lucide-react';
+import { SEO } from '@/components/SEO';
 
 const Favorites = () => {
   const { favorites } = useFavorites();
@@ -11,6 +12,12 @@ const Favorites = () => {
   if (favorites.length === 0) {
     return (
       <PageLayout>
+        <SEO
+          title="Избранное"
+          description="Ваш список избранных товаров в магазине Бутон в тон"
+          url="/favorites"
+          noindex
+        />
         <section className="py-16">
           <div className="container text-center">
             <Heart className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
@@ -29,6 +36,12 @@ const Favorites = () => {
 
   return (
     <PageLayout>
+      <SEO
+        title="Избранное"
+        description="Ваш список избранных товаров в магазине Бутон в тон"
+        url="/favorites"
+        noindex
+      />
       <section className="py-8 md:py-12">
         <div className="container">
           <nav className="text-sm text-muted-foreground mb-6">

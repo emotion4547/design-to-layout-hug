@@ -3,6 +3,7 @@ import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, Percent, Loader2 } from 'lucide-react';
 import { usePromotion } from '@/hooks/usePromotions';
+import { SEO, BreadcrumbSchema } from '@/components/SEO';
 
 import promoCombo from '@/assets/promo-combo.jpg';
 
@@ -54,6 +55,17 @@ const PromotionDetail = () => {
 
   return (
     <PageLayout>
+      <SEO
+        title={promotion.title}
+        description={promotion.description || promotion.title}
+        image={getImageUrl(promotion.image_url)}
+        url={`/promotions/${promotion.slug}`}
+      />
+      <BreadcrumbSchema items={[
+        { name: 'Главная', url: '/' },
+        { name: 'Акции', url: '/promotions' },
+        { name: promotion.title, url: `/promotions/${promotion.slug}` },
+      ]} />
       {/* Header */}
       <section className="py-6 border-b border-border">
         <div className="container">

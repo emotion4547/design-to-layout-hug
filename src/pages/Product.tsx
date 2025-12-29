@@ -9,6 +9,7 @@ import { useFavorites } from '@/contexts/FavoritesContext';
 import { useToast } from '@/hooks/use-toast';
 import { useProduct } from '@/hooks/useProducts';
 import { supabase } from '@/integrations/supabase/client';
+import { SEO, ProductSchema, BreadcrumbSchema } from '@/components/SEO';
 
 import bouquet1 from '@/assets/products/bouquet-1.jpg';
 import bouquet2 from '@/assets/products/bouquet-2.jpg';
@@ -164,10 +165,37 @@ const Product = () => {
 
   return (
     <PageLayout>
+      <SEO
+        title={product.name}
+        description={product.description || `Купить ${product.name} с доставкой в Новороссийске. Цена: ${product.price} ₽`}
+        keywords={`${product.name}, купить цветы Новороссийск, букет с доставкой`}
+        image={productImages[0]}
+        url={`/catalog/${product.id}`}
+        type="product"
+        product={{
+          price: product.price,
+          currency: 'RUB',
+          availability: product.in_stock ? 'InStock' : 'OutOfStock',
+        }}
+      />
+      <ProductSchema
+        name={product.name}
+        description={product.description || undefined}
+        image={productImages[0]}
+        price={product.price}
+        oldPrice={product.old_price || undefined}
+        inStock={product.in_stock ?? true}
+        url={`/catalog/${product.id}`}
+      />
+      <BreadcrumbSchema items={[
+        { name: 'Главная', url: '/' },
+        { name: 'Каталог', url: '/catalog' },
+        { name: product.name, url: `/catalog/${product.id}` },
+      ]} />
       <section className="py-8 md:py-12">
         <div className="container">
           {/* Breadcrumb */}
-          <nav className="text-sm text-muted-foreground mb-6">
+          <nav className="text-sm text-muted-foreground mb-6" aria-label="Хлебные крошки">
             <Link to="/" className="hover:text-foreground">Главная</Link>
             <span className="mx-2">/</span>
             <Link to="/catalog" className="hover:text-foreground">Каталог</Link>
