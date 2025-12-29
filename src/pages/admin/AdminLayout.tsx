@@ -16,7 +16,8 @@ import {
   LogOut,
   Layers,
   Settings,
-  Palette
+  Palette,
+  Plug
 } from 'lucide-react';
 
 const navItems = [
@@ -60,6 +61,11 @@ const navItems = [
     label: 'Дизайн', 
     path: '/admin/design', 
     icon: Palette 
+  },
+  { 
+    label: 'AmoCRM', 
+    path: '/admin/amocrm', 
+    icon: Plug 
   },
   { 
     label: 'Настройки', 
