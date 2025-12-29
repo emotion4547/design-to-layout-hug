@@ -28,7 +28,7 @@ export const CollectionCards = () => {
           <Link
             key={collection.id}
             to={`/collection/${collection.slug}`}
-            className="group relative overflow-hidden rounded-xl h-16 w-40 bg-muted"
+            className="group relative overflow-hidden rounded-xl h-20 w-48 bg-muted"
           >
             {collection.image_url ? (
               <img
