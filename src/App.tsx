@@ -31,7 +31,7 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import AdminCollections from "./pages/admin/AdminCollections";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminDesign from "./pages/admin/AdminDesign";
-import AdminAmoCRM from "./pages/admin/AdminAmoCRM";
+import AdminIntegrations from "./pages/admin/AdminIntegrations";
 import { ThemeProvider } from "./components/ThemeProvider";
 
 const queryClient = new QueryClient();
@@ -74,7 +74,7 @@ const App = () => (
                     <Route path="categories" element={<AdminCategories />} />
                     <Route path="collections" element={<AdminCollections />} />
                     <Route path="design" element={<AdminDesign />} />
-                    <Route path="amocrm" element={<AdminAmoCRM />} />
+                    <Route path="integrations" element={<AdminIntegrations />} />
                     <Route path="settings" element={<AdminSettings />} />
                   </Route>
                   <Route path="*" element={<NotFound />} />

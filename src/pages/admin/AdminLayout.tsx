@@ -63,8 +63,8 @@ const navItems = [
     icon: Palette 
   },
   { 
-    label: 'AmoCRM', 
-    path: '/admin/amocrm', 
+    label: 'Интеграции', 
+    path: '/admin/integrations', 
     icon: Plug 
   },
   { 

@@ -125,6 +125,44 @@ export type Database = {
         }
         Relationships: []
       }
+      integration_logs: {
+        Row: {
+          created_at: string
+          id: string
+          integration_type: string
+          message: string | null
+          order_id: string | null
+          response_data: Json | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          integration_type: string
+          message?: string | null
+          order_id?: string | null
+          response_data?: Json | null
+          status: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          integration_type?: string
+          message?: string | null
+          order_id?: string | null
+          response_data?: Json | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       news: {
         Row: {
           category: string | null
