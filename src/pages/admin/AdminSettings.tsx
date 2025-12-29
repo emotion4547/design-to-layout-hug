@@ -3,8 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Save, Phone, MapPin, MessageCircle } from 'lucide-react';
+import { Save, Phone, MapPin, MessageCircle, Snowflake } from 'lucide-react';
 import { useSetting, useUpdateSetting } from '@/hooks/useSettings';
 
 interface SettingFieldProps {
@@ -61,6 +62,45 @@ const SettingField = ({ label, settingKey, placeholder, icon }: SettingFieldProp
           <Save className="h-4 w-4" />
         </Button>
       </div>
+    </div>
+  );
+};
+
+interface ToggleSettingProps {
+  label: string;
+  description: string;
+  settingKey: string;
+  icon?: React.ReactNode;
+}
+
+const ToggleSetting = ({ label, description, settingKey, icon }: ToggleSettingProps) => {
+  const { data: value, isLoading } = useSetting(settingKey);
+  const updateSetting = useUpdateSetting();
+  const isEnabled = value === 'true';
+
+  const handleToggle = async (checked: boolean) => {
+    try {
+      await updateSetting.mutateAsync({ key: settingKey, value: checked ? 'true' : 'false' });
+      toast.success(checked ? `${label} включено` : `${label} выключено`);
+    } catch (error) {
+      toast.error('Ошибка при сохранении');
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        {icon}
+        <div>
+          <p className="font-medium">{label}</p>
+          <p className="text-sm text-muted-foreground">{description}</p>
+        </div>
+      </div>
+      <Switch
+        checked={isEnabled}
+        onCheckedChange={handleToggle}
+        disabled={isLoading || updateSetting.isPending}
+      />
     </div>
   );
 };
@@ -129,6 +169,27 @@ const AdminSettings = () => {
               label="Instagram"
               settingKey="instagram_url"
               placeholder="https://instagram.com/your_page"
+            />
+          </CardContent>
+        </Card>
+
+        {/* Visual Effects */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Snowflake className="h-5 w-5" />
+              Визуальные эффекты
+            </CardTitle>
+            <CardDescription>
+              Праздничные эффекты и анимации на сайте
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ToggleSetting
+              label="Анимация снега"
+              description="Падающие снежинки в Hero-блоке на главной странице"
+              settingKey="snow_enabled"
+              icon={<Snowflake className="h-5 w-5 text-primary" />}
             />
           </CardContent>
         </Card>

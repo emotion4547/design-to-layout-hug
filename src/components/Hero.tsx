@@ -1,7 +1,12 @@
-import heroImage from '@/assets/hero-flowers.jpg';
+import heroImage from '@/assets/hero-christmas.jpg';
 import { CollectionCards } from './CollectionCards';
+import { Snowfall } from './Snowfall';
+import { useSetting } from '@/hooks/useSettings';
 
 export const Hero = () => {
+  const { data: snowEnabled } = useSetting('snow_enabled');
+  const showSnow = snowEnabled === 'true';
+
   return (
     <section className="pt-4 pb-8 md:pt-6 md:pb-12">
       <div className="container">
@@ -10,6 +15,9 @@ export const Hero = () => {
           className="relative rounded-3xl overflow-hidden bg-cover bg-center py-20 md:py-28 lg:py-36"
           style={{ backgroundImage: `url(${heroImage})` }}
         >
+          {/* Snow animation */}
+          {showSnow && <Snowfall />}
+          
           {/* Subtle gradient overlay for text readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
           
