@@ -126,5 +126,26 @@ export async function createOrder(data: CreateOrderData) {
     throw itemsError;
   }
 
+  // Send to AmoCRM (non-blocking)
+  sendToAmoCRM(typedOrder).catch((err) => {
+    console.error('AmoCRM integration error:', err);
+  });
+
   return typedOrder;
+}
+
+async function sendToAmoCRM(order: Order) {
+  try {
+    const { data, error } = await supabase.functions.invoke('amocrm-create-lead', {
+      body: { order },
+    });
+
+    if (error) {
+      console.error('Error calling AmoCRM edge function:', error);
+    } else {
+      console.log('AmoCRM response:', data);
+    }
+  } catch (err) {
+    console.error('Failed to send to AmoCRM:', err);
+  }
 }
