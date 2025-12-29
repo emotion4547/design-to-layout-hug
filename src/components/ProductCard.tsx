@@ -39,7 +39,7 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
     <>
       <article className="group animate-fade-in">
         {/* Image Container */}
-        <Link to={`/product/${id}`} className="block relative aspect-[3/4] overflow-hidden bg-secondary rounded-2xl mb-4">
+        <Link to={`/catalog/${id}`} className="block relative aspect-[3/4] overflow-hidden bg-secondary rounded-2xl mb-4">
           <img
             src={image}
             alt={name}
@@ -81,7 +81,7 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
         </Link>
 
         {/* Content */}
-        <Link to={`/product/${id}`} className="block space-y-2">
+        <Link to={`/catalog/${id}`} className="block space-y-2">
           {/* Prices */}
           <div className="flex items-center gap-3">
             <span className="font-bold text-lg">
