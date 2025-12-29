@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2, Image as ImageIcon, Package } from 'lucide-react';
+import { Plus, Pencil, Trash2, Image as ImageIcon, Package, Save } from 'lucide-react';
 import { ImageUpload } from '@/components/ImageUpload';
 import {
   useCollections,
@@ -23,12 +23,23 @@ import { Collection } from '@/services/collections';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useSetting, useUpdateSetting } from '@/hooks/useSettings';
 
 const AdminCollections = () => {
   const { data: collections, isLoading } = useCollections(false);
   const createCollection = useCreateCollection();
   const updateCollection = useUpdateCollection();
   const deleteCollection = useDeleteCollection();
+  
+  const { data: collectionsTitle } = useSetting('collections_title');
+  const updateSetting = useUpdateSetting();
+  const [titleInput, setTitleInput] = useState('');
+  const [titleEdited, setTitleEdited] = useState(false);
+
+  // Sync titleInput with fetched value
+  if (collectionsTitle && !titleEdited && titleInput !== collectionsTitle) {
+    setTitleInput(collectionsTitle);
+  }
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
@@ -153,6 +164,16 @@ const AdminCollections = () => {
     );
   }
 
+  const handleSaveTitle = async () => {
+    try {
+      await updateSetting.mutateAsync({ key: 'collections_title', value: titleInput });
+      setTitleEdited(false);
+      toast.success('Заголовок сохранён');
+    } catch (error) {
+      toast.error('Ошибка при сохранении заголовка');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -162,6 +183,33 @@ const AdminCollections = () => {
           Создать подборку
         </Button>
       </div>
+
+      {/* Editable Title Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Заголовок блока подборок</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            <Input
+              value={titleInput}
+              onChange={(e) => {
+                setTitleInput(e.target.value);
+                setTitleEdited(true);
+              }}
+              placeholder="Введите заголовок"
+              className="flex-1"
+            />
+            <Button 
+              onClick={handleSaveTitle} 
+              disabled={!titleEdited || updateSetting.isPending}
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Сохранить
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {collections?.map((collection) => (
