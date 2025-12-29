@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Pencil, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Pencil, Trash2, GripVertical, Eye, EyeOff, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -31,10 +31,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ImageUpload } from '@/components/ImageUpload';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/hooks/useCategories';
 import { Category, CategoryInsert } from '@/services/categories';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   DndContext,
   closestCenter,
@@ -56,13 +59,24 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 
+interface CategoryAddon {
+  id: string;
+  category_id: string;
+  name: string;
+  price: number;
+  sort_order: number;
+  is_active: boolean;
+}
+
 interface SortableRowProps {
   category: Category;
   onEdit: (category: Category) => void;
   onDelete: (id: string) => void;
+  onManageAddons: (category: Category) => void;
+  addonsCount: number;
 }
 
-function SortableRow({ category, onEdit, onDelete }: SortableRowProps) {
+function SortableRow({ category, onEdit, onDelete, onManageAddons, addonsCount }: SortableRowProps) {
   const {
     attributes,
     listeners,
@@ -122,7 +136,11 @@ function SortableRow({ category, onEdit, onDelete }: SortableRowProps) {
         </div>
       </TableCell>
       <TableCell className="text-muted-foreground">{category.slug}</TableCell>
-      <TableCell>{category.sort_order}</TableCell>
+      <TableCell>
+        <span className="text-sm text-muted-foreground">
+          {addonsCount} {addonsCount === 1 ? 'опция' : addonsCount >= 2 && addonsCount <= 4 ? 'опции' : 'опций'}
+        </span>
+      </TableCell>
       <TableCell>
         {category.is_active ? (
           <span className="inline-flex items-center gap-1 text-green-600">
@@ -138,6 +156,14 @@ function SortableRow({ category, onEdit, onDelete }: SortableRowProps) {
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onManageAddons(category)}
+            title="Доп. опции"
+          >
+            <Package className="w-4 h-4" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -177,8 +203,14 @@ function SortableRow({ category, onEdit, onDelete }: SortableRowProps) {
 
 export default function AdminCategories() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddonsDialogOpen, setIsAddonsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [managingCategory, setManagingCategory] = useState<Category | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [categoryAddons, setCategoryAddons] = useState<CategoryAddon[]>([]);
+  const [allAddons, setAllAddons] = useState<Record<string, CategoryAddon[]>>({});
+  const [newAddon, setNewAddon] = useState({ name: '', price: 0 });
+  const [editingAddon, setEditingAddon] = useState<CategoryAddon | null>(null);
   const [formData, setFormData] = useState<CategoryInsert>({
     slug: '',
     name: '',
@@ -192,8 +224,44 @@ export default function AdminCategories() {
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
+  const queryClient = useQueryClient();
 
   const activeCategory = activeId ? categories?.find(c => c.id === activeId) : null;
+
+  // Fetch all addons on mount
+  useEffect(() => {
+    const fetchAllAddons = async () => {
+      const { data } = await supabase
+        .from('category_addons')
+        .select('*')
+        .order('sort_order');
+      
+      if (data) {
+        const grouped: Record<string, CategoryAddon[]> = {};
+        data.forEach((addon: CategoryAddon) => {
+          if (!grouped[addon.category_id]) {
+            grouped[addon.category_id] = [];
+          }
+          grouped[addon.category_id].push(addon);
+        });
+        setAllAddons(grouped);
+      }
+    };
+    fetchAllAddons();
+  }, []);
+
+  // Fetch addons for specific category
+  const fetchCategoryAddons = async (categoryId: string) => {
+    const { data } = await supabase
+      .from('category_addons')
+      .select('*')
+      .eq('category_id', categoryId)
+      .order('sort_order');
+    
+    if (data) {
+      setCategoryAddons(data as CategoryAddon[]);
+    }
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -220,7 +288,6 @@ export default function AdminCategories() {
       
       const reorderedCategories = arrayMove(categories, oldIndex, newIndex);
       
-      // Update sort_order for all affected categories
       try {
         const updatePromises = reorderedCategories.map((category, index) =>
           updateMutation.mutateAsync({
@@ -253,6 +320,12 @@ export default function AdminCategories() {
     setIsDialogOpen(true);
   };
 
+  const handleManageAddons = async (category: Category) => {
+    setManagingCategory(category);
+    await fetchCategoryAddons(category.id);
+    setIsAddonsDialogOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -264,7 +337,6 @@ export default function AdminCategories() {
         });
         toast.success('Категория обновлена');
       } else {
-        // Set sort_order to be last
         const newSortOrder = categories?.length || 0;
         await createMutation.mutateAsync({ ...formData, sort_order: newSortOrder });
         toast.success('Категория создана');
@@ -281,6 +353,91 @@ export default function AdminCategories() {
       toast.success('Категория удалена');
     } catch (error) {
       toast.error('Ошибка при удалении категории');
+    }
+  };
+
+  // Addon management
+  const handleAddAddon = async () => {
+    if (!managingCategory || !newAddon.name.trim()) return;
+
+    const { error } = await supabase
+      .from('category_addons')
+      .insert({
+        category_id: managingCategory.id,
+        name: newAddon.name.trim(),
+        price: newAddon.price,
+        sort_order: categoryAddons.length,
+      });
+
+    if (error) {
+      toast.error('Ошибка добавления опции');
+      return;
+    }
+
+    toast.success('Опция добавлена');
+    setNewAddon({ name: '', price: 0 });
+    await fetchCategoryAddons(managingCategory.id);
+    refreshAllAddons();
+  };
+
+  const handleUpdateAddon = async () => {
+    if (!editingAddon) return;
+
+    const { error } = await supabase
+      .from('category_addons')
+      .update({
+        name: editingAddon.name,
+        price: editingAddon.price,
+        is_active: editingAddon.is_active,
+      })
+      .eq('id', editingAddon.id);
+
+    if (error) {
+      toast.error('Ошибка обновления опции');
+      return;
+    }
+
+    toast.success('Опция обновлена');
+    setEditingAddon(null);
+    if (managingCategory) {
+      await fetchCategoryAddons(managingCategory.id);
+    }
+    refreshAllAddons();
+  };
+
+  const handleDeleteAddon = async (addonId: string) => {
+    const { error } = await supabase
+      .from('category_addons')
+      .delete()
+      .eq('id', addonId);
+
+    if (error) {
+      toast.error('Ошибка удаления опции');
+      return;
+    }
+
+    toast.success('Опция удалена');
+    if (managingCategory) {
+      await fetchCategoryAddons(managingCategory.id);
+    }
+    refreshAllAddons();
+  };
+
+  const refreshAllAddons = async () => {
+    const { data } = await supabase
+      .from('category_addons')
+      .select('*')
+      .order('sort_order');
+    
+    if (data) {
+      const grouped: Record<string, CategoryAddon[]> = {};
+      data.forEach((addon: CategoryAddon) => {
+        if (!grouped[addon.category_id]) {
+          grouped[addon.category_id] = [];
+        }
+        grouped[addon.category_id].push(addon);
+      });
+      setAllAddons(grouped);
     }
   };
 
@@ -304,6 +461,10 @@ export default function AdminCategories() {
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .trim();
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('ru-RU').format(price);
   };
 
   return (
@@ -403,6 +564,141 @@ export default function AdminCategories() {
         </Dialog>
       </div>
 
+      {/* Addons Management Dialog */}
+      <Dialog open={isAddonsDialogOpen} onOpenChange={setIsAddonsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Доп. опции для категории: {managingCategory?.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Add new addon */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Добавить опцию</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-3">
+                  <Input
+                    placeholder="Название опции"
+                    value={newAddon.name}
+                    onChange={(e) => setNewAddon(prev => ({ ...prev, name: e.target.value }))}
+                    className="flex-1"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Цена"
+                    value={newAddon.price || ''}
+                    onChange={(e) => setNewAddon(prev => ({ ...prev, price: Number(e.target.value) }))}
+                    className="w-32"
+                  />
+                  <Button onClick={handleAddAddon} disabled={!newAddon.name.trim()}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Existing addons */}
+            <div className="space-y-2">
+              <h3 className="font-medium">Текущие опции</h3>
+              {categoryAddons.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">
+                  Нет добавленных опций
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {categoryAddons.map((addon) => (
+                    <div
+                      key={addon.id}
+                      className="flex items-center gap-3 p-3 border rounded-lg"
+                    >
+                      {editingAddon?.id === addon.id ? (
+                        <>
+                          <Input
+                            value={editingAddon.name}
+                            onChange={(e) => setEditingAddon(prev => prev ? { ...prev, name: e.target.value } : null)}
+                            className="flex-1"
+                          />
+                          <Input
+                            type="number"
+                            value={editingAddon.price}
+                            onChange={(e) => setEditingAddon(prev => prev ? { ...prev, price: Number(e.target.value) } : null)}
+                            className="w-32"
+                          />
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={editingAddon.is_active}
+                              onCheckedChange={(checked) => setEditingAddon(prev => prev ? { ...prev, is_active: checked } : null)}
+                            />
+                          </div>
+                          <Button size="sm" onClick={handleUpdateAddon}>
+                            Сохранить
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setEditingAddon(null)}>
+                            Отмена
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex-1">
+                            <span className={cn(!addon.is_active && 'text-muted-foreground line-through')}>
+                              {addon.name}
+                            </span>
+                          </div>
+                          <span className="text-sm font-medium">
+                            +{formatPrice(addon.price)} ₽
+                          </span>
+                          <span className={cn(
+                            "text-xs px-2 py-1 rounded",
+                            addon.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+                          )}>
+                            {addon.is_active ? 'Активна' : 'Скрыта'}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setEditingAddon(addon)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Удалить опцию?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Опция "{addon.name}" будет удалена.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Отмена</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteAddon(addon.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Удалить
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {isLoading ? (
         <div className="text-center py-8 text-muted-foreground">Загрузка...</div>
       ) : !categories?.length ? (
@@ -422,9 +718,9 @@ export default function AdminCategories() {
                   <TableHead className="w-12"></TableHead>
                   <TableHead>Название</TableHead>
                   <TableHead>Slug</TableHead>
-                  <TableHead className="w-20">Порядок</TableHead>
+                  <TableHead className="w-24">Доп. опции</TableHead>
                   <TableHead className="w-24">Статус</TableHead>
-                  <TableHead className="w-24">Действия</TableHead>
+                  <TableHead className="w-32">Действия</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -438,6 +734,8 @@ export default function AdminCategories() {
                       category={category}
                       onEdit={handleEdit}
                       onDelete={handleDelete}
+                      onManageAddons={handleManageAddons}
+                      addonsCount={allAddons[category.id]?.length || 0}
                     />
                   ))}
                 </SortableContext>
