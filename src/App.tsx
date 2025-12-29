@@ -29,6 +29,7 @@ import AdminNews from "./pages/admin/AdminNews";
 import AdminPromotions from "./pages/admin/AdminPromotions";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminCollections from "./pages/admin/AdminCollections";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,7 @@ const App = () => (
                   <Route path="promotions" element={<AdminPromotions />} />
                   <Route path="categories" element={<AdminCategories />} />
                   <Route path="collections" element={<AdminCollections />} />
+                  <Route path="settings" element={<AdminSettings />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>

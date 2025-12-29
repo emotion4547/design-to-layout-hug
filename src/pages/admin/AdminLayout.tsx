@@ -14,7 +14,8 @@ import {
   Menu,
   X,
   LogOut,
-  Layers
+  Layers,
+  Settings
 } from 'lucide-react';
 
 const navItems = [
@@ -53,6 +54,11 @@ const navItems = [
     label: 'Акции', 
     path: '/admin/promotions', 
     icon: Percent 
+  },
+  { 
+    label: 'Настройки', 
+    path: '/admin/settings', 
+    icon: Settings 
   },
 ];
 
