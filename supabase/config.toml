@@ -1,1 +1,7 @@
 project_id = "ljkfuyxxxaqevsxeswrv"
+
+[functions.telegram-notify]
+verify_jwt = false
+
+[functions.amocrm-create-lead]
+verify_jwt = false
