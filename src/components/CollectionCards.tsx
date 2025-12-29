@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useCollections } from '@/hooks/useCollections';
+import { useSetting } from '@/hooks/useSettings';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export const CollectionCards = () => {
   const { data: collections, isLoading } = useCollections(true);
+  const { data: collectionsTitle } = useSetting('collections_title');
 
   if (isLoading) {
     return (
@@ -23,7 +25,9 @@ export const CollectionCards = () => {
 
   return (
     <div className="mt-6">
-      <h2 className="text-xl font-semibold text-center mb-4">Подборки на актуальные праздники</h2>
+      <h2 className="text-xl font-semibold text-center mb-4">
+        {collectionsTitle || 'Подборки на актуальные праздники'}
+      </h2>
       <div className="flex flex-wrap justify-center gap-3">
         {collections.map((collection) => (
           <Link
