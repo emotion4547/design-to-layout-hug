@@ -10,9 +10,10 @@ export const CollectionCards = () => {
   if (isLoading) {
     return (
       <div className="mt-6">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <Skeleton className="h-8 w-64 mx-auto mb-4" />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-2xl" />
+            <Skeleton key={i} className="h-20 rounded-xl" />
           ))}
         </div>
       </div>
@@ -25,15 +26,15 @@ export const CollectionCards = () => {
 
   return (
     <div className="mt-6">
-      <h2 className="text-xl font-semibold text-center mb-4">
+      <h2 className="text-2xl md:text-3xl font-bold text-center mb-4">
         {collectionsTitle || 'Подборки на актуальные праздники'}
       </h2>
-      <div className="flex flex-wrap justify-center gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {collections.map((collection) => (
           <Link
             key={collection.id}
             to={`/collection/${collection.slug}`}
-            className="group relative overflow-hidden rounded-xl h-20 w-48 bg-muted"
+            className="group relative overflow-hidden rounded-xl h-20 bg-muted"
           >
             {collection.image_url ? (
               <img
