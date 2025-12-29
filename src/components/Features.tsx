@@ -27,7 +27,7 @@ export const Features = () => {
   return (
     <section className="py-12 md:py-16 bg-background">
       <div className="container">
-        <h2 className="text-2xl md:text-3xl font-bold mb-10">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-10">
           Чем мы уникальны?
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
