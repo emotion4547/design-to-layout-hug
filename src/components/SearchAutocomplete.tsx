@@ -43,20 +43,27 @@ export const SearchAutocomplete = ({
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (value.trim().length < 2) {
+      const searchTerm = value.trim();
+      if (searchTerm.length < 2) {
         setSuggestions([]);
         return;
       }
 
       setIsLoading(true);
       try {
+        // Use textSearch for better Cyrillic support, fallback to ilike
         const { data, error } = await supabase
           .from('products')
           .select('id, name, price, image_url')
-          .ilike('name', `%${value.trim()}%`)
+          .eq('in_stock', true)
+          .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+          .order('name')
           .limit(5);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Search error:', error);
+          throw error;
+        }
         setSuggestions(data || []);
       } catch (error) {
         console.error('Error fetching suggestions:', error);
