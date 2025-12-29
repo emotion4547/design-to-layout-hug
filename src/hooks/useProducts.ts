@@ -6,6 +6,7 @@ interface UseProductsOptions {
   categoryIds?: string[];
   categorySlug?: string;
   category?: ProductCategory | 'all'; // Legacy support
+  productIds?: string[]; // Filter by specific product IDs (for collections)
   search?: string;
   minPrice?: number;
   maxPrice?: number;

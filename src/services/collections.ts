@@ -45,15 +45,32 @@ export const getCollectionBySlug = async (slug: string): Promise<Collection | nu
     .from('collections')
     .select('*')
     .eq('slug', slug)
-    .single();
+    .maybeSingle();
 
   if (error) {
-    if (error.code === 'PGRST116') return null;
     console.error('Error fetching collection:', error);
     throw error;
   }
 
   return data;
+};
+
+export const getCollectionProductIds = async (collectionSlug: string): Promise<string[]> => {
+  // First get the collection by slug
+  const collection = await getCollectionBySlug(collectionSlug);
+  if (!collection) return [];
+
+  const { data, error } = await supabase
+    .from('collection_products')
+    .select('product_id')
+    .eq('collection_id', collection.id);
+
+  if (error) {
+    console.error('Error fetching collection product ids:', error);
+    throw error;
+  }
+
+  return data?.map(cp => cp.product_id) || [];
 };
 
 export const createCollection = async (collection: Omit<Collection, 'id' | 'created_at' | 'updated_at'>): Promise<Collection> => {

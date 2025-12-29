@@ -10,6 +10,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Catalog from "./pages/Catalog";
 import Product from "./pages/Product";
+import CollectionPage from "./pages/Collection";
 import Promotions from "./pages/Promotions";
 import PromotionDetail from "./pages/PromotionDetail";
 import NewsPage from "./pages/News";
@@ -44,6 +45,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/catalog" element={<Catalog />} />
                 <Route path="/catalog/:id" element={<Product />} />
+                <Route path="/collection/:slug" element={<CollectionPage />} />
                 <Route path="/promotions" element={<Promotions />} />
                 <Route path="/promotions/:id" element={<PromotionDetail />} />
                 <Route path="/news" element={<NewsPage />} />
