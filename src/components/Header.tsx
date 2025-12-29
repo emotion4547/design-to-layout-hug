@@ -94,7 +94,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full py-4 bg-background">
+    <header className="sticky top-0 z-50 w-full py-4">
       <div className="container">
         {/* Main header bar with rounded corners */}
         <nav className="bg-primary rounded-full px-6 py-3 flex items-center justify-between">
