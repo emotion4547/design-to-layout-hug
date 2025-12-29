@@ -30,6 +30,8 @@ import AdminPromotions from "./pages/admin/AdminPromotions";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminCollections from "./pages/admin/AdminCollections";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminDesign from "./pages/admin/AdminDesign";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 const queryClient = new QueryClient();
 
@@ -37,45 +39,48 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <CartProvider>
-          <FavoritesProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/catalog" element={<Catalog />} />
-                <Route path="/catalog/:id" element={<Product />} />
-                <Route path="/collection/:slug" element={<CollectionPage />} />
-                <Route path="/promotions" element={<Promotions />} />
-                <Route path="/promotions/:id" element={<PromotionDetail />} />
-                <Route path="/news" element={<NewsPage />} />
-                <Route path="/news/:id" element={<NewsDetail />} />
-                <Route path="/delivery" element={<DeliveryPage />} />
-                <Route path="/contacts" element={<ContactsPage />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/favorites" element={<Favorites />} />
-                <Route path="/auth" element={<Auth />} />
-                {/* Admin Routes - Protected */}
-                <Route path="/admin" element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminLayout />
-                  </ProtectedRoute>
-                }>
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="products" element={<AdminProducts />} />
-                  <Route path="orders" element={<AdminOrders />} />
-                  <Route path="news" element={<AdminNews />} />
-                  <Route path="promotions" element={<AdminPromotions />} />
-                  <Route path="categories" element={<AdminCategories />} />
-                  <Route path="collections" element={<AdminCollections />} />
-                  <Route path="settings" element={<AdminSettings />} />
-                </Route>
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </FavoritesProvider>
-        </CartProvider>
+        <ThemeProvider>
+          <CartProvider>
+            <FavoritesProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/catalog" element={<Catalog />} />
+                  <Route path="/catalog/:id" element={<Product />} />
+                  <Route path="/collection/:slug" element={<CollectionPage />} />
+                  <Route path="/promotions" element={<Promotions />} />
+                  <Route path="/promotions/:id" element={<PromotionDetail />} />
+                  <Route path="/news" element={<NewsPage />} />
+                  <Route path="/news/:id" element={<NewsDetail />} />
+                  <Route path="/delivery" element={<DeliveryPage />} />
+                  <Route path="/contacts" element={<ContactsPage />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/favorites" element={<Favorites />} />
+                  <Route path="/auth" element={<Auth />} />
+                  {/* Admin Routes - Protected */}
+                  <Route path="/admin" element={
+                    <ProtectedRoute requireAdmin>
+                      <AdminLayout />
+                    </ProtectedRoute>
+                  }>
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="products" element={<AdminProducts />} />
+                    <Route path="orders" element={<AdminOrders />} />
+                    <Route path="news" element={<AdminNews />} />
+                    <Route path="promotions" element={<AdminPromotions />} />
+                    <Route path="categories" element={<AdminCategories />} />
+                    <Route path="collections" element={<AdminCollections />} />
+                    <Route path="design" element={<AdminDesign />} />
+                    <Route path="settings" element={<AdminSettings />} />
+                  </Route>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </FavoritesProvider>
+          </CartProvider>
+        </ThemeProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
