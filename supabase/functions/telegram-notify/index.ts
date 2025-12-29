@@ -16,11 +16,23 @@ serve(async (req) => {
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   try {
+    // Parse body first
+    const { order, items } = await req.json();
+    console.log('Received order for Telegram notification:', order?.id);
+    console.log('Order data:', JSON.stringify(order));
+    console.log('Items data:', JSON.stringify(items));
+
     // Get Telegram settings
-    const { data: settings } = await supabase
+    const { data: settings, error: settingsError } = await supabase
       .from('site_settings')
       .select('key, value')
       .in('key', ['telegram_bot_token', 'telegram_chat_id', 'telegram_enabled']);
+
+    if (settingsError) {
+      console.error('Error fetching settings:', settingsError);
+    }
+
+    console.log('Telegram settings:', JSON.stringify(settings));
 
     const settingsMap = settings?.reduce((acc, s) => {
       acc[s.key] = s.value;
@@ -31,6 +43,8 @@ serve(async (req) => {
     const chatId = settingsMap['telegram_chat_id'];
     const enabled = settingsMap['telegram_enabled'] === 'true';
 
+    console.log('Telegram enabled:', enabled, 'Has token:', !!botToken, 'Has chat:', !!chatId);
+
     if (!enabled || !botToken || !chatId) {
       console.log('Telegram not configured or disabled');
       return new Response(
@@ -39,7 +53,6 @@ serve(async (req) => {
       );
     }
 
-    const { order, items } = await req.json();
     console.log('Sending Telegram notification for order:', order.id);
 
     // Format order items
