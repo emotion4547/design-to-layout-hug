@@ -42,8 +42,8 @@ export const Features = () => {
               key={feature.title}
               className="flex flex-col items-start"
             >
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <feature.icon className="h-6 w-6 text-primary" />
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-5">
+                <feature.icon className="h-7 w-7 text-primary" strokeWidth={1.5} />
               </div>
               <h3 className="font-semibold text-lg mb-3">{feature.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
