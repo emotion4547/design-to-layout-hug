@@ -53,6 +53,7 @@ export async function getProducts(options?: {
   categoryIds?: string[];
   categorySlug?: string;
   category?: ProductCategory | 'all'; // Legacy support
+  productIds?: string[]; // Filter by specific product IDs (for collections)
   search?: string;
   minPrice?: number;
   maxPrice?: number;
@@ -69,6 +70,11 @@ export async function getProducts(options?: {
   // By default, show only in-stock products (can be overridden)
   if (options?.inStockOnly !== false) {
     query = query.eq('in_stock', true);
+  }
+
+  // Filter by specific product IDs (e.g., for collections)
+  if (options?.productIds && options.productIds.length > 0) {
+    query = query.in('id', options.productIds);
   }
 
   // Filter by multiple category_ids (new way - multi-select)

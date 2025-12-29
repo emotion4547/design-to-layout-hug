@@ -27,7 +27,7 @@ export const CollectionCards = () => {
         {collections.map((collection) => (
           <Link
             key={collection.id}
-            to={`/catalog?collection=${collection.slug}`}
+            to={`/collection/${collection.slug}`}
             className="group relative overflow-hidden rounded-2xl aspect-[16/9] bg-muted"
           >
             {collection.image_url ? (
