@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Layers
 } from 'lucide-react';
 
 const navItems = [
@@ -32,6 +33,11 @@ const navItems = [
     label: 'Категории', 
     path: '/admin/categories', 
     icon: FolderTree 
+  },
+  { 
+    label: 'Подборки', 
+    path: '/admin/collections', 
+    icon: Layers 
   },
   { 
     label: 'Заказы', 

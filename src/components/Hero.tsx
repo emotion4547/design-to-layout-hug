@@ -1,4 +1,5 @@
 import heroImage from '@/assets/hero-flowers.jpg';
+import { CollectionCards } from './CollectionCards';
 
 export const Hero = () => {
   return (
@@ -33,16 +34,8 @@ export const Hero = () => {
           </div>
         </div>
         
-        {/* Scrolling tagline */}
-        <div className="relative overflow-hidden py-4 mt-6 border-y border-border bg-primary rounded-full">
-          <div className="flex animate-marquee whitespace-nowrap">
-            {[...Array(8)].map((_, i) => (
-              <span key={i} className="mx-4 text-sm text-primary-foreground font-medium flex items-center gap-2">
-                <span>🌸</span> готовый букет с доставкой за 30 минут <span>🌸</span> онлайн витрина
-              </span>
-            ))}
-          </div>
-        </div>
+        {/* Collection Cards */}
+        <CollectionCards />
       </div>
     </section>
   );
