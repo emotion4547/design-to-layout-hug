@@ -27,7 +27,7 @@ const MessengerIcon = () => (
 const footerLinks = {
   left: [
     { name: 'Главная', href: '/' },
-    { name: 'Каталог', href: '/' },
+    { name: 'Каталог', href: '/catalog' },
     { name: 'Доставка', href: '/delivery' },
   ],
   right: [
@@ -37,6 +37,12 @@ const footerLinks = {
     { name: 'Контакты', href: '/contacts' },
   ],
 };
+
+const legalLinks = [
+  { name: 'Политика обработки персональных данных', href: '/privacy' },
+  { name: 'Пользование сайтом', href: '/terms' },
+  { name: 'Возврат товара', href: '/return' },
+];
 
 export const Footer = () => {
   // Get settings from database
@@ -165,18 +171,20 @@ export const Footer = () => {
               </div>
 
               {/* Legal Links */}
-              <div className="text-sm text-white/60 space-y-1">
-                <a href="/privacy" className="hover:text-white/80 transition-colors underline block lg:inline">
-                  Политика обработки персональных данных
-                </a>
-                <div className="lg:inline lg:mx-2 hidden">|</div>
-                <a href="/terms" className="hover:text-white/80 transition-colors underline block lg:inline">
-                  Пользование сайтом
-                </a>
-                <div className="lg:inline lg:mx-2 hidden">|</div>
-                <a href="/return" className="hover:text-white/80 transition-colors underline block lg:inline">
-                  Возврат товара
-                </a>
+              <div className="text-sm text-white/60 flex flex-wrap gap-x-1 gap-y-1 lg:justify-end">
+                {legalLinks.map((link, index) => (
+                  <span key={link.href} className="inline-flex items-center">
+                    <Link 
+                      to={link.href}
+                      className="hover:text-white/80 transition-colors underline"
+                    >
+                      {link.name}
+                    </Link>
+                    {index < legalLinks.length - 1 && (
+                      <span className="mx-2 hidden lg:inline">|</span>
+                    )}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
