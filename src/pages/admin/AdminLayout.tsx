@@ -15,7 +15,8 @@ import {
   X,
   LogOut,
   Layers,
-  Settings
+  Settings,
+  Palette
 } from 'lucide-react';
 
 const navItems = [
@@ -54,6 +55,11 @@ const navItems = [
     label: 'Акции', 
     path: '/admin/promotions', 
     icon: Percent 
+  },
+  { 
+    label: 'Дизайн', 
+    path: '/admin/design', 
+    icon: Palette 
   },
   { 
     label: 'Настройки', 
