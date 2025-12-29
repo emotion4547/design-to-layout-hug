@@ -53,7 +53,7 @@ export const ProductGrid = () => {
   };
 
   return (
-    <section id="catalog" className="py-12">
+    <section id="catalog" className="py-12 md:py-16">
       <CategoryTabs 
         activeCategories={activeCategories} 
         onCategoryChange={(ids) => {
