@@ -57,9 +57,9 @@ const TelegramIcon = () => (
 const ContactsPage = () => {
   return (
     <PageLayout>
-      {/* Full-width Map Section - At the very top */}
-      <section className="w-full -mt-20 pt-20">
-        <div className="w-full h-[400px] md:h-[450px] relative">
+      {/* Full-width Map Section - At the very top, under header */}
+      <section className="w-full -mt-4">
+        <div className="w-full h-[400px] md:h-[450px]">
           <iframe
             src="https://yandex.ru/map-widget/v1/?um=constructor%3A89d9f1b7c1f8d5b5e5a8f2c3d4e5f6a7&amp;source=constructor&amp;ll=37.770833%2C44.723889&amp;z=14&amp;pt=37.770833%2C44.723889%2Cpm2rdm"
             width="100%"
@@ -69,28 +69,6 @@ const ContactsPage = () => {
             style={{ position: 'relative' }}
             title="Карта с расположением магазина"
           />
-          
-          {/* Map Overlay with Address */}
-          <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 bg-background/95 backdrop-blur-sm rounded-lg p-4 md:p-6 shadow-lg max-w-sm">
-            <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="font-semibold text-foreground">г. Новороссийск</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Доставка по всему городу и пригороду
-                </p>
-                <a 
-                  href="https://yandex.ru/maps/-/CHQoiDYT"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-sm text-primary hover:underline mt-2"
-                >
-                  Открыть в Яндекс.Картах
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
