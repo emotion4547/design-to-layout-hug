@@ -43,7 +43,7 @@ export const CollectionCards = () => {
           <Link
             key={collection.id}
             to={`/collection/${collection.slug}`}
-            className="group relative overflow-hidden rounded-xl h-20 bg-muted animate-fade-in"
+            className="group relative overflow-hidden rounded-xl h-20 bg-muted animate-fade-in transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/20"
             style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
           >
             {collection.image_url ? (
