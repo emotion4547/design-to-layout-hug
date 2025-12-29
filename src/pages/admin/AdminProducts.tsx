@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import * as XLSX from 'xlsx';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -28,7 +29,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Pencil, Trash2, Loader2, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, Search, Download, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { MultiImageUpload } from '@/components/MultiImageUpload';
 import { useCategories } from '@/hooks/useCategories';
@@ -40,11 +41,14 @@ import {
   Product,
   ProductInsert,
 } from '@/services/products';
+import { supabase } from '@/integrations/supabase/client';
 
 const AdminProducts = () => {
   const [search, setSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<Partial<ProductInsert> & { images?: string[]; category_id?: string }>({
     name: '',
     description: '',
@@ -168,23 +172,197 @@ const AdminProducts = () => {
     return new Intl.NumberFormat('ru-RU').format(price);
   };
 
+  // Export products to Excel
+  const handleExport = () => {
+    if (!products || products.length === 0) {
+      toast({ title: 'Нет товаров для экспорта', variant: 'destructive' });
+      return;
+    }
+
+    const exportData = products.map((product) => ({
+      'ID': product.id,
+      'Название': product.name,
+      'Описание': product.description || '',
+      'Цена': product.price,
+      'Старая цена': product.old_price || '',
+      'Категория': categories?.find(c => c.id === (product as any).category_id)?.name || '',
+      'ID категории': (product as any).category_id || '',
+      'Артикул': product.article || '',
+      'Размер': product.size || '',
+      'В наличии': product.in_stock ? 'Да' : 'Нет',
+      'Изображение': product.image_url || '',
+      'Галерея': product.images?.join(', ') || '',
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Товары');
+
+    // Auto-size columns
+    const maxWidth = 50;
+    const colWidths = Object.keys(exportData[0] || {}).map((key) => ({
+      wch: Math.min(maxWidth, Math.max(key.length, ...exportData.map(row => String(row[key as keyof typeof row] || '').length)))
+    }));
+    worksheet['!cols'] = colWidths;
+
+    XLSX.writeFile(workbook, `products_${new Date().toISOString().split('T')[0]}.xlsx`);
+    toast({ title: `Экспортировано ${products.length} товаров` });
+  };
+
+  // Import products from Excel
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet) as Record<string, any>[];
+
+      if (jsonData.length === 0) {
+        toast({ title: 'Файл пустой', variant: 'destructive' });
+        setIsImporting(false);
+        return;
+      }
+
+      let created = 0;
+      let updated = 0;
+      let errors = 0;
+
+      for (const row of jsonData) {
+        const productData: Partial<ProductInsert> & { category_id?: string } = {
+          name: String(row['Название'] || '').trim(),
+          description: String(row['Описание'] || '').trim() || null,
+          price: Number(row['Цена']) || 0,
+          old_price: row['Старая цена'] ? Number(row['Старая цена']) : null,
+          category_id: row['ID категории'] || categories?.find(c => c.name === row['Категория'])?.id || undefined,
+          article: String(row['Артикул'] || '').trim() || null,
+          size: String(row['Размер'] || '').trim() || null,
+          in_stock: row['В наличии'] === 'Да' || row['В наличии'] === true || row['В наличии'] === 'true',
+          image_url: String(row['Изображение'] || '').trim() || '',
+          images: row['Галерея'] ? String(row['Галерея']).split(',').map(s => s.trim()).filter(Boolean) : [],
+        };
+
+        if (!productData.name || !productData.price) {
+          errors++;
+          continue;
+        }
+
+        const existingId = row['ID'];
+
+        try {
+          if (existingId && products?.some(p => p.id === existingId)) {
+            // Update existing product
+            const { error } = await supabase
+              .from('products')
+              .update({
+                name: productData.name,
+                description: productData.description,
+                price: productData.price,
+                old_price: productData.old_price,
+                category_id: productData.category_id,
+                article: productData.article,
+                size: productData.size,
+                in_stock: productData.in_stock,
+                image_url: productData.image_url,
+                images: productData.images,
+              })
+              .eq('id', existingId);
+            
+            if (error) throw error;
+            updated++;
+          } else {
+            // Create new product
+            const { error } = await supabase
+              .from('products')
+              .insert({
+                name: productData.name,
+                description: productData.description,
+                price: productData.price,
+                old_price: productData.old_price,
+                category_id: productData.category_id,
+                article: productData.article,
+                size: productData.size,
+                in_stock: productData.in_stock ?? true,
+                image_url: productData.image_url || '/placeholder.svg',
+                images: productData.images,
+              });
+            
+            if (error) throw error;
+            created++;
+          }
+        } catch (err) {
+          console.error('Error importing product:', err);
+          errors++;
+        }
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
+      
+      toast({ 
+        title: 'Импорт завершён',
+        description: `Создано: ${created}, обновлено: ${updated}, ошибок: ${errors}`,
+      });
+    } catch (err) {
+      console.error('Import error:', err);
+      toast({ title: 'Ошибка импорта файла', variant: 'destructive' });
+    } finally {
+      setIsImporting(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold mb-2">Товары</h1>
           <p className="text-muted-foreground">Управление каталогом товаров</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) resetForm();
-        }}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Добавить товар
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Export Button */}
+          <Button variant="outline" onClick={handleExport} disabled={!products?.length}>
+            <Download className="h-4 w-4 mr-2" />
+            Экспорт Excel
+          </Button>
+
+          {/* Import Button */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,.xls"
+            onChange={handleImport}
+            className="hidden"
+          />
+          <Button 
+            variant="outline" 
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isImporting}
+          >
+            {isImporting ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Upload className="h-4 w-4 mr-2" />
+            )}
+            Импорт Excel
+          </Button>
+
+          {/* Add Product Dialog */}
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) resetForm();
+          }}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Добавить товар
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
@@ -304,6 +482,7 @@ const AdminProducts = () => {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Search */}
