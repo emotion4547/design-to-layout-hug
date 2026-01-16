@@ -22,16 +22,16 @@ const navigation = [
 ];
 
 const catalogCategories = [
-  { id: 'all', name: 'Все букеты', href: '/catalog' },
-  { id: 'aromatic', name: 'Ароматные', href: '/catalog?category=aromatic' },
-  { id: 'new-year', name: 'Новогодние композиции', href: '/catalog?category=new-year' },
-  { id: 'mono', name: 'Монобукеты', href: '/catalog?category=mono' },
-  { id: 'author', name: 'Авторские букеты', href: '/catalog?category=author' },
-  { id: 'edible', name: 'Съедобные букеты', href: '/catalog?category=edible' },
-  { id: 'wedding', name: 'Свадебные букеты', href: '/catalog?category=wedding' },
-  { id: 'box', name: 'Цветы в коробках', href: '/catalog?category=box' },
-  { id: 'gifts', name: 'Подарки', href: '/catalog?category=gifts' },
-  { id: 'balloons', name: 'Воздушные шары', href: '/catalog?category=balloons' },
+  { id: 'all', name: 'Все товары', href: '/catalog' },
+  { id: 'latex', name: 'Латексные шары', href: '/catalog?category=latex' },
+  { id: 'foil', name: 'Фольгированные шары', href: '/catalog?category=foil' },
+  { id: 'figures', name: 'Фигуры из шаров', href: '/catalog?category=figures' },
+  { id: 'numbers', name: 'Цифры и буквы', href: '/catalog?category=numbers' },
+  { id: 'sets', name: 'Наборы шаров', href: '/catalog?category=sets' },
+  { id: 'birthday', name: 'День рождения', href: '/catalog?category=birthday' },
+  { id: 'wedding', name: 'Свадебные', href: '/catalog?category=wedding' },
+  { id: 'kids', name: 'Детские', href: '/catalog?category=kids' },
+  { id: 'accessories', name: 'Аксессуары', href: '/catalog?category=accessories' },
 ];
 
 // Social icons as SVG components
@@ -107,19 +107,19 @@ export const Header = () => {
         <nav className="bg-primary rounded-full px-6 py-3 flex items-center justify-between">
           {/* Logo Section */}
           <Link to="/" className="flex items-center gap-3">
-            {/* Flower Icon */}
+            {/* Balloon Icon */}
             <div className="text-white/90">
               <svg viewBox="0 0 40 40" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M20 35V20M20 20C20 20 12 15 12 10C12 6 15 4 20 8C25 4 28 6 28 10C28 15 20 20 20 20Z" />
-                <path d="M15 25C10 23 8 18 10 14M25 25C30 23 32 18 30 14" />
-                <path d="M20 8C20 8 18 4 14 4M20 8C20 8 22 4 26 4" />
+                <ellipse cx="20" cy="15" rx="10" ry="12" />
+                <path d="M17 27L20 35L23 27" />
+                <path d="M18 35C18 35 20 37 22 35" />
               </svg>
             </div>
             
             {/* Brand */}
             <div className="text-white">
-              <span className="text-xl font-bold tracking-wide">Бутон в тон</span>
-              <p className="text-[10px] text-white/70 -mt-0.5">букеты, наполненные чувствами</p>
+              <span className="text-xl font-bold tracking-wide">Ваше название</span>
+              <p className="text-[10px] text-white/70 -mt-0.5">воздушные шары с гелием</p>
             </div>
           </Link>
 

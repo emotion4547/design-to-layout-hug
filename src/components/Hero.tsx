@@ -38,10 +38,10 @@ export const Hero = () => {
           <div className="relative z-10 flex flex-col items-center text-center gap-4 px-8">
             <div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2 text-white drop-shadow-lg">
-                Бутон в тон
+                Ваше название
               </h1>
               <p className="text-base md:text-lg text-white/90 drop-shadow-md">
-                букеты, наполненные чувствами
+                воздушные шары с гелием
               </p>
             </div>
             <div className="mt-2">
@@ -49,7 +49,7 @@ export const Hero = () => {
                 лучший сервис по доставке
               </p>
               <p className="text-base md:text-lg text-white/90 leading-relaxed drop-shadow-md">
-                цветов и съедобных букетов в городе Новороссийск
+                воздушных шаров в вашем городе
               </p>
             </div>
           </div>
