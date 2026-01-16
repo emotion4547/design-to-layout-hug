@@ -1,7 +1,7 @@
 import bonusFlowers from '@/assets/bonus-flowers.avif';
 
 const bonusPoints = [
-  'никаких баллов - бонусная система 1 бонус - 1 рубль',
+  'никаких баллов - бонусная система 1 бонус = 1 рубль',
   'оплатить можно 15% от суммы заказа в любой день, за исключением праздничных',
   'всегда с вами - бонусы привязаны к номеру телефона',
   'приятный подарок - приветственные бонусы при регистрации',
@@ -18,7 +18,7 @@ export const BonusSystem = () => {
           <div className="relative rounded-2xl overflow-hidden aspect-[4/3]">
             <img 
               src={bonusFlowers} 
-              alt="Цветочный магазин" 
+              alt="Воздушные шары" 
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />

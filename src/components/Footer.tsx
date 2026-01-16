@@ -67,14 +67,14 @@ export const Footer = () => {
               <div className="flex items-center gap-3 mb-8">
                 <div className="text-white/90">
                   <svg viewBox="0 0 40 40" className="h-12 w-12" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M20 35V20M20 20C20 20 12 15 12 10C12 6 15 4 20 8C25 4 28 6 28 10C28 15 20 20 20 20Z" />
-                    <path d="M15 25C10 23 8 18 10 14M25 25C30 23 32 18 30 14" />
-                    <path d="M20 8C20 8 18 4 14 4M20 8C20 8 22 4 26 4" />
+                    <ellipse cx="20" cy="15" rx="10" ry="12" />
+                    <path d="M17 27L20 35L23 27" />
+                    <path d="M18 35C18 35 20 37 22 35" />
                   </svg>
                 </div>
                 <div>
-                  <span className="text-2xl font-bold tracking-wide">Бутон в тон</span>
-                  <p className="text-sm text-white/70">букеты, наполненные чувствами</p>
+                  <span className="text-2xl font-bold tracking-wide">Ваше название</span>
+                  <p className="text-sm text-white/70">воздушные шары с гелием</p>
                 </div>
               </div>
 
