@@ -6,6 +6,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { SearchAutocomplete } from '@/components/SearchAutocomplete';
 import { useSetting } from '@/hooks/useSettings';
+import { useCategories } from '@/hooks/useCategories';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,18 +22,6 @@ const navigation = [
   { name: 'Контакты', href: '/contacts' },
 ];
 
-const catalogCategories = [
-  { id: 'all', name: 'Все товары', href: '/catalog' },
-  { id: 'latex', name: 'Латексные шары', href: '/catalog?category=latex' },
-  { id: 'foil', name: 'Фольгированные шары', href: '/catalog?category=foil' },
-  { id: 'figures', name: 'Фигуры из шаров', href: '/catalog?category=figures' },
-  { id: 'numbers', name: 'Цифры и буквы', href: '/catalog?category=numbers' },
-  { id: 'sets', name: 'Наборы шаров', href: '/catalog?category=sets' },
-  { id: 'birthday', name: 'День рождения', href: '/catalog?category=birthday' },
-  { id: 'wedding', name: 'Свадебные', href: '/catalog?category=wedding' },
-  { id: 'kids', name: 'Детские', href: '/catalog?category=kids' },
-  { id: 'accessories', name: 'Аксессуары', href: '/catalog?category=accessories' },
-];
 
 // Social icons as SVG components
 const VKIcon = () => (
@@ -77,6 +66,16 @@ export const Header = () => {
   const { data: telegramUrl } = useSetting('telegram_url');
   const { data: whatsappUrl } = useSetting('whatsapp_url');
   const { data: instagramUrl } = useSetting('instagram_url');
+
+  const { data: categories } = useCategories({ activeOnly: true });
+  const catalogCategories = [
+    { id: 'all', name: 'Все товары', href: '/catalog' },
+    ...(categories || []).map((cat) => ({
+      id: cat.id,
+      name: cat.name,
+      href: `/catalog?category=${cat.slug}`,
+    })),
+  ];
 
   // Trigger pulse animation when items are added to cart
   useEffect(() => {
