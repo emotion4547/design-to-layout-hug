@@ -26,7 +26,7 @@ const getContactInfo = (phone: string, email: string | null, address: string | n
   {
     icon: Clock,
     label: 'Режим работы',
-    value: 'Ежедневно с 7:00 до 23:00',
+    value: 'Ежедневно 7:00–23:00',
     href: null,
   },
 ];
