@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Save, Phone, MapPin, MessageCircle, Snowflake, PartyPopper, Sparkles, Image as ImageIcon} from 'lucide-react';
+import { Save, Phone, MapPin, MessageCircle, Snowflake, PartyPopper, Sparkles, Image as ImageIcon, Flower2 } from 'lucide-react';
 import { useSetting, useUpdateSetting } from '@/hooks/useSettings';
 import { ImageUpload } from '@/components/ImageUpload';
 
@@ -267,6 +267,12 @@ const AdminSettings = () => {
               description="Анимированные вспышки фейерверка"
               settingKey="fireworks_enabled"
               icon={<Sparkles className="h-5 w-5 text-yellow-400" />}
+            />
+            <ToggleSetting
+              label="Лепестки"
+              description="Падающие розовые цветочные лепестки"
+              settingKey="petals_enabled"
+              icon={<Flower2 className="h-5 w-5 text-pink-400" />}
             />
           </CardContent>
         </Card>
