@@ -48,6 +48,16 @@ const statusColors: Record<OrderStatus, string> = {
   cancelled: 'bg-red-100 text-red-800',
 };
 
+interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id: string | null;
+  product_name: string;
+  product_price: number;
+  quantity: number;
+  addons: unknown;
+}
+
 interface Order {
   id: string;
   customer_name: string;
@@ -69,6 +79,7 @@ interface Order {
   card_text: string | null;
   delivery_type: string | null;
   pickup_time: string | null;
+  order_items: OrderItem[];
 }
 
 const AdminOrders = () => {
@@ -84,7 +95,7 @@ const AdminOrders = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('orders')
-        .select('*')
+        .select('*, order_items(*)')
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data as Order[];
@@ -178,6 +189,7 @@ const AdminOrders = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Дата</TableHead>
+                  <TableHead>Товары</TableHead>
                   <TableHead>Отправитель</TableHead>
                   <TableHead>Получатель</TableHead>
                   <TableHead>Доставка</TableHead>
@@ -191,6 +203,18 @@ const AdminOrders = () => {
                   <TableRow key={order.id}>
                     <TableCell className="text-sm text-muted-foreground">
                       {formatDate(order.created_at)}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-0.5 max-w-[200px]">
+                        {order.order_items?.map((item, idx) => (
+                          <div key={idx} className="text-sm truncate">
+                            {item.product_name} × {item.quantity}
+                          </div>
+                        ))}
+                        {(!order.order_items || order.order_items.length === 0) && (
+                          <span className="text-muted-foreground text-sm">—</span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="font-medium">{order.sender_name || order.customer_name}</div>
@@ -292,6 +316,34 @@ const AdminOrders = () => {
                   <p className="font-medium">{formatPrice(selectedOrder.total_price)} ₽</p>
                 </div>
               </div>
+
+              {/* Order Items */}
+              {selectedOrder.order_items && selectedOrder.order_items.length > 0 && (
+                <div className="p-4 bg-secondary/50 rounded-lg space-y-3">
+                  <h3 className="font-semibold">Состав заказа</h3>
+                  <div className="space-y-2">
+                    {selectedOrder.order_items.map((item) => {
+                      const addons = Array.isArray(item.addons) ? item.addons as { name: string; price: number }[] : [];
+                      return (
+                        <div key={item.id} className="flex justify-between items-start text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
+                          <div>
+                            <p className="font-medium">{item.product_name}</p>
+                            <p className="text-muted-foreground">Кол-во: {item.quantity} × {formatPrice(item.product_price)} ₽</p>
+                            {addons.length > 0 && (
+                              <div className="text-xs text-muted-foreground mt-1">
+                                Доп.: {addons.map(a => `${a.name} (+${formatPrice(a.price)} ₽)`).join(', ')}
+                              </div>
+                            )}
+                          </div>
+                          <p className="font-medium whitespace-nowrap ml-4">
+                            {formatPrice(item.product_price * item.quantity)} ₽
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Sender */}
               <div className="p-4 bg-secondary/50 rounded-lg space-y-2">
