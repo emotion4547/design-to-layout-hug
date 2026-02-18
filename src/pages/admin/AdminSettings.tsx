@@ -169,6 +169,12 @@ const AdminSettings = () => {
               placeholder="г. Новороссийск, ул. Примерная, 1"
               icon={<MapPin className="h-4 w-4" />}
             />
+            <SettingField
+              label="Электронная почта"
+              settingKey="email"
+              placeholder="info@example.com"
+              icon={<MessageCircle className="h-4 w-4" />}
+            />
           </CardContent>
         </Card>
 
