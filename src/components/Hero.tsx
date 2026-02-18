@@ -4,6 +4,7 @@ import { CollectionCards } from './CollectionCards';
 import { Snowfall } from './Snowfall';
 import { Confetti } from './Confetti';
 import { Fireworks } from './Fireworks';
+import { FallingPetals } from './FallingPetals';
 import { useSetting } from '@/hooks/useSettings';
 
 export const Hero = () => {
@@ -31,6 +32,7 @@ export const Hero = () => {
           {showSnow && <Snowfall />}
           {showConfetti && <Confetti />}
           {showFireworks && <Fireworks />}
+          <FallingPetals />
           
           {/* Subtle gradient overlay for text readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
