@@ -125,22 +125,22 @@ const AdminLayout = () => {
           <h1 className="text-xl font-bold mt-4">Админ-панель</h1>
         </div>
 
-        <nav className="p-4 mt-16 lg:mt-0 flex flex-col h-[calc(100%-4rem)] lg:h-[calc(100%-6rem)] overflow-y-auto">
-          <div className="flex-1 min-h-0">
+        <nav className="p-4 mt-16 lg:mt-0 flex flex-col h-[calc(100%-4rem)] lg:h-[calc(100%-6rem)]">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 onClick={() => setSidebarOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors",
+                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
                   isActive(item.path, item.end)
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                 )}
               >
-                <item.icon className="h-5 w-5" />
-                <span className="font-medium">{item.label}</span>
+                <item.icon className="h-4 w-4 flex-shrink-0" />
+                <span className="text-sm font-medium">{item.label}</span>
               </Link>
             ))}
           </div>
