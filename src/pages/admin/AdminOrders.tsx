@@ -56,6 +56,7 @@ interface OrderItem {
   product_price: number;
   quantity: number;
   addons: unknown;
+  products: { image_url: string } | null;
 }
 
 interface Order {
@@ -95,7 +96,7 @@ const AdminOrders = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('orders')
-        .select('*, order_items(*)')
+        .select('*, order_items(*, products(image_url))')
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data as Order[];
@@ -207,8 +208,11 @@ const AdminOrders = () => {
                     <TableCell>
                       <div className="space-y-0.5 max-w-[200px]">
                         {order.order_items?.map((item, idx) => (
-                          <div key={idx} className="text-sm truncate">
-                            {item.product_name} × {item.quantity}
+                          <div key={idx} className="flex items-center gap-2 text-sm">
+                            {item.products?.image_url && (
+                              <img src={item.products.image_url} alt="" className="w-8 h-8 rounded object-cover shrink-0" />
+                            )}
+                            <span className="truncate">{item.product_name} × {item.quantity}</span>
                           </div>
                         ))}
                         {(!order.order_items || order.order_items.length === 0) && (
@@ -325,8 +329,11 @@ const AdminOrders = () => {
                     {selectedOrder.order_items.map((item) => {
                       const addons = Array.isArray(item.addons) ? item.addons as { name: string; price: number }[] : [];
                       return (
-                        <div key={item.id} className="flex justify-between items-start text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
-                          <div>
+                        <div key={item.id} className="flex items-start gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
+                          {item.products?.image_url && (
+                            <img src={item.products.image_url} alt={item.product_name} className="w-14 h-14 rounded-lg object-cover shrink-0" />
+                          )}
+                          <div className="flex-1 min-w-0">
                             <p className="font-medium">{item.product_name}</p>
                             <p className="text-muted-foreground">Кол-во: {item.quantity} × {formatPrice(item.product_price)} ₽</p>
                             {addons.length > 0 && (
