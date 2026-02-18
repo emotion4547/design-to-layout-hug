@@ -105,7 +105,7 @@ const ContactsPage = () => {
       <section className="w-full -mt-4">
         <div className="w-full h-[400px] md:h-[450px]">
           <iframe
-            src="https://yandex.ru/map-widget/v1/?um=constructor%3A89d9f1b7c1f8d5b5e5a8f2c3d4e5f6a7&amp;source=constructor&amp;ll=37.770833%2C44.723889&amp;z=14&amp;pt=37.770833%2C44.723889%2Cpm2rdm"
+            src={`https://yandex.ru/map-widget/v1/?text=${encodeURIComponent(address || 'г. Новороссийск, ул. Куникова, 47а')}&z=16`}
             width="100%"
             height="100%"
             frameBorder="0"
