@@ -2,6 +2,7 @@ import { PageLayout } from '@/components/PageLayout';
 import { MapPin, Clock, Truck, CheckCircle, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SEO, BreadcrumbSchema, FAQSchema } from '@/components/SEO';
+import { useSetting } from '@/hooks/useSettings';
 
 const deliveryZones = [
   {
@@ -40,6 +41,9 @@ const deliveryDetails = [
 ];
 
 const DeliveryPage = () => {
+  const { data: phone } = useSetting('phone');
+  const displayPhone = phone || '8 964 456 00 66';
+  const phoneHref = 'tel:' + displayPhone.replace(/[^+\d]/g, '');
   return (
     <PageLayout>
       <SEO
@@ -142,10 +146,10 @@ const DeliveryPage = () => {
               <h3 className="text-2xl font-bold mb-2">Остались вопросы?</h3>
               <p className="text-muted-foreground">Позвоните нам, и мы всё расскажем</p>
             </div>
-            <a href="tel:89644560066">
+            <a href={phoneHref}>
               <Button size="lg" className="gap-2">
                 <Phone className="h-5 w-5" />
-                8 964 456 00 66
+                {displayPhone}
               </Button>
             </a>
           </div>
