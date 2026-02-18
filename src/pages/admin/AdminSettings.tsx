@@ -200,6 +200,11 @@ const AdminSettings = () => {
               placeholder="https://wa.me/79991234567"
             />
             <SettingField
+              label="Max (Макс)"
+              settingKey="max_url"
+              placeholder="https://max.im/your_page"
+            />
+            <SettingField
               label="Instagram"
               settingKey="instagram_url"
               placeholder="https://instagram.com/your_page"
