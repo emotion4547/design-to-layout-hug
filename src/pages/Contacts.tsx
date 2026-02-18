@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { SEO, BreadcrumbSchema, FAQSchema } from '@/components/SEO';
 import { useSetting } from '@/hooks/useSettings';
 
-const getContactInfo = (phone: string, email: string | null) => [
+const getContactInfo = (phone: string, email: string | null, address: string | null) => [
   {
     icon: Phone,
     label: 'Телефон',
@@ -14,7 +14,7 @@ const getContactInfo = (phone: string, email: string | null) => [
   {
     icon: MapPin,
     label: 'Адрес',
-    value: 'г. Новороссийск',
+    value: address || 'г. Новороссийск',
     href: 'https://yandex.ru/maps/-/CHQoiDYT',
   },
   {
@@ -77,12 +77,13 @@ const MaxIcon = () => (
 const ContactsPage = () => {
   const { data: phone } = useSetting('phone');
   const { data: email } = useSetting('email');
+  const { data: address } = useSetting('address');
   const { data: vkUrl } = useSetting('vk_url');
   const { data: telegramUrl } = useSetting('telegram_url');
   const { data: whatsappUrl } = useSetting('whatsapp_url');
   const { data: instagramUrl } = useSetting('instagram_url');
   const { data: maxUrl } = useSetting('max_url');
-  const contactInfo = getContactInfo(phone || '8 964 456 00 66', email);
+  const contactInfo = getContactInfo(phone || '8 964 456 00 66', email, address);
   return (
     <PageLayout>
       <SEO
