@@ -55,10 +55,20 @@ serve(async (req) => {
 
     console.log('Sending Telegram notification for order:', order.id);
 
-    // Format order items
-    const itemsList = items?.map((item: { product_name: string; quantity: number; product_price: number }) => 
-      `  • ${item.product_name} x${item.quantity} — ${item.product_price} ₽`
-    ).join('\n') || 'Нет товаров';
+    // Get site URL for product links
+    const { data: siteUrlSetting } = await supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'site_url')
+      .maybeSingle();
+    
+    const siteUrl = siteUrlSetting?.value || 'https://design-to-layout-hug.lovable.app';
+
+    // Format order items with product links
+    const itemsList = items?.map((item: { product_name: string; quantity: number; product_price: number; product_id?: string }) => {
+      const link = item.product_id ? `[${item.product_name}](${siteUrl}/catalog/${item.product_id})` : escapeMarkdown(item.product_name);
+      return `  • ${link} x${item.quantity} — ${item.product_price} ₽`;
+    }).join('\n') || 'Нет товаров';
 
     // Build message
     const message = `
