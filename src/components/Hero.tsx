@@ -42,7 +42,7 @@ export const Hero = () => {
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2 text-white drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
                 Везу букет
               </h1>
-              <p className="text-base md:text-lg text-white/90 drop-shadow-md italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              <p className="text-lg md:text-xl text-white/90 drop-shadow-md italic leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 с любовью в каждом букете
               </p>
             </div>
