@@ -43,15 +43,15 @@ export const Hero = () => {
                 Везу букет
               </h1>
               <p className="text-base md:text-lg text-white/90 drop-shadow-md">
-                с любовью в каждом букете
+                свежие цветы с доставкой
               </p>
             </div>
             <div className="mt-2">
               <p className="text-xl md:text-2xl lg:text-3xl font-medium text-white leading-tight mb-2 drop-shadow-lg">
-                доставка цветов и букетов
+                букеты на любой повод
               </p>
               <p className="text-base md:text-lg text-white/90 leading-relaxed drop-shadow-md">
-                по вашему городу
+                с любовью в каждом лепестке
               </p>
             </div>
           </div>
