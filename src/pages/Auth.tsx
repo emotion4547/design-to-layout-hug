@@ -126,7 +126,7 @@ const Auth = () => {
         
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">МУРАШКИ</CardTitle>
+            <CardTitle className="text-2xl">Регистрация администратора</CardTitle>
             <CardDescription>
               Войдите или зарегистрируйтесь
             </CardDescription>

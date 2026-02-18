@@ -20,7 +20,7 @@ const deliveryZones = [
     icon: Truck,
     title: 'Доставка за город',
     description: 'Мы осуществляем доставку по всему Новороссийску и пригороду, стоимость зависит от суммы заказа и удалённости.',
-    price: 'от 200 ₽',
+    price: null,
   },
   {
     icon: CheckCircle,
