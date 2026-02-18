@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import logoImage from '@/assets/logo.png';
 import { Search, Menu, X, ShoppingBag, Heart, ChevronDown } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -105,20 +106,11 @@ export const Header = () => {
         {/* Main header bar with rounded corners */}
         <nav className="bg-primary rounded-full px-6 py-3 flex items-center justify-between">
           {/* Logo Section */}
-          <Link to="/" className="flex items-center gap-3">
-            {/* Balloon Icon */}
-            <div className="text-white/90">
-              <svg viewBox="0 0 40 40" className="h-10 w-10" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <ellipse cx="20" cy="15" rx="10" ry="12" />
-                <path d="M17 27L20 35L23 27" />
-                <path d="M18 35C18 35 20 37 22 35" />
-              </svg>
-            </div>
-            
-            {/* Brand */}
+          <Link to="/" className="flex items-center gap-2">
+            <img src={logoImage} alt="Везу букет" className="h-10 w-10 rounded-full object-cover" />
             <div className="text-white">
-              <span className="text-xl font-bold tracking-wide">Ваше название</span>
-              <p className="text-[10px] text-white/70 -mt-0.5">воздушные шары с гелием</p>
+              <span className="text-xl font-bold tracking-wide">Везу букет</span>
+              <p className="text-[10px] text-white/70 -mt-0.5">с любовью в каждом букете</p>
             </div>
           </Link>
 

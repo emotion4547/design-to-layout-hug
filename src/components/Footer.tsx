@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useSetting } from '@/hooks/useSettings';
+import logoImage from '@/assets/logo.png';
 const VKIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
     <path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.864-.525-2.05-1.727-1.033-1-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.575c0 .424-.135.678-1.253.678-1.846 0-3.896-1.12-5.339-3.202-2.17-3.04-2.763-5.32-2.763-5.785 0-.254.102-.491.593-.491h1.744c.44 0 .61.203.78.677.847 2.492 2.272 4.678 2.865 4.678.22 0 .322-.102.322-.66V9.721c-.068-1.186-.695-1.287-.695-1.71 0-.203.17-.407.44-.407h2.747c.373 0 .508.203.508.643v3.473c0 .372.17.508.271.508.22 0 .407-.136.813-.542 1.27-1.422 2.18-3.609 2.18-3.609.119-.254.322-.491.763-.491h1.744c.525 0 .644.27.525.643-.22 1.017-2.356 4.031-2.356 4.031-.186.305-.254.44 0 .78.186.254.796.779 1.203 1.253.745.847 1.32 1.558 1.473 2.05.17.49-.085.744-.576.744z"/>
@@ -65,16 +66,10 @@ export const Footer = () => {
             <div>
               {/* Logo */}
               <div className="flex items-center gap-3 mb-8">
-                <div className="text-white/90">
-                  <svg viewBox="0 0 40 40" className="h-12 w-12" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <ellipse cx="20" cy="15" rx="10" ry="12" />
-                    <path d="M17 27L20 35L23 27" />
-                    <path d="M18 35C18 35 20 37 22 35" />
-                  </svg>
-                </div>
+                <img src={logoImage} alt="Везу букет" className="h-12 w-12 rounded-full object-cover" />
                 <div>
-                  <span className="text-2xl font-bold tracking-wide">Ваше название</span>
-                  <p className="text-sm text-white/70">воздушные шары с гелием</p>
+                  <span className="text-2xl font-bold tracking-wide">Везу букет</span>
+                  <p className="text-sm text-white/70">с любовью в каждом букете</p>
                 </div>
               </div>
 
