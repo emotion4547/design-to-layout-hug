@@ -39,18 +39,18 @@ export const Hero = () => {
           <div className="relative z-10 flex flex-col items-center text-center gap-4 px-8">
             <div className="flex flex-col items-center gap-3">
               <img src={logoImage} alt="Везу букет" className="h-24 w-24 md:h-32 md:w-32 rounded-full object-cover shadow-xl" />
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2 text-white drop-shadow-lg">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2 text-white drop-shadow-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
                 Везу букет
               </h1>
-              <p className="text-base md:text-lg text-white/90 drop-shadow-md">
+              <p className="text-base md:text-lg text-white/90 drop-shadow-md italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 с любовью в каждом букете
               </p>
             </div>
             <div className="mt-2">
-              <p className="text-xl md:text-2xl lg:text-3xl font-medium text-white leading-tight mb-2 drop-shadow-lg">
+              <p className="text-xl md:text-2xl lg:text-3xl font-medium text-white leading-tight mb-2 drop-shadow-lg" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 букеты на любой повод
               </p>
-              <p className="text-base md:text-lg text-white/90 leading-relaxed drop-shadow-md">
+              <p className="text-base md:text-lg text-white/90 leading-relaxed drop-shadow-md italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                 с любовью в каждом лепестке
               </p>
             </div>
