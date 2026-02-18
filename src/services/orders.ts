@@ -131,6 +131,7 @@ export async function createOrder(data: CreateOrderData) {
     product_name: item.product_name,
     quantity: item.quantity,
     product_price: item.product_price,
+    product_id: item.product_id,
   }));
 
   sendToIntegrations(typedOrder, integrationItems).catch((err) => {
