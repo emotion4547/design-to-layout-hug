@@ -11,11 +11,13 @@ export const Hero = () => {
   const { data: snowEnabled } = useSetting('snow_enabled');
   const { data: confettiEnabled } = useSetting('confetti_enabled');
   const { data: fireworksEnabled } = useSetting('fireworks_enabled');
+  const { data: petalsEnabled } = useSetting('petals_enabled');
   const { data: heroImageUrl } = useSetting('hero_image_url');
   
   const showSnow = snowEnabled === 'true';
   const showConfetti = confettiEnabled === 'true';
   const showFireworks = fireworksEnabled === 'true';
+  const showPetals = petalsEnabled === 'true';
   
   // Use custom hero image if set, otherwise use default
   const heroImage = heroImageUrl && heroImageUrl.trim() !== '' ? heroImageUrl : heroImageDefault;
@@ -32,7 +34,7 @@ export const Hero = () => {
           {showSnow && <Snowfall />}
           {showConfetti && <Confetti />}
           {showFireworks && <Fireworks />}
-          <FallingPetals />
+          {showPetals && <FallingPetals />}
           
           {/* Subtle gradient overlay for text readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
