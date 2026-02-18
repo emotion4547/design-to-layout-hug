@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { SEO, BreadcrumbSchema, FAQSchema } from '@/components/SEO';
 import { useSetting } from '@/hooks/useSettings';
 
-const getContactInfo = (phone: string) => [
+const getContactInfo = (phone: string, email: string | null) => [
   {
     icon: Phone,
     label: 'Телефон',
@@ -20,8 +20,8 @@ const getContactInfo = (phone: string) => [
   {
     icon: Mail,
     label: 'Email',
-    value: 'info@butonvton.ru',
-    href: 'mailto:info@butonvton.ru',
+    value: email || 'info@butonvton.ru',
+    href: `mailto:${email || 'info@butonvton.ru'}`,
   },
   {
     icon: Clock,
@@ -76,12 +76,13 @@ const MaxIcon = () => (
 
 const ContactsPage = () => {
   const { data: phone } = useSetting('phone');
+  const { data: email } = useSetting('email');
   const { data: vkUrl } = useSetting('vk_url');
   const { data: telegramUrl } = useSetting('telegram_url');
   const { data: whatsappUrl } = useSetting('whatsapp_url');
   const { data: instagramUrl } = useSetting('instagram_url');
   const { data: maxUrl } = useSetting('max_url');
-  const contactInfo = getContactInfo(phone || '8 964 456 00 66');
+  const contactInfo = getContactInfo(phone || '8 964 456 00 66', email);
   return (
     <PageLayout>
       <SEO
