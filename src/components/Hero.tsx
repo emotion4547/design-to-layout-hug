@@ -1,4 +1,4 @@
-import heroImageDefault from '@/assets/hero-christmas.jpg';
+import heroImageDefault from '@/assets/hero-flowers.jpg';
 import { CollectionCards } from './CollectionCards';
 import { Snowfall } from './Snowfall';
 import { Confetti } from './Confetti';
@@ -38,18 +38,18 @@ export const Hero = () => {
           <div className="relative z-10 flex flex-col items-center text-center gap-4 px-8">
             <div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2 text-white drop-shadow-lg">
-                Ваше название
+                Везу букет
               </h1>
               <p className="text-base md:text-lg text-white/90 drop-shadow-md">
-                воздушные шары с гелием
+                с любовью в каждом букете
               </p>
             </div>
             <div className="mt-2">
               <p className="text-xl md:text-2xl lg:text-3xl font-medium text-white leading-tight mb-2 drop-shadow-lg">
-                лучший сервис по доставке
+                доставка цветов и букетов
               </p>
               <p className="text-base md:text-lg text-white/90 leading-relaxed drop-shadow-md">
-                воздушных шаров в вашем городе
+                по вашему городу
               </p>
             </div>
           </div>
