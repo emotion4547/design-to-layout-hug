@@ -125,8 +125,8 @@ const AdminLayout = () => {
           <h1 className="text-xl font-bold mt-4">Админ-панель</h1>
         </div>
 
-        <nav className="p-4 mt-16 lg:mt-0 flex flex-col h-[calc(100%-4rem)] lg:h-[calc(100%-6rem)]">
-          <div className="flex-1">
+        <nav className="p-4 mt-16 lg:mt-0 flex flex-col h-[calc(100%-4rem)] lg:h-[calc(100%-6rem)] overflow-y-auto">
+          <div className="flex-1 min-h-0">
             {navItems.map((item) => (
               <Link
                 key={item.path}
