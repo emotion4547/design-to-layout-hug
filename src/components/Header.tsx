@@ -107,7 +107,7 @@ export const Header = () => {
         <nav className="bg-primary rounded-full px-6 py-3 flex items-center justify-between">
           {/* Logo Section */}
           <Link to="/" className="flex items-center gap-2">
-            <img src={logoImage} alt="Везу букет" className="h-10 w-10 rounded-full object-cover" />
+            <img src={logoImage} alt="Везу букет" className="h-12 w-12 rounded-full object-cover" />
             <div className="text-white">
               <span className="text-xl font-bold tracking-wide">Везу букет</span>
               <p className="text-[10px] text-white/70 -mt-0.5">с любовью в каждом букете</p>

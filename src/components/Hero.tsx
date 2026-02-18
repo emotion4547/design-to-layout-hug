@@ -1,4 +1,5 @@
 import heroImageDefault from '@/assets/hero-flowers.jpg';
+import logoImage from '@/assets/logo.png';
 import { CollectionCards } from './CollectionCards';
 import { Snowfall } from './Snowfall';
 import { Confetti } from './Confetti';
@@ -36,7 +37,8 @@ export const Hero = () => {
           
           {/* Content */}
           <div className="relative z-10 flex flex-col items-center text-center gap-4 px-8">
-            <div>
+            <div className="flex flex-col items-center gap-3">
+              <img src={logoImage} alt="Везу букет" className="h-24 w-24 md:h-32 md:w-32 rounded-full object-cover shadow-xl" />
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-2 text-white drop-shadow-lg">
                 Везу букет
               </h1>
