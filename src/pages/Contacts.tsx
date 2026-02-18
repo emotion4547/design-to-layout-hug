@@ -2,13 +2,14 @@ import { PageLayout } from '@/components/PageLayout';
 import { Phone, MapPin, Mail, Clock, Star, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SEO, BreadcrumbSchema, FAQSchema } from '@/components/SEO';
+import { useSetting } from '@/hooks/useSettings';
 
-const contactInfo = [
+const getContactInfo = (phone: string) => [
   {
     icon: Phone,
     label: 'Телефон',
-    value: '8 964 456 00 66',
-    href: 'tel:89644560066',
+    value: phone,
+    href: 'tel:' + phone.replace(/[^+\d]/g, ''),
   },
   {
     icon: MapPin,
@@ -56,6 +57,8 @@ const TelegramIcon = () => (
 );
 
 const ContactsPage = () => {
+  const { data: phone } = useSetting('phone');
+  const contactInfo = getContactInfo(phone || '8 964 456 00 66');
   return (
     <PageLayout>
       <SEO
