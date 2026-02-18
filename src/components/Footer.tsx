@@ -54,6 +54,7 @@ export const Footer = () => {
   // Get settings from database
   const { data: phone } = useSetting('phone');
   const { data: address } = useSetting('address');
+  const { data: email } = useSetting('email');
   const { data: vkUrl } = useSetting('vk_url');
   const { data: telegramUrl } = useSetting('telegram_url');
   const { data: whatsappUrl } = useSetting('whatsapp_url');
@@ -88,6 +89,14 @@ export const Footer = () => {
                     <span className="text-white/70">Телефон:</span>{' '}
                     <a href={phoneLink} className="hover:text-white transition-colors">
                       {phone}
+                    </a>
+                  </p>
+                )}
+                {email && (
+                  <p className="text-white/90">
+                    <span className="text-white/70">Email:</span>{' '}
+                    <a href={`mailto:${email}`} className="hover:text-white transition-colors">
+                      {email}
                     </a>
                   </p>
                 )}
