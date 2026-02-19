@@ -22,6 +22,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Plus, Pencil, Trash2, Loader2, Search } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { ImageUpload } from '@/components/ImageUpload';
 import {
@@ -48,6 +49,7 @@ const AdminPromotions = () => {
     is_active: true,
     start_date: null,
     end_date: null,
+    type: 'promotion',
   });
 
   const { toast } = useToast();
@@ -108,6 +110,7 @@ const AdminPromotions = () => {
       is_active: true,
       start_date: null,
       end_date: null,
+      type: 'promotion',
     });
     setEditingPromotion(null);
   };
@@ -133,6 +136,7 @@ const AdminPromotions = () => {
       is_active: promo.is_active,
       start_date: promo.start_date,
       end_date: promo.end_date,
+      type: promo.type || 'promotion',
     });
     setIsDialogOpen(true);
   };
@@ -181,6 +185,23 @@ const AdminPromotions = () => {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-4">
+                <div>
+                  <Label className="mb-2 block">Тип</Label>
+                  <RadioGroup
+                    value={formData.type || 'promotion'}
+                    onValueChange={(val) => setFormData({ ...formData, type: val as 'promotion' | 'bonus' })}
+                    className="flex gap-4"
+                  >
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="promotion" id="type-promotion" />
+                      <Label htmlFor="type-promotion" className="cursor-pointer">Акция</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="bonus" id="type-bonus" />
+                      <Label htmlFor="type-bonus" className="cursor-pointer">Бонус</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
                 <div>
                   <Label htmlFor="title">Название *</Label>
                   <Input
@@ -325,6 +346,7 @@ const AdminPromotions = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Название</TableHead>
+                  <TableHead>Тип</TableHead>
                   <TableHead>Скидка</TableHead>
                   <TableHead>Статус</TableHead>
                   <TableHead className="w-[100px]">Действия</TableHead>
@@ -334,6 +356,15 @@ const AdminPromotions = () => {
                 {filteredPromotions.map((promo) => (
                   <TableRow key={promo.id}>
                     <TableCell className="font-medium">{promo.title}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        promo.type === 'bonus'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-orange-100 text-orange-800'
+                      }`}>
+                        {promo.type === 'bonus' ? 'Бонус' : 'Акция'}
+                      </span>
+                    </TableCell>
                     <TableCell>{promo.badge || '-'}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs ${
