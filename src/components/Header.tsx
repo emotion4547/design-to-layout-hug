@@ -116,7 +116,7 @@ export const Header = () => {
             <img src={logoImage} alt="Везу букет" className="h-12 w-12 rounded-full object-cover" />
             <div className="text-white">
               <span className="text-xl font-bold tracking-wide font-['Playfair_Display']">Везу букет</span>
-              <p className="text-[10px] text-white/70 -mt-0.5 font-['Cormorant_Garamond'] italic">с любовью в каждом букете</p>
+              <p className="text-xs text-white/70 -mt-0.5 font-['Cormorant_Garamond'] italic">с любовью в каждом букете</p>
             </div>
           </Link>
 
