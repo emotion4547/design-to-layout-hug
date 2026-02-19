@@ -74,39 +74,42 @@ interface CreateOrderData {
 }
 
 export async function createOrder(data: CreateOrderData) {
-  // Create the order
+  const insertData = {
+    customer_name: data.senderName,
+    customer_phone: data.senderPhone,
+    customer_email: data.customerEmail || null,
+    delivery_address: data.deliveryAddress,
+    delivery_date: data.deliveryDate,
+    delivery_time: data.deliveryTime || null,
+    comment: data.comment || null,
+    total_price: data.totalPrice,
+    status: 'pending' as const,
+    sender_name: data.senderName || null,
+    sender_phone: data.senderPhone || null,
+    is_surprise: data.isSurprise || false,
+    recipient_name: data.recipientName || null,
+    recipient_phone: data.recipientPhone || null,
+    card_text: data.cardText || null,
+    delivery_type: data.deliveryType || 'delivery',
+    pickup_time: data.pickupTime || null,
+  };
+
+  console.log('ORDER_INSERT_DATA:', JSON.stringify(insertData, null, 2));
+
   const { data: order, error: orderError } = await supabase
     .from('orders')
-    .insert({
-      customer_name: data.senderName,
-      customer_phone: data.senderPhone,
-      customer_email: data.customerEmail || null,
-      delivery_address: data.deliveryAddress,
-      delivery_date: data.deliveryDate,
-      delivery_time: data.deliveryTime || null,
-      comment: data.comment || null,
-      total_price: data.totalPrice,
-      status: 'pending',
-      sender_name: data.senderName || null,
-      sender_phone: data.senderPhone || null,
-      is_surprise: data.isSurprise || false,
-      recipient_name: data.recipientName || null,
-      recipient_phone: data.recipientPhone || null,
-      card_text: data.cardText || null,
-      delivery_type: data.deliveryType || 'delivery',
-      pickup_time: data.pickupTime || null,
-    })
+    .insert(insertData)
     .select()
     .single();
 
   if (orderError) {
-    console.error('Error creating order:', orderError);
+    console.error('ORDER_DB_ERROR:', JSON.stringify(orderError, null, 2));
     throw orderError;
   }
 
+  console.log('ORDER_CREATED:', order?.id);
   const typedOrder = order as Order;
 
-  // Create order items
   const orderItems = data.items.map((item) => ({
     order_id: typedOrder.id,
     product_id: item.id,
@@ -115,6 +118,8 @@ export async function createOrder(data: CreateOrderData) {
     quantity: item.quantity,
     addons: item.addons || [],
   }));
+
+  console.log('ORDER_ITEMS_DATA:', JSON.stringify(orderItems, null, 2));
 
   const { error: itemsError } = await supabase
     .from('order_items')

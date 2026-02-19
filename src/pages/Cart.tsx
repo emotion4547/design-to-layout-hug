@@ -109,11 +109,26 @@ const Cart = () => {
       clearCart();
       setIsCheckout(false);
       navigate('/');
-    } catch (error) {
-      console.error('Order error:', error);
+    } catch (error: any) {
+      const errMsg = error?.message || error?.details || JSON.stringify(error);
+      console.error('ORDER_ERROR_FULL:', JSON.stringify(error, null, 2));
+      console.error('ORDER_ERROR_MSG:', errMsg);
+      console.error('ORDER_FORM_DATA:', JSON.stringify({
+        senderName: formData.senderName,
+        senderPhone: formData.senderPhone,
+        deliveryType: formData.deliveryType,
+        date: formData.date,
+        time: formData.time,
+        pickupTime: formData.pickupTime,
+        address: formData.address,
+        hasRecipient: !!formData.recipientName,
+        hasComment: !!formData.comment,
+        hasEmail: !!formData.email,
+        itemsCount: items.length,
+      }));
       toast({
-        title: "Ошибка",
-        description: "Не удалось оформить заказ. Попробуйте позже.",
+        title: "Ошибка оформления",
+        description: `Не удалось оформить заказ: ${errMsg}`,
         variant: "destructive",
       });
     } finally {
