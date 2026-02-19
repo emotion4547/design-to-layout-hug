@@ -80,22 +80,21 @@ export async function createOrder(data: CreateOrderData) {
     .insert({
       customer_name: data.senderName,
       customer_phone: data.senderPhone,
-      customer_email: data.customerEmail,
+      customer_email: data.customerEmail || null,
       delivery_address: data.deliveryAddress,
       delivery_date: data.deliveryDate,
-      delivery_time: data.deliveryTime,
-      comment: data.comment,
+      delivery_time: data.deliveryTime || null,
+      comment: data.comment || null,
       total_price: data.totalPrice,
       status: 'pending',
-      // New fields
-      sender_name: data.senderName,
-      sender_phone: data.senderPhone,
+      sender_name: data.senderName || null,
+      sender_phone: data.senderPhone || null,
       is_surprise: data.isSurprise || false,
-      recipient_name: data.recipientName,
-      recipient_phone: data.recipientPhone,
-      card_text: data.cardText,
-      delivery_type: data.deliveryType,
-      pickup_time: data.pickupTime,
+      recipient_name: data.recipientName || null,
+      recipient_phone: data.recipientPhone || null,
+      card_text: data.cardText || null,
+      delivery_type: data.deliveryType || 'delivery',
+      pickup_time: data.pickupTime || null,
     })
     .select()
     .single();
