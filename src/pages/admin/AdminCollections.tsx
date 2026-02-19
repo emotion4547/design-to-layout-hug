@@ -274,14 +274,14 @@ const AdminCollections = () => {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
-          <DialogHeader>
+        <DialogContent className="max-w-md max-h-[85vh] flex flex-col overflow-hidden">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>
               {editingCollection ? 'Редактировать подборку' : 'Создать подборку'}
             </DialogTitle>
           </DialogHeader>
 
-          <ScrollArea className="flex-1 pr-4">
+          <ScrollArea className="flex-1 overflow-auto pr-4">
           <div className="space-y-4">
             <div>
               <Label>Название</Label>
@@ -334,17 +334,17 @@ const AdminCollections = () => {
               />
               <Label>Активна</Label>
             </div>
-
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Отмена
-              </Button>
-              <Button onClick={handleSubmit}>
-                {editingCollection ? 'Сохранить' : 'Создать'}
-              </Button>
-            </div>
           </div>
           </ScrollArea>
+
+          <div className="flex gap-2 justify-end flex-shrink-0 pt-4 border-t">
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              Отмена
+            </Button>
+            <Button onClick={handleSubmit}>
+              {editingCollection ? 'Сохранить' : 'Создать'}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 
