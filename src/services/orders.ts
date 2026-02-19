@@ -96,19 +96,21 @@ export async function createOrder(data: CreateOrderData) {
 
   console.log('ORDER_INSERT_DATA:', JSON.stringify(insertData, null, 2));
 
-  const { data: order, error: orderError } = await supabase
+  // Generate ID client-side so we can reference it without needing SELECT back
+  const orderId = crypto.randomUUID();
+  const insertWithId = { ...insertData, id: orderId };
+
+  const { error: orderError } = await supabase
     .from('orders')
-    .insert(insertData)
-    .select()
-    .single();
+    .insert(insertWithId);
 
   if (orderError) {
     console.error('ORDER_DB_ERROR:', JSON.stringify(orderError, null, 2));
     throw orderError;
   }
 
-  console.log('ORDER_CREATED:', order?.id);
-  const typedOrder = order as Order;
+  console.log('ORDER_CREATED:', orderId);
+  const typedOrder = { ...insertWithId, id: orderId, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as Order;
 
   const orderItems = data.items.map((item) => ({
     order_id: typedOrder.id,
