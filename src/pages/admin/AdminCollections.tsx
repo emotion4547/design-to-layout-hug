@@ -25,6 +25,66 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useSetting, useUpdateSetting } from '@/hooks/useSettings';
 
+const InlineProductSelector = ({ collectionId }: { collectionId: string }) => {
+  const { data: collectionProducts } = useCollectionProducts(collectionId);
+  const { data: allProducts } = useProducts({});
+  const addProduct = useAddProductToCollection();
+  const removeProduct = useRemoveProductFromCollection();
+  const [search, setSearch] = useState('');
+
+  const collectionProductIds = new Set(collectionProducts?.map(cp => cp.product_id) || []);
+
+  const filteredProducts = allProducts?.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  ) || [];
+
+  const handleToggle = async (productId: string, isIn: boolean) => {
+    try {
+      if (isIn) {
+        await removeProduct.mutateAsync({ collectionId, productId });
+      } else {
+        await addProduct.mutateAsync({ collectionId, productId });
+      }
+    } catch {
+      toast.error('Ошибка при обновлении');
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <Input
+        placeholder="Поиск товара..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <div className="max-h-[200px] overflow-auto space-y-1 border rounded-md p-2">
+        {filteredProducts.map((product) => {
+          const isIn = collectionProductIds.has(product.id);
+          return (
+            <div
+              key={product.id}
+              className="flex items-center gap-2 p-1.5 rounded hover:bg-secondary/50"
+            >
+              <Checkbox
+                checked={isIn}
+                onCheckedChange={() => handleToggle(product.id, isIn)}
+              />
+              {product.image_url && (
+                <img src={product.image_url} alt="" className="w-8 h-8 object-cover rounded" />
+              )}
+              <span className="text-sm truncate flex-1">{product.name}</span>
+              <span className="text-xs text-muted-foreground">{product.price} ₽</span>
+            </div>
+          );
+        })}
+        {filteredProducts.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-2">Товары не найдены</p>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const AdminCollections = () => {
   const { data: collections, isLoading } = useCollections(false);
   const createCollection = useCreateCollection();
@@ -274,7 +334,7 @@ const AdminCollections = () => {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md max-h-[85vh] flex flex-col overflow-hidden">
+        <DialogContent className="max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
           <DialogHeader className="flex-shrink-0">
             <DialogTitle>
               {editingCollection ? 'Редактировать подборку' : 'Создать подборку'}
@@ -334,6 +394,13 @@ const AdminCollections = () => {
               />
               <Label>Активна</Label>
             </div>
+
+            {editingCollection && (
+              <div>
+                <Label className="mb-2 block">Товары в подборке</Label>
+                <InlineProductSelector collectionId={editingCollection.id} />
+              </div>
+            )}
           </div>
           </ScrollArea>
 
