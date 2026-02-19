@@ -1,5 +1,6 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { FloatingContactButton } from '@/components/FloatingContactButton';
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ export const PageLayout = ({ children }: PageLayoutProps) => {
         {children}
       </main>
       <Footer />
+      <FloatingContactButton />
     </div>
   );
 };

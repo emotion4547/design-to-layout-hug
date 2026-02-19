@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Save, Phone, MapPin, MessageCircle, Snowflake, PartyPopper, Sparkles, Image as ImageIcon, Flower2 } from 'lucide-react';
+import { Save, Phone, MapPin, MessageCircle, Snowflake, PartyPopper, Sparkles, Image as ImageIcon, Flower2, MessageSquare } from 'lucide-react';
 import { useSetting, useUpdateSetting } from '@/hooks/useSettings';
 import { ImageUpload } from '@/components/ImageUpload';
 
@@ -273,6 +273,26 @@ const AdminSettings = () => {
               description="Падающие розовые цветочные лепестки"
               settingKey="petals_enabled"
               icon={<Flower2 className="h-5 w-5 text-pink-400" />}
+            />
+          </CardContent>
+        </Card>
+        {/* Floating Contact Button */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              Кнопка связи
+            </CardTitle>
+            <CardDescription>
+              Плавающая кнопка в правом нижнем углу для быстрой связи. Отображает доступные мессенджеры и телефон из настроек выше.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <ToggleSetting
+              label="Кнопка связи"
+              description="Показывать плавающую кнопку для быстрой связи"
+              settingKey="floating_button_enabled"
+              icon={<MessageSquare className="h-5 w-5 text-primary" />}
             />
           </CardContent>
         </Card>
