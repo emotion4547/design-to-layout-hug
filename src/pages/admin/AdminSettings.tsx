@@ -294,6 +294,45 @@ const AdminSettings = () => {
               settingKey="floating_button_enabled"
               icon={<MessageSquare className="h-5 w-5 text-primary" />}
             />
+            <div className="border-t pt-4 space-y-4">
+              <p className="text-sm font-medium text-muted-foreground">Методы связи в кнопке</p>
+              <ToggleSetting
+                label="Телефон"
+                description="Показывать кнопку звонка"
+                settingKey="floating_phone_enabled"
+                icon={<Phone className="h-5 w-5 text-green-500" />}
+              />
+              <ToggleSetting
+                label="WhatsApp"
+                description="Показывать ссылку на WhatsApp"
+                settingKey="floating_whatsapp_enabled"
+                icon={<MessageCircle className="h-5 w-5 text-green-500" />}
+              />
+              <ToggleSetting
+                label="Telegram"
+                description="Показывать ссылку на Telegram"
+                settingKey="floating_telegram_enabled"
+                icon={<MessageCircle className="h-5 w-5 text-blue-500" />}
+              />
+              <ToggleSetting
+                label="ВКонтакте"
+                description="Показывать ссылку на ВКонтакте"
+                settingKey="floating_vk_enabled"
+                icon={<MessageCircle className="h-5 w-5 text-blue-600" />}
+              />
+              <ToggleSetting
+                label="Instagram"
+                description="Показывать ссылку на Instagram"
+                settingKey="floating_instagram_enabled"
+                icon={<MessageCircle className="h-5 w-5 text-pink-500" />}
+              />
+              <ToggleSetting
+                label="Макс"
+                description="Показывать ссылку на Макс"
+                settingKey="floating_max_enabled"
+                icon={<MessageCircle className="h-5 w-5 text-purple-500" />}
+              />
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -3,7 +3,6 @@ import { MessageCircle, X, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSetting } from '@/hooks/useSettings';
 
-// Social icons
 const TelegramIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
     <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
@@ -22,6 +21,18 @@ const VKIcon = () => (
   </svg>
 );
 
+const InstagramIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+  </svg>
+);
+
+const MaxIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+  </svg>
+);
+
 interface ContactLink {
   url: string;
   icon: React.ReactNode;
@@ -37,12 +48,24 @@ export const FloatingContactButton = () => {
   const { data: telegramUrl } = useSetting('telegram_url');
   const { data: whatsappUrl } = useSetting('whatsapp_url');
   const { data: vkUrl } = useSetting('vk_url');
+  const { data: instagramUrl } = useSetting('instagram_url');
+  const { data: maxUrl } = useSetting('max_url');
+
+  // Individual toggles (default to 'true' if not set)
+  const { data: phoneEnabled } = useSetting('floating_phone_enabled');
+  const { data: whatsappEnabled } = useSetting('floating_whatsapp_enabled');
+  const { data: telegramEnabled } = useSetting('floating_telegram_enabled');
+  const { data: vkEnabled } = useSetting('floating_vk_enabled');
+  const { data: instagramEnabled } = useSetting('floating_instagram_enabled');
+  const { data: maxEnabled } = useSetting('floating_max_enabled');
 
   if (enabled === 'false') return null;
 
+  const isOn = (val: string | undefined | null) => val !== 'false';
+
   const links: ContactLink[] = [];
 
-  if (phoneUrl) {
+  if (phoneUrl && isOn(phoneEnabled)) {
     const phone = phoneUrl.replace(/[^\d+]/g, '');
     links.push({
       url: `tel:${phone}`,
@@ -52,7 +75,7 @@ export const FloatingContactButton = () => {
     });
   }
 
-  if (whatsappUrl) {
+  if (whatsappUrl && isOn(whatsappEnabled)) {
     links.push({
       url: whatsappUrl,
       icon: <WhatsAppIcon />,
@@ -61,7 +84,7 @@ export const FloatingContactButton = () => {
     });
   }
 
-  if (telegramUrl) {
+  if (telegramUrl && isOn(telegramEnabled)) {
     links.push({
       url: telegramUrl,
       icon: <TelegramIcon />,
@@ -70,7 +93,7 @@ export const FloatingContactButton = () => {
     });
   }
 
-  if (vkUrl) {
+  if (vkUrl && isOn(vkEnabled)) {
     links.push({
       url: vkUrl,
       icon: <VKIcon />,
@@ -79,11 +102,28 @@ export const FloatingContactButton = () => {
     });
   }
 
+  if (instagramUrl && isOn(instagramEnabled)) {
+    links.push({
+      url: instagramUrl,
+      icon: <InstagramIcon />,
+      label: 'Instagram',
+      bgColor: 'bg-gradient-to-r from-[#f09433] via-[#e6683c] to-[#dc2743] hover:opacity-90',
+    });
+  }
+
+  if (maxUrl && isOn(maxEnabled)) {
+    links.push({
+      url: maxUrl,
+      icon: <MaxIcon />,
+      label: 'Макс',
+      bgColor: 'bg-[#7B68EE] hover:bg-[#6a5acd]',
+    });
+  }
+
   if (links.length === 0) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-      {/* Expanded links */}
       <div className={cn(
         "flex flex-col gap-2 transition-all duration-300",
         isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
@@ -105,14 +145,13 @@ export const FloatingContactButton = () => {
         ))}
       </div>
 
-      {/* Main FAB */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-white transition-all duration-300",
-          isOpen 
-            ? "bg-muted-foreground rotate-0" 
-            : "bg-primary hover:scale-110 animate-pulse"
+          isOpen
+            ? "bg-muted-foreground rotate-0"
+            : "bg-primary hover:scale-110"
         )}
       >
         {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
