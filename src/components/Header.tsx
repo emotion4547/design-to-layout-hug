@@ -128,7 +128,7 @@ export const Header = () => {
                   <DropdownMenuTrigger asChild>
                     <button
                       className={cn(
-                        "flex items-center gap-1 text-sm transition-colors outline-none",
+                        "flex items-center gap-1 text-base transition-colors outline-none",
                         isActive(item.href) 
                           ? "text-white font-medium" 
                           : "text-white/80 hover:text-white"
@@ -159,7 +159,7 @@ export const Header = () => {
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "flex items-center gap-1 text-sm transition-colors",
+                    "flex items-center gap-1 text-base transition-colors",
                     isActive(item.href) 
                       ? "text-white font-medium" 
                       : "text-white/80 hover:text-white"
