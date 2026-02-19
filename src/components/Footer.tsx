@@ -76,8 +76,8 @@ export const Footer = () => {
               <div className="flex items-center gap-3 mb-8">
                 <img src={logoImage} alt="Везу букет" className="h-16 w-16 rounded-full object-cover" />
                 <div>
-                  <span className="text-2xl font-bold tracking-wide">Везу букет</span>
-                  <p className="text-sm text-white/70">с любовью в каждом букете</p>
+                <span className="text-2xl font-bold tracking-wide font-['Playfair_Display']">Везу букет</span>
+                  <p className="text-sm text-white/70 font-['Cormorant_Garamond'] italic">с любовью в каждом букете</p>
                 </div>
               </div>
 
