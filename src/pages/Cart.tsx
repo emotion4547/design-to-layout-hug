@@ -58,23 +58,46 @@ const Cart = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // JS validation for required fields
+    if (!formData.senderName.trim()) {
+      toast({ title: "Ошибка", description: "Укажите имя отправителя", variant: "destructive" });
+      return;
+    }
+    if (!formData.senderPhone.trim()) {
+      toast({ title: "Ошибка", description: "Укажите телефон отправителя", variant: "destructive" });
+      return;
+    }
+    if (!formData.date) {
+      toast({ title: "Ошибка", description: "Укажите дату", variant: "destructive" });
+      return;
+    }
+    if (formData.deliveryType === 'delivery' && !formData.address.trim()) {
+      toast({ title: "Ошибка", description: "Укажите адрес доставки", variant: "destructive" });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      const deliveryAddress = formData.deliveryType === 'delivery' 
+        ? formData.address.trim() 
+        : 'Самовывоз';
+
       await createOrder({
-        senderName: formData.senderName,
-        senderPhone: formData.senderPhone,
+        senderName: formData.senderName.trim(),
+        senderPhone: formData.senderPhone.trim(),
         isSurprise: formData.isSurprise,
-        recipientName: formData.recipientName,
-        recipientPhone: formData.recipientPhone,
-        cardText: formData.cardText || undefined,
+        recipientName: formData.recipientName?.trim() || undefined,
+        recipientPhone: formData.recipientPhone?.trim() || undefined,
+        cardText: formData.cardText?.trim() || undefined,
         deliveryType: formData.deliveryType,
-        deliveryAddress: formData.deliveryType === 'delivery' ? formData.address : 'Самовывоз',
+        deliveryAddress,
         deliveryDate: formData.date,
-        deliveryTime: formData.deliveryType === 'delivery' ? formData.time : undefined,
-        pickupTime: formData.deliveryType === 'pickup' ? formData.pickupTime : undefined,
-        comment: formData.comment || undefined,
-        customerEmail: formData.email || undefined,
+        deliveryTime: formData.deliveryType === 'delivery' && formData.time ? formData.time : undefined,
+        pickupTime: formData.deliveryType === 'pickup' && formData.pickupTime ? formData.pickupTime : undefined,
+        comment: formData.comment?.trim() || undefined,
+        customerEmail: formData.email?.trim() || undefined,
         items,
         totalPrice,
       });
