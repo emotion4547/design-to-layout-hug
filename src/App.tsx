@@ -38,6 +38,7 @@ import AdminDesign from "./pages/admin/AdminDesign";
 import AdminIntegrations from "./pages/admin/AdminIntegrations";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { CookieConsent } from "./components/CookieConsent";
+import { ScrollToTop } from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <ScrollToTop />
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/catalog" element={<Catalog />} />
