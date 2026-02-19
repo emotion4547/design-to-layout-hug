@@ -16,11 +16,8 @@ serve(async (req) => {
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   try {
-    // Parse body first
     const { order, items } = await req.json();
     console.log('Received order for Telegram notification:', order?.id);
-    console.log('Order data:', JSON.stringify(order));
-    console.log('Items data:', JSON.stringify(items));
 
     // Get Telegram settings
     const { data: settings, error: settingsError } = await supabase
@@ -32,9 +29,7 @@ serve(async (req) => {
       console.error('Error fetching settings:', settingsError);
     }
 
-    console.log('Telegram settings:', JSON.stringify(settings));
-
-    const settingsMap = settings?.reduce((acc, s) => {
+    const settingsMap = settings?.reduce((acc: Record<string, string>, s: { key: string; value: string }) => {
       acc[s.key] = s.value;
       return acc;
     }, {} as Record<string, string>) || {};
@@ -42,8 +37,6 @@ serve(async (req) => {
     const botToken = settingsMap['telegram_bot_token'];
     const chatId = settingsMap['telegram_chat_id'];
     const enabled = settingsMap['telegram_enabled'] === 'true';
-
-    console.log('Telegram enabled:', enabled, 'Has token:', !!botToken, 'Has chat:', !!chatId);
 
     if (!enabled || !botToken || !chatId) {
       console.log('Telegram not configured or disabled');
@@ -53,8 +46,6 @@ serve(async (req) => {
       );
     }
 
-    console.log('Sending Telegram notification for order:', order.id);
-
     // Get site URL for product links
     const { data: siteUrlSetting } = await supabase
       .from('site_settings')
@@ -63,6 +54,28 @@ serve(async (req) => {
       .maybeSingle();
     
     const siteUrl = siteUrlSetting?.value || 'https://design-to-layout-hug.lovable.app';
+
+    // Check if this customer filled out the quiz (by phone number)
+    const customerPhone = order.customer_phone?.replace(/\D/g, '') || '';
+    let quizInfo = '';
+    
+    if (customerPhone) {
+      const { data: quizLeads } = await supabase
+        .from('quiz_leads')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      const matchedLead = quizLeads?.find((lead: { phone: string }) => {
+        const leadPhone = lead.phone?.replace(/\D/g, '') || '';
+        return leadPhone.length >= 7 && customerPhone.length >= 7 && 
+          (customerPhone.endsWith(leadPhone.slice(-10)) || leadPhone.endsWith(customerPhone.slice(-10)));
+      });
+
+      if (matchedLead) {
+        quizInfo = `\n🆕 *Первый заказ! (из квиза)*\n🎂 *День рождения:* ${matchedLead.birthday || '—'}\n📅 *Важная дата:* ${matchedLead.important_date || '—'}\n🎁 *Поздравить:* ${escapeMarkdown(matchedLead.recipient_name || '—')}\n`;
+      }
+    }
 
     // Format order items with product links
     const itemsList = items?.map((item: { product_name: string; quantity: number; product_price: number; product_id?: string }) => {
@@ -80,7 +93,7 @@ serve(async (req) => {
 👤 *Клиент:* ${escapeMarkdown(order.customer_name)}
 📞 *Телефон:* ${order.customer_phone}
 ${order.customer_email ? `📧 *Email:* ${order.customer_email}` : ''}
-
+${quizInfo}
 🚚 *Доставка:* ${order.delivery_type === 'pickup' ? 'Самовывоз' : 'Доставка'}
 📍 *Адрес:* ${escapeMarkdown(order.delivery_address)}
 📅 *Дата:* ${order.delivery_date}
@@ -109,7 +122,6 @@ ${order.is_surprise ? '🎁 *Это сюрприз!*' : ''}
 
     const result = await response.json();
 
-    // Log the result
     await supabase.from('integration_logs').insert({
       integration_type: 'telegram',
       order_id: order.id,
@@ -136,7 +148,6 @@ ${order.is_surprise ? '🎁 *Это сюрприз!*' : ''}
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Error in telegram-notify:', error);
     
-    // Try to log the error
     try {
       const { order } = await req.clone().json();
       await supabase.from('integration_logs').insert({
@@ -145,7 +156,7 @@ ${order.is_surprise ? '🎁 *Это сюрприз!*' : ''}
         status: 'error',
         message: errorMessage,
       });
-    } catch {}
+    } catch { /* ignore */ }
 
     return new Response(
       JSON.stringify({ success: false, error: errorMessage }),
