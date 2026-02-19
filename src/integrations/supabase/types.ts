@@ -473,6 +473,36 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_leads: {
+        Row: {
+          birthday: string | null
+          created_at: string
+          id: string
+          important_date: string | null
+          name: string
+          phone: string
+          recipient_name: string | null
+        }
+        Insert: {
+          birthday?: string | null
+          created_at?: string
+          id?: string
+          important_date?: string | null
+          name: string
+          phone: string
+          recipient_name?: string | null
+        }
+        Update: {
+          birthday?: string | null
+          created_at?: string
+          id?: string
+          important_date?: string | null
+          name?: string
+          phone?: string
+          recipient_name?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           created_at: string | null

@@ -23,8 +23,8 @@ export const FallingPetals = () => {
         id: i,
         left: Math.random() * 100,
         size: 10 + Math.random() * 14,
-        duration: 8 + Math.random() * 7,
-        delay: Math.random() * 10,
+        duration: 6 + Math.random() * 5,
+        delay: Math.random() * 6,
         opacity: 0.4 + Math.random() * 0.4,
         swayDuration: 3 + Math.random() * 4,
         rotation: Math.random() * 360,
@@ -68,13 +68,13 @@ export const FallingPetals = () => {
       <style>{`
         @keyframes petalFall {
           0% {
-            transform: translateY(-30px);
-            opacity: 0;
+            transform: translateY(-10px);
+            opacity: 0.8;
           }
-          5% {
+          2% {
             opacity: 1;
           }
-          90% {
+          85% {
             opacity: 1;
           }
           100% {
