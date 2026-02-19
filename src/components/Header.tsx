@@ -265,17 +265,41 @@ export const Header = () => {
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden p-2 text-white/90 hover:text-white"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </button>
+          {/* Mobile Action Icons + Menu Button */}
+          <div className="lg:hidden flex items-center gap-1">
+            <Link to="/favorites" className="relative p-2 text-white/90 hover:text-white">
+              <Heart className="h-5 w-5" />
+              {totalFavorites > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {totalFavorites}
+                </span>
+              )}
+            </Link>
+            <Link to="/cart" className="relative p-2 text-white/90 hover:text-white">
+              <ShoppingBag className={cn(
+                "h-5 w-5 transition-transform",
+                cartPulse && "animate-[pulse_0.6s_ease-in-out]"
+              )} />
+              {totalItems > 0 && (
+                <span className={cn(
+                  "absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center transition-transform",
+                  cartPulse && "animate-[bounce_0.6s_ease-in-out]"
+                )}>
+                  {totalItems}
+                </span>
+              )}
+            </Link>
+            <button
+              className="p-2 text-white/90 hover:text-white"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
         </nav>
 
         {/* Desktop Search Bar */}
