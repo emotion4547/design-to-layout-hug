@@ -12,6 +12,7 @@ export interface Promotion {
   is_active: boolean;
   start_date: string | null;
   end_date: string | null;
+  type: 'promotion' | 'bonus';
   created_at: string;
   updated_at: string;
 }

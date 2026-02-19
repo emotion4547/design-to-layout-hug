@@ -1,0 +1,1 @@
+ALTER TABLE public.promotions ADD COLUMN type text NOT NULL DEFAULT 'promotion';
