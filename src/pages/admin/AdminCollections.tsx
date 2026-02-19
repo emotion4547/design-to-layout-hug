@@ -274,13 +274,14 @@ const AdminCollections = () => {
 
       {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>
               {editingCollection ? 'Редактировать подборку' : 'Создать подборку'}
             </DialogTitle>
           </DialogHeader>
 
+          <ScrollArea className="flex-1 pr-4">
           <div className="space-y-4">
             <div>
               <Label>Название</Label>
@@ -343,6 +344,7 @@ const AdminCollections = () => {
               </Button>
             </div>
           </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
 
