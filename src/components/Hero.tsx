@@ -5,22 +5,17 @@ import { Snowfall } from './Snowfall';
 import { Confetti } from './Confetti';
 import { Fireworks } from './Fireworks';
 import { FallingPetals } from './FallingPetals';
-import { useSetting } from '@/hooks/useSettings';
+import { useAllSettings } from '@/hooks/useSettings';
 
 export const Hero = () => {
-  const { data: snowEnabled } = useSetting('snow_enabled');
-  const { data: confettiEnabled } = useSetting('confetti_enabled');
-  const { data: fireworksEnabled } = useSetting('fireworks_enabled');
-  const { data: petalsEnabled } = useSetting('petals_enabled');
-  const { data: heroImageUrl } = useSetting('hero_image_url');
+  const { data: settings } = useAllSettings();
   
-  const showSnow = snowEnabled === 'true';
-  const showConfetti = confettiEnabled === 'true';
-  const showFireworks = fireworksEnabled === 'true';
-  const showPetals = petalsEnabled === 'true';
+  const showSnow = settings?.snow_enabled === 'true';
+  const showConfetti = settings?.confetti_enabled === 'true';
+  const showFireworks = settings?.fireworks_enabled === 'true';
+  const showPetals = settings?.petals_enabled === 'true';
   
-  // Use custom hero image if set, otherwise use default
-  const heroImage = heroImageUrl && heroImageUrl.trim() !== '' ? heroImageUrl : heroImageDefault;
+  const heroImage = settings?.hero_image_url?.trim() ? settings.hero_image_url : heroImageDefault;
 
   return (
     <section className="pt-4 pb-8 md:pt-6 md:pb-12">

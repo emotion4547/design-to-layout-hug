@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,39 +9,56 @@ import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import Catalog from "./pages/Catalog";
-import Product from "./pages/Product";
-import CollectionPage from "./pages/Collection";
-import Promotions from "./pages/Promotions";
-import PromotionDetail from "./pages/PromotionDetail";
-import NewsPage from "./pages/News";
-import NewsDetail from "./pages/NewsDetail";
-import DeliveryPage from "./pages/Delivery";
-import ContactsPage from "./pages/Contacts";
-import Cart from "./pages/Cart";
-import Favorites from "./pages/Favorites";
-import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfUse from "./pages/TermsOfUse";
-import ReturnPolicy from "./pages/ReturnPolicy";
-import AdminLayout from "./pages/admin/AdminLayout";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminProducts from "./pages/admin/AdminProducts";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminNews from "./pages/admin/AdminNews";
-import AdminPromotions from "./pages/admin/AdminPromotions";
-import AdminCategories from "./pages/admin/AdminCategories";
-import AdminCollections from "./pages/admin/AdminCollections";
-import AdminGlobalAddons from "./pages/admin/AdminGlobalAddons";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminDesign from "./pages/admin/AdminDesign";
-import AdminIntegrations from "./pages/admin/AdminIntegrations";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { CookieConsent } from "./components/CookieConsent";
 import { ScrollToTop } from "./components/ScrollToTop";
 
-const queryClient = new QueryClient();
+// Lazy-loaded pages
+const Catalog = lazy(() => import("./pages/Catalog"));
+const Product = lazy(() => import("./pages/Product"));
+const CollectionPage = lazy(() => import("./pages/Collection"));
+const Promotions = lazy(() => import("./pages/Promotions"));
+const PromotionDetail = lazy(() => import("./pages/PromotionDetail"));
+const NewsPage = lazy(() => import("./pages/News"));
+const NewsDetail = lazy(() => import("./pages/NewsDetail"));
+const DeliveryPage = lazy(() => import("./pages/Delivery"));
+const ContactsPage = lazy(() => import("./pages/Contacts"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Favorites = lazy(() => import("./pages/Favorites"));
+const Auth = lazy(() => import("./pages/Auth"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
+const ReturnPolicy = lazy(() => import("./pages/ReturnPolicy"));
+
+// Admin pages
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
+const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminNews = lazy(() => import("./pages/admin/AdminNews"));
+const AdminPromotions = lazy(() => import("./pages/admin/AdminPromotions"));
+const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
+const AdminCollections = lazy(() => import("./pages/admin/AdminCollections"));
+const AdminGlobalAddons = lazy(() => import("./pages/admin/AdminGlobalAddons"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminDesign = lazy(() => import("./pages/admin/AdminDesign"));
+const AdminIntegrations = lazy(() => import("./pages/admin/AdminIntegrations"));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+    },
+  },
+});
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -53,43 +71,45 @@ const App = () => (
               <Sonner />
               <BrowserRouter>
                 <ScrollToTop />
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/catalog" element={<Catalog />} />
-                  <Route path="/catalog/:id" element={<Product />} />
-                  <Route path="/collection/:slug" element={<CollectionPage />} />
-                  <Route path="/promotions" element={<Promotions />} />
-                  <Route path="/promotions/:id" element={<PromotionDetail />} />
-                  <Route path="/news" element={<NewsPage />} />
-                  <Route path="/news/:id" element={<NewsDetail />} />
-                  <Route path="/delivery" element={<DeliveryPage />} />
-                  <Route path="/contacts" element={<ContactsPage />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/favorites" element={<Favorites />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/privacy" element={<PrivacyPolicy />} />
-                  <Route path="/terms" element={<TermsOfUse />} />
-                  <Route path="/return" element={<ReturnPolicy />} />
-                  {/* Admin Routes - Protected */}
-                  <Route path="/admin" element={
-                    <ProtectedRoute requireAdmin>
-                      <AdminLayout />
-                    </ProtectedRoute>
-                  }>
-                    <Route index element={<AdminDashboard />} />
-                    <Route path="products" element={<AdminProducts />} />
-                    <Route path="orders" element={<AdminOrders />} />
-                    <Route path="news" element={<AdminNews />} />
-                    <Route path="promotions" element={<AdminPromotions />} />
-                    <Route path="categories" element={<AdminCategories />} />
-                    <Route path="global-addons" element={<AdminGlobalAddons />} />
-                    <Route path="collections" element={<AdminCollections />} />
-                    <Route path="design" element={<AdminDesign />} />
-                    <Route path="integrations" element={<AdminIntegrations />} />
-                    <Route path="settings" element={<AdminSettings />} />
-                  </Route>
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/catalog" element={<Catalog />} />
+                    <Route path="/catalog/:id" element={<Product />} />
+                    <Route path="/collection/:slug" element={<CollectionPage />} />
+                    <Route path="/promotions" element={<Promotions />} />
+                    <Route path="/promotions/:id" element={<PromotionDetail />} />
+                    <Route path="/news" element={<NewsPage />} />
+                    <Route path="/news/:id" element={<NewsDetail />} />
+                    <Route path="/delivery" element={<DeliveryPage />} />
+                    <Route path="/contacts" element={<ContactsPage />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/favorites" element={<Favorites />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/privacy" element={<PrivacyPolicy />} />
+                    <Route path="/terms" element={<TermsOfUse />} />
+                    <Route path="/return" element={<ReturnPolicy />} />
+                    {/* Admin Routes - Protected */}
+                    <Route path="/admin" element={
+                      <ProtectedRoute requireAdmin>
+                        <AdminLayout />
+                      </ProtectedRoute>
+                    }>
+                      <Route index element={<AdminDashboard />} />
+                      <Route path="products" element={<AdminProducts />} />
+                      <Route path="orders" element={<AdminOrders />} />
+                      <Route path="news" element={<AdminNews />} />
+                      <Route path="promotions" element={<AdminPromotions />} />
+                      <Route path="categories" element={<AdminCategories />} />
+                      <Route path="global-addons" element={<AdminGlobalAddons />} />
+                      <Route path="collections" element={<AdminCollections />} />
+                      <Route path="design" element={<AdminDesign />} />
+                      <Route path="integrations" element={<AdminIntegrations />} />
+                      <Route path="settings" element={<AdminSettings />} />
+                    </Route>
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
                 <CookieConsent />
               </BrowserRouter>
             </FavoritesProvider>
