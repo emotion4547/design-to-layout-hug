@@ -21,9 +21,9 @@ interface SEOProps {
   noindex?: boolean;
 }
 
-const BASE_URL = 'https://example.com';
-const SITE_NAME = 'Ваше название';
-const DEFAULT_DESCRIPTION = 'Доставка воздушных шаров с гелием. Латексные и фольгированные шары, фигуры, цифры. Оформление праздников. Быстрая доставка по городу.';
+const BASE_URL = 'https://butonvton.ru';
+const SITE_NAME = 'Бутон в тон';
+const DEFAULT_DESCRIPTION = 'Доставка свежих цветов и букетов в Новороссийске. Розы, тюльпаны, авторские композиции, букеты в шляпных коробках. Быстрая доставка по городу.';
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.jpg`;
 
 export const SEO = ({
@@ -37,7 +37,7 @@ export const SEO = ({
   product,
   noindex = false,
 }: SEOProps) => {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — Воздушные шары с гелием`;
+  const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — Доставка цветов и букетов`;
   const fullUrl = url ? `${BASE_URL}${url}` : BASE_URL;
   const fullImage = image.startsWith('http') ? image : `${BASE_URL}${image}`;
 
