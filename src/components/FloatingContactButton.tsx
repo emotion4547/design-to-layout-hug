@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { MessageCircle, X, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useSetting } from '@/hooks/useSettings';
+import { useAllSettings } from '@/hooks/useSettings';
 
 const TelegramIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
@@ -43,23 +43,22 @@ interface ContactLink {
 export const FloatingContactButton = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const { data: enabled } = useSetting('floating_button_enabled');
-  const { data: phoneUrl } = useSetting('phone');
-  const { data: telegramUrl } = useSetting('telegram_url');
-  const { data: whatsappUrl } = useSetting('whatsapp_url');
-  const { data: vkUrl } = useSetting('vk_url');
-  const { data: instagramUrl } = useSetting('instagram_url');
-  const { data: maxUrl } = useSetting('max_url');
+  const { data: settings } = useAllSettings();
 
-  // Individual toggles (default to 'true' if not set)
-  const { data: phoneEnabled } = useSetting('floating_phone_enabled');
-  const { data: whatsappEnabled } = useSetting('floating_whatsapp_enabled');
-  const { data: telegramEnabled } = useSetting('floating_telegram_enabled');
-  const { data: vkEnabled } = useSetting('floating_vk_enabled');
-  const { data: instagramEnabled } = useSetting('floating_instagram_enabled');
-  const { data: maxEnabled } = useSetting('floating_max_enabled');
+  if (settings?.floating_button_enabled === 'false') return null;
 
-  if (enabled === 'false') return null;
+  const phoneUrl = settings?.phone;
+  const telegramUrl = settings?.telegram_url;
+  const whatsappUrl = settings?.whatsapp_url;
+  const vkUrl = settings?.vk_url;
+  const instagramUrl = settings?.instagram_url;
+  const maxUrl = settings?.max_url;
+  const phoneEnabled = settings?.floating_phone_enabled;
+  const whatsappEnabled = settings?.floating_whatsapp_enabled;
+  const telegramEnabled = settings?.floating_telegram_enabled;
+  const vkEnabled = settings?.floating_vk_enabled;
+  const instagramEnabled = settings?.floating_instagram_enabled;
+  const maxEnabled = settings?.floating_max_enabled;
 
   const isOn = (val: string | undefined | null) => val !== 'false';
 

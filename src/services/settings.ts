@@ -19,6 +19,21 @@ export const getSetting = async (key: string): Promise<string | null> => {
   return data?.value ?? null;
 };
 
+export const getAllSettings = async (): Promise<Record<string, string>> => {
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('key, value');
+
+  if (error) throw error;
+  const map: Record<string, string> = {};
+  for (const row of data || []) {
+    if (row.value !== null) {
+      map[row.key] = row.value;
+    }
+  }
+  return map;
+};
+
 export const updateSetting = async (key: string, value: string): Promise<void> => {
   const { error } = await supabase
     .from('site_settings')

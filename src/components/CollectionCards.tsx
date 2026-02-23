@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useCollections } from '@/hooks/useCollections';
-import { useSetting } from '@/hooks/useSettings';
+import { useAllSettings } from '@/hooks/useSettings';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export const CollectionCards = () => {
   const { data: collections, isLoading } = useCollections(true);
-  const { data: collectionsTitle } = useSetting('collections_title');
+  const { data: settings } = useAllSettings();
+  const collectionsTitle = settings?.collections_title;
 
   if (isLoading) {
     return (
@@ -50,6 +51,7 @@ export const CollectionCards = () => {
               <img
                 src={collection.image_url}
                 alt={collection.name}
+                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
             ) : (

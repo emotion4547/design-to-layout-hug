@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { SearchAutocomplete } from '@/components/SearchAutocomplete';
-import { useSetting } from '@/hooks/useSettings';
+import { useAllSettings } from '@/hooks/useSettings';
 import { useCategories } from '@/hooks/useCategories';
 import {
   DropdownMenu,
@@ -67,12 +67,13 @@ export const Header = () => {
   const { totalItems } = useCart();
   const { totalFavorites } = useFavorites();
 
-  // Get social URLs from settings
-  const { data: vkUrl } = useSetting('vk_url');
-  const { data: telegramUrl } = useSetting('telegram_url');
-  const { data: whatsappUrl } = useSetting('whatsapp_url');
-  const { data: instagramUrl } = useSetting('instagram_url');
-  const { data: maxUrl } = useSetting('max_url');
+  // Get all settings in one request
+  const { data: settings } = useAllSettings();
+  const vkUrl = settings?.vk_url;
+  const telegramUrl = settings?.telegram_url;
+  const whatsappUrl = settings?.whatsapp_url;
+  const instagramUrl = settings?.instagram_url;
+  const maxUrl = settings?.max_url;
 
   const { data: categories } = useCategories({ activeOnly: true });
   const catalogCategories = [

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useSetting } from '@/hooks/useSettings';
+import { useAllSettings } from '@/hooks/useSettings';
 import logoImage from '@/assets/logo.png';
 const VKIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
@@ -51,15 +51,16 @@ const legalLinks = [
 ];
 
 export const Footer = () => {
-  // Get settings from database
-  const { data: phone } = useSetting('phone');
-  const { data: address } = useSetting('address');
-  const { data: email } = useSetting('email');
-  const { data: vkUrl } = useSetting('vk_url');
-  const { data: telegramUrl } = useSetting('telegram_url');
-  const { data: whatsappUrl } = useSetting('whatsapp_url');
-  const { data: instagramUrl } = useSetting('instagram_url');
-  const { data: maxUrl } = useSetting('max_url');
+  // Get all settings in one request
+  const { data: settings } = useAllSettings();
+  const phone = settings?.phone;
+  const address = settings?.address;
+  const email = settings?.email;
+  const vkUrl = settings?.vk_url;
+  const telegramUrl = settings?.telegram_url;
+  const whatsappUrl = settings?.whatsapp_url;
+  const instagramUrl = settings?.instagram_url;
+  const maxUrl = settings?.max_url;
 
   // Format phone for tel: link
   const phoneLink = phone ? `tel:${phone.replace(/[^+\d]/g, '')}` : '#';
