@@ -141,7 +141,7 @@ const Catalog = () => {
           onValueChange={(value) => setPriceRange(value as [number, number])}
           min={MIN_PRICE}
           max={MAX_PRICE}
-          step={100}
+          step={1}
           className="mt-2"
         />
         <div className="flex items-center gap-3">
