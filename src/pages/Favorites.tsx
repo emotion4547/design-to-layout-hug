@@ -14,7 +14,7 @@ const Favorites = () => {
       <PageLayout>
         <SEO
           title="Избранное"
-          description="Ваш список избранных товаров в магазине Бутон в тон"
+          description="Ваш список избранных товаров в магазине Везу букет"
           url="/favorites"
           noindex
         />
@@ -38,7 +38,7 @@ const Favorites = () => {
     <PageLayout>
       <SEO
         title="Избранное"
-        description="Ваш список избранных товаров в магазине Бутон в тон"
+        description="Ваш список избранных товаров в магазине Везу букет"
         url="/favorites"
         noindex
       />

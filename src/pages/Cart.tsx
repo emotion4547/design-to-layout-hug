@@ -141,7 +141,7 @@ const Cart = () => {
       <PageLayout>
         <SEO
           title="Корзина"
-          description="Ваша корзина покупок в магазине Бутон в тон"
+          description="Ваша корзина покупок в магазине Везу букет"
           url="/cart"
           noindex
         />
@@ -165,7 +165,7 @@ const Cart = () => {
     <PageLayout>
       <SEO
         title={isCheckout ? 'Оформление заказа' : 'Корзина'}
-        description="Ваша корзина покупок в магазине Бутон в тон"
+        description="Ваша корзина покупок в магазине Везу букет"
         url="/cart"
         noindex
       />

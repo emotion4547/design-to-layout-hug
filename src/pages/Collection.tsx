@@ -75,7 +75,7 @@ const CollectionPage = () => {
     <PageLayout>
       <SEO
         title={collection.name}
-        description={collection.description || `Коллекция ${collection.name} в магазине Бутон в тон`}
+        description={collection.description || `Коллекция ${collection.name} в магазине Везу букет`}
         image={collection.image_url || undefined}
         url={`/collection/${collection.slug}`}
       />
