@@ -7,6 +7,7 @@ import { Delivery } from '@/components/Delivery';
 import { News } from '@/components/News';
 import { SEO } from '@/components/SEO';
 import { QuizPopup } from '@/components/QuizPopup';
+import YandexReviews from '@/components/YandexReviews';
 
 const Index = () => {
   return (
@@ -20,6 +21,7 @@ const Index = () => {
       <Hero />
       <ProductGrid />
       <Features />
+      <YandexReviews />
       <BonusSystem />
       <Delivery />
       <News />
