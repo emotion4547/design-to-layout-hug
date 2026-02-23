@@ -89,7 +89,7 @@ export const SearchAutocomplete = ({
   }, []);
 
   const handleProductClick = (productId: string) => {
-    navigate(`/product/${productId}`);
+    navigate(`/catalog/${productId}`);
     onChange('');
     setShowSuggestions(false);
     onClose?.();
