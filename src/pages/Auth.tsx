@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
+import { SEO } from '@/components/SEO';
 
 const emailSchema = z.string().email('Введите корректный email');
 const passwordSchema = z.string().min(6, 'Пароль должен содержать минимум 6 символов');
@@ -115,6 +116,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary/30 p-4">
+      <SEO title="Вход" noindex />
       <div className="w-full max-w-md">
         <Link 
           to="/" 
