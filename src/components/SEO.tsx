@@ -22,7 +22,7 @@ interface SEOProps {
 }
 
 const BASE_URL = 'https://butonvton.ru';
-const SITE_NAME = 'Бутон в тон';
+const SITE_NAME = 'Везу букет';
 const DEFAULT_DESCRIPTION = 'Доставка свежих цветов и букетов в Новороссийске. Розы, тюльпаны, авторские композиции, букеты в шляпных коробках. Быстрая доставка по городу.';
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.jpg`;
 
