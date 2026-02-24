@@ -23,7 +23,7 @@ interface SEOProps {
 
 const BASE_URL = 'https://butonvton.ru';
 const SITE_NAME = 'Везу букет';
-const DEFAULT_DESCRIPTION = 'Доставка свежих цветов и букетов в Новороссийске. Розы, тюльпаны, авторские композиции, букеты в шляпных коробках. Быстрая доставка по городу.';
+const DEFAULT_DESCRIPTION = 'Доставка свежих цветов и букетов в Новороссийске. Розы, авторские композиции, букеты в шляпных коробках. Доставка от 1 часа. Заказ онлайн и по телефону.';
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.jpg`;
 
 export const SEO = ({
