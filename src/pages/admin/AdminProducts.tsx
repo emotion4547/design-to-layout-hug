@@ -29,7 +29,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Pencil, Trash2, Loader2, Search, Download, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, Search, Download, Upload, FileCode2, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { MultiImageUpload } from '@/components/MultiImageUpload';
 import { useCategories } from '@/hooks/useCategories';
@@ -329,6 +329,29 @@ const AdminProducts = () => {
           <Button variant="outline" onClick={handleExport} disabled={!products?.length}>
             <Download className="h-4 w-4 mr-2" />
             Экспорт Excel
+          </Button>
+
+          {/* YML feed for Yandex.Direct */}
+          <Button
+            variant="outline"
+            onClick={() => {
+              const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/yandex-yml?download=1`;
+              window.open(url, '_blank');
+            }}
+          >
+            <FileCode2 className="h-4 w-4 mr-2" />
+            Скачать YML (Яндекс)
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/yandex-yml`;
+              navigator.clipboard.writeText(url);
+              toast({ title: 'Ссылка на YML скопирована', description: url });
+            }}
+          >
+            <Copy className="h-4 w-4 mr-2" />
+            Ссылка на фид
           </Button>
 
           {/* Import Button */}
