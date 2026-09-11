@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const BASE_URL = "https://butonvton.ru";
+const BASE_URL = "https://vezubuket23.ru";
 const SHOP_NAME = "Везу букет";
 const COMPANY = "Везу букет";
 

@@ -1,0 +1,82 @@
+# Сборка и выкладка на сервер при каждом пуше в main.
+#
+# Собирает GitHub, а не VPS: на одном ядре сборка занимала бы минуты и
+# отъедала память у Postgres. На сервер уезжает только готовый dist.
+#
+# Нужны секреты репозитория (Settings → Secrets and variables → Actions):
+#   VPS_HOST      — 144.31.48.209
+#   VPS_USER      — root
+#   VPS_PASSWORD  — пароль root
+#
+# Пароль, а не ключ: чтобы положить ключ на сервер, туда сначала надо попасть.
+# Когда развернёмся — стоит перейти на ключ и запретить вход по паролю.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Лок-файл рассинхронизирован с package.json, поэтому ci может не пройти.
+      - name: Установка зависимостей
+        run: npm ci --no-audit --no-fund || npm install --no-audit --no-fund
+
+      - name: Сборка и пререндер
+        run: npm run build
+
+      - name: Проверка, что сборка не пустая
+        run: |
+          test -f dist/index.html
+          test -f dist/sitemap.xml
+          test -d dist/catalog
+          echo "адресов в карте сайта: $(grep -c '<url>' dist/sitemap.xml)"
+
+      - name: Подготовка доступа
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
+          install -m 700 -d ~/.ssh
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      # Каждый релиз в свой каталог, переключение симлинком: выкладка
+      # мгновенная, и откат — это перевод симлинка обратно.
+      - name: Выкладка
+        env:
+          SSHPASS: ${{ secrets.VPS_PASSWORD }}
+          SSHOPTS: -o StrictHostKeyChecking=yes
+        run: |
+          set -eu
+          TARGET="${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}"
+          REL=$(date -u +%Y%m%d-%H%M%S)
+          sshpass -e ssh $SSHOPTS "$TARGET" "mkdir -p /srv/vezubuket/releases/$REL"
+          rsync -az --delete -e "sshpass -e ssh $SSHOPTS" dist/ "$TARGET:/srv/vezubuket/releases/$REL/"
+          sshpass -e ssh $SSHOPTS "$TARGET" "
+            set -eu
+            chown -R www-data:www-data /srv/vezubuket/releases/$REL
+            ln -sfn /srv/vezubuket/releases/$REL /srv/vezubuket/current
+            nginx -t && systemctl reload nginx
+            cd /srv/vezubuket/releases && ls -1t | tail -n +4 | xargs -r rm -rf
+          "
+          echo "выложен релиз $REL"
+
+      - name: Проверка живого сайта
+        run: |
+          sleep 3
+          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
+                 -H 'Host: vezubuket23.ru' "http://${{ secrets.VPS_HOST }}/")
+          echo "главная ответила: $code"
+          test "$code" = "200"

@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { CookieConsent } from "./components/CookieConsent";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { YandexMetrika } from "./components/YandexMetrika";
 
 // Lazy-loaded pages
 const Catalog = lazy(() => import("./pages/Catalog"));
@@ -71,6 +72,7 @@ const App = () => (
               <Sonner />
               <BrowserRouter>
                 <ScrollToTop />
+                <YandexMetrika />
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
                     <Route path="/" element={<Index />} />

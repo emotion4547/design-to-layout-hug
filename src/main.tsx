@@ -1,10 +1,7 @@
 import { createRoot } from "react-dom/client";
-import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
 
-createRoot(document.getElementById("root")!).render(
-  <HelmetProvider>
-    <App />
-  </HelmetProvider>
-);
+// HelmetProvider убран: head-теги проставляет components/SEO.tsx напрямую,
+// react-helmet-async в production-сборке не отрабатывал на lazy-страницах.
+createRoot(document.getElementById("root")!).render(<App />);

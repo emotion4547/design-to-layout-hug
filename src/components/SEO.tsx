@@ -1,4 +1,16 @@
-import { Helmet } from 'react-helmet-async';
+import { useEffect } from 'react';
+
+/**
+ * Head-теги проставляются напрямую через DOM, без react-helmet-async.
+ *
+ * Причина: в production-сборке Helmet не отрабатывал внутри страниц,
+ * подгружаемых через React.lazy — а так грузятся все страницы, кроме главной.
+ * Теги не появлялись вовсе, и каждый адрес отдавал мету из index.html:
+ * одинаковые title и description на весь сайт, canonical на главную.
+ * В dev проблема не воспроизводится, поэтому её долго не было видно.
+ *
+ * Публичный интерфейс компонентов не изменился — места вызова трогать не нужно.
+ */
 
 interface SEOProps {
   title?: string;
@@ -21,10 +33,82 @@ interface SEOProps {
   noindex?: boolean;
 }
 
-const BASE_URL = 'https://butonvton.ru';
+const BASE_URL = 'https://vezubuket23.ru';
 const SITE_NAME = 'Везу букет';
 const DEFAULT_DESCRIPTION = 'Доставка свежих цветов и букетов в Новороссийске. Розы, авторские композиции, букеты в шляпных коробках. Доставка от 1 часа. Заказ онлайн и по телефону.';
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.jpg`;
+
+/** Описание одного тега: чем его искать и что в него положить. */
+interface HeadTag {
+  tag: 'meta' | 'link';
+  keyAttr: 'name' | 'property' | 'rel';
+  keyValue: string;
+  valueAttr: 'content' | 'href';
+  value: string;
+}
+
+/**
+ * Проставляет теги в <head>. Уже существующий тег (например, из index.html)
+ * переиспользуется и восстанавливается при уходе со страницы — так рядом не
+ * появляется второй og:url или canonical с адресом предыдущей страницы.
+ */
+function useHeadTags(tags: HeadTag[], title?: string) {
+  // Значения примитивны, поэтому сериализация — достаточный ключ зависимостей.
+  const key = JSON.stringify([tags, title]);
+
+  useEffect(() => {
+    const restores: Array<() => void> = [];
+
+    if (title !== undefined) {
+      const prevTitle = document.title;
+      document.title = title;
+      restores.push(() => {
+        document.title = prevTitle;
+      });
+    }
+
+    for (const t of tags) {
+      const selector = `${t.tag}[${t.keyAttr}="${t.keyValue}"]`;
+      const existing = document.head.querySelector<HTMLElement>(selector);
+
+      if (existing) {
+        const prev = existing.getAttribute(t.valueAttr);
+        existing.setAttribute(t.valueAttr, t.value);
+        restores.push(() => {
+          if (prev === null) existing.removeAttribute(t.valueAttr);
+          else existing.setAttribute(t.valueAttr, prev);
+        });
+      } else {
+        const el = document.createElement(t.tag);
+        el.setAttribute(t.keyAttr, t.keyValue);
+        el.setAttribute(t.valueAttr, t.value);
+        el.setAttribute('data-seo', '');
+        document.head.appendChild(el);
+        restores.push(() => el.remove());
+      }
+    }
+
+    return () => {
+      // В обратном порядке, чтобы вложенные правки снимались корректно.
+      for (let i = restores.length - 1; i >= 0; i--) restores[i]();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+}
+
+/** Вставляет блок JSON-LD и убирает его при размонтировании. */
+function useJsonLd(schema: unknown) {
+  const json = JSON.stringify(schema);
+
+  useEffect(() => {
+    const el = document.createElement('script');
+    el.type = 'application/ld+json';
+    el.setAttribute('data-seo', '');
+    el.textContent = json;
+    document.head.appendChild(el);
+    return () => el.remove();
+  }, [json]);
+}
 
 export const SEO = ({
   title,
@@ -41,66 +125,52 @@ export const SEO = ({
   const fullUrl = url ? `${BASE_URL}${url}` : BASE_URL;
   const fullImage = image.startsWith('http') ? image : `${BASE_URL}${image}`;
 
-  return (
-    <Helmet>
-      {/* Primary Meta Tags */}
-      <title>{fullTitle}</title>
-      <meta name="title" content={fullTitle} />
-      <meta name="description" content={description} />
-      {keywords && <meta name="keywords" content={keywords} />}
-      
-      {/* Robots */}
-      {noindex ? (
-        <meta name="robots" content="noindex, nofollow" />
-      ) : (
-        <meta name="robots" content="index, follow" />
-      )}
-      
-      {/* Canonical */}
-      <link rel="canonical" href={fullUrl} />
+  const meta = (
+    keyAttr: 'name' | 'property',
+    keyValue: string,
+    value: string
+  ): HeadTag => ({ tag: 'meta', keyAttr, keyValue, valueAttr: 'content', value });
 
-      {/* Open Graph / Facebook */}
-      <meta property="og:type" content={type} />
-      <meta property="og:url" content={fullUrl} />
-      <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={fullImage} />
-      <meta property="og:site_name" content={SITE_NAME} />
-      <meta property="og:locale" content="ru_RU" />
+  const tags: HeadTag[] = [
+    meta('name', 'title', fullTitle),
+    meta('name', 'description', description),
+    ...(keywords ? [meta('name', 'keywords', keywords)] : []),
+    meta('name', 'robots', noindex ? 'noindex, nofollow' : 'index, follow'),
 
-      {/* Article specific */}
-      {article && (
-        <>
-          {article.publishedTime && (
-            <meta property="article:published_time" content={article.publishedTime} />
-          )}
-          {article.modifiedTime && (
-            <meta property="article:modified_time" content={article.modifiedTime} />
-          )}
-          {article.author && <meta property="article:author" content={article.author} />}
-          {article.section && <meta property="article:section" content={article.section} />}
-        </>
-      )}
+    { tag: 'link', keyAttr: 'rel', keyValue: 'canonical', valueAttr: 'href', value: fullUrl },
 
-      {/* Product specific */}
-      {product && (
-        <>
-          <meta property="product:price:amount" content={String(product.price)} />
-          <meta property="product:price:currency" content={product.currency || 'RUB'} />
-          <meta property="product:availability" content={product.availability || 'InStock'} />
-        </>
-      )}
+    meta('property', 'og:type', type),
+    meta('property', 'og:url', fullUrl),
+    meta('property', 'og:title', fullTitle),
+    meta('property', 'og:description', description),
+    meta('property', 'og:image', fullImage),
+    meta('property', 'og:site_name', SITE_NAME),
+    meta('property', 'og:locale', 'ru_RU'),
 
-      {/* Twitter */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:url" content={fullUrl} />
-      <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={fullImage} />
-    </Helmet>
-  );
+    ...(article?.publishedTime ? [meta('property', 'article:published_time', article.publishedTime)] : []),
+    ...(article?.modifiedTime ? [meta('property', 'article:modified_time', article.modifiedTime)] : []),
+    ...(article?.author ? [meta('property', 'article:author', article.author)] : []),
+    ...(article?.section ? [meta('property', 'article:section', article.section)] : []),
+
+    ...(product
+      ? [
+          meta('property', 'product:price:amount', String(product.price)),
+          meta('property', 'product:price:currency', product.currency || 'RUB'),
+          meta('property', 'product:availability', product.availability || 'InStock'),
+        ]
+      : []),
+
+    meta('name', 'twitter:card', 'summary_large_image'),
+    meta('name', 'twitter:url', fullUrl),
+    meta('name', 'twitter:title', fullTitle),
+    meta('name', 'twitter:description', description),
+    meta('name', 'twitter:image', fullImage),
+  ];
+
+  useHeadTags(tags, fullTitle);
+
+  return null;
 };
-
 // Product structured data component
 interface ProductSchemaProps {
   name: string;
@@ -145,11 +215,8 @@ export const ProductSchema = ({
     },
   };
 
-  return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
-  );
+  useJsonLd(schema);
+  return null;
 };
 
 // Breadcrumb structured data component
@@ -174,11 +241,8 @@ export const BreadcrumbSchema = ({ items }: BreadcrumbSchemaProps) => {
     })),
   };
 
-  return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
-  );
+  useJsonLd(schema);
+  return null;
 };
 
 // Article structured data component
@@ -222,11 +286,8 @@ export const ArticleSchema = ({
     },
   };
 
-  return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
-  );
+  useJsonLd(schema);
+  return null;
 };
 
 // FAQ structured data component
@@ -253,9 +314,6 @@ export const FAQSchema = ({ items }: FAQSchemaProps) => {
     })),
   };
 
-  return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(schema)}</script>
-    </Helmet>
-  );
+  useJsonLd(schema);
+  return null;
 };

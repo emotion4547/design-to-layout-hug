@@ -1,0 +1,44 @@
+# Подготовка чистого сервера. Запускается вручную, один раз.
+# Actions → Provision server → Run workflow
+#
+# Делает: swap, nginx, certbot, файрвол, каталоги под релизы.
+# Безопасно перезапускать — всё проверяется на «уже сделано».
+name: Provision server
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_cert:
+        description: 'Выпустить сертификат (DNS уже должен указывать на сервер)'
+        type: boolean
+        default: false
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Подготовка доступа
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
+          install -m 700 -d ~/.ssh
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Настройка сервера
+        env:
+          SSHPASS: ${{ secrets.VPS_PASSWORD }}
+          ISSUE_CERT: ${{ inputs.issue_cert }}
+        run: |
+          set -eu
+          TARGET="${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}"
+          sshpass -e ssh -o StrictHostKeyChecking=yes "$TARGET" \
+            "ISSUE_CERT=$ISSUE_CERT bash -s" < deploy/provision-server.sh
+
+      - name: Проверка
+        env:
+          SSHPASS: ${{ secrets.VPS_PASSWORD }}
+        run: |
+          sshpass -e ssh -o StrictHostKeyChecking=yes \
+            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "systemctl is-active nginx; free -m | head -2; swapon --show"

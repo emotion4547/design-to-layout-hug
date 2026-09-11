@@ -21,4 +21,4 @@ Disallow: /cart
 Disallow: /favorites
 
 # Sitemap location
-Sitemap: https://butonvton.ru/sitemap.xml
+Sitemap: https://vezubuket23.ru/sitemap.xml
