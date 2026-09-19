@@ -9,6 +9,8 @@ import { useFavorites } from '@/contexts/FavoritesContext';
 import { useToast } from '@/hooks/use-toast';
 import { useProduct } from '@/hooks/useProducts';
 import { supabase } from '@/integrations/supabase/client';
+import { RichText } from '@/components/RichText';
+import { stripHtml, truncate } from '@/lib/plainText.mjs';
 import { SEO, ProductSchema, BreadcrumbSchema } from '@/components/SEO';
 
 import bouquet1 from '@/assets/products/bouquet-1.jpg';
@@ -157,7 +159,7 @@ const Product = () => {
     toggleFavorite({
       id: product.id,
       name: product.name,
-      description: product.description || '',
+      description: stripHtml(product.description),
       price: product.price,
       image: productImages[0],
     });
@@ -167,7 +169,7 @@ const Product = () => {
     <PageLayout>
       <SEO
         title={product.name}
-        description={product.description || `Купить ${product.name} с доставкой в Новороссийске. Цена: ${product.price} ₽`}
+        description={truncate(product.description) || `Купить ${product.name} с доставкой в Новороссийске. Цена: ${product.price} ₽`}
         keywords={`${product.name}, купить цветы Новороссийск, букет с доставкой`}
         image={productImages[0]}
         url={`/catalog/${product.id}`}
@@ -180,7 +182,7 @@ const Product = () => {
       />
       <ProductSchema
         name={product.name}
-        description={product.description || undefined}
+        description={stripHtml(product.description) || undefined}
         image={productImages[0]}
         price={product.price}
         oldPrice={product.old_price || undefined}
@@ -258,9 +260,10 @@ const Product = () => {
                   <p className="text-sm text-muted-foreground mb-2">Арт: {product.article}</p>
                 )}
                 <h1 className="text-2xl md:text-3xl font-bold mb-2">{product.name}</h1>
-                {product.description && (
-                  <p className="text-muted-foreground">{product.description}</p>
-                )}
+                <RichText
+                  html={product.description}
+                  className="text-muted-foreground space-y-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:text-foreground"
+                />
               </div>
 
               {/* Price */}

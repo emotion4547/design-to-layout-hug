@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { RichText } from '@/components/RichText';
+import { stripHtml } from '@/lib/plainText.mjs';
 import { X, Heart, ShoppingBag, Minus, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
@@ -52,7 +54,7 @@ export const QuickViewModal = ({ productId, open, onOpenChange }: QuickViewModal
     toggleFavorite({
       id: product.id,
       name: product.name,
-      description: product.description || '',
+      description: stripHtml(product.description),
       price: product.price,
       oldPrice: product.old_price || undefined,
       image: product.image_url,
@@ -166,11 +168,10 @@ export const QuickViewModal = ({ productId, open, onOpenChange }: QuickViewModal
               </div>
               
               {/* Description */}
-              {product.description && (
-                <p className="text-muted-foreground mb-6 line-clamp-4">
-                  {product.description}
-                </p>
-              )}
+              <RichText
+                html={product.description}
+                className="text-muted-foreground mb-6 line-clamp-4 [&_ul]:list-disc [&_ul]:pl-5 [&_strong]:text-foreground"
+              />
               
               {/* Size */}
               {product.size && (

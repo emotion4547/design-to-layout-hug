@@ -17,6 +17,7 @@
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
+import { stripHtml, truncate } from '../src/lib/plainText.mjs';
 
 const DIST = 'dist';
 const BASE_URL = 'https://vezubuket23.ru';
@@ -124,13 +125,15 @@ for (const p of products) {
   write(`/catalog/${p.id}`, renderHead(tpl, {
     url: `/catalog/${p.id}`,
     title: p.name,
-    description: p.description || `Купить ${p.name} с доставкой в Новороссийске. Цена: ${p.price} ₽`,
+    // В мету уходит чистый текст: описания из Tilda размечены, и теги
+    // попадали в выдачу поисковика вместе с описанием.
+    description: truncate(p.description) || `Купить ${p.name} с доставкой в Новороссийске. Цена: ${p.price} ₽`,
     image,
     jsonLd: {
       '@context': 'https://schema.org',
       '@type': 'Product',
       name: p.name,
-      description: p.description,
+      description: stripHtml(p.description),
       image,
       url: `${BASE_URL}/catalog/${p.id}`,
       offers: {
