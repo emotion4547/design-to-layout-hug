@@ -69,10 +69,22 @@ server {
     location = /sitemap.xml { add_header Cache-Control "no-cache"; }
 
     # $uri/ находит пререндеренный /catalog/index.html; /index.html — запасной путь.
-    # $uri/index.html проверяем ДО $uri/: иначе nginx отвечает 301 и добавляет
-    # слеш (/catalog -> /catalog/), а canonical в пререндере указывает на адрес
-    # без слеша — поисковик видит противоречие.
-    location / { try_files $uri $uri/index.html $uri/ /index.html; }
+    location / {
+        # $uri/index.html проверяем ДО $uri/: иначе nginx отвечает 301 и
+        # добавляет слеш (/catalog -> /catalog/), а canonical в пререндере
+        # указывает на адрес без слеша — поисковик видит противоречие.
+        try_files $uri $uri/index.html $uri/ /index.html;
+
+        # HTML кэшировать нельзя: он ссылается на файлы с хэшем в имени, и
+        # старая копия после выкладки запросит уже удалённые файлы.
+        add_header Cache-Control "no-cache, must-revalidate" always;
+
+        # add_header внутри location отменяет заголовки, унаследованные от
+        # server, поэтому security-заголовки приходится повторить здесь.
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    }
 
     gzip on;
     gzip_vary on;
