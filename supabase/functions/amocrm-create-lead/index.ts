@@ -1,10 +1,44 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+type LogEntry = {
+  status: 'success' | 'error' | 'skipped';
+  message: string;
+  response_data?: Record<string, unknown>;
+};
+
+// Запись в журнал — единственный след заявки, которая не дошла до amoCRM,
+// поэтому ошибку вставки нельзя проглатывать: она уходит в console.error и
+// видна в логах контейнера. Вторая тонкость — order_id ссылается на orders,
+// и если заказа там нет, строку отвергает внешний ключ. Тогда пишем её ещё
+// раз без ссылки, перенеся номер в текст: потерять запись об упавшей заявке
+// хуже, чем потерять связь с заказом.
+async function logIntegration(
+  supabase: SupabaseClient,
+  orderId: string | null,
+  entry: LogEntry,
+) {
+  const row = { integration_type: 'amocrm', order_id: orderId, ...entry };
+  const { error } = await supabase.from('integration_logs').insert(row);
+  if (!error) return;
+
+  console.error('Не удалось записать в integration_logs:', error.message);
+  if (!orderId) return;
+
+  const retry = await supabase.from('integration_logs').insert({
+    ...row,
+    order_id: null,
+    message: `${entry.message} (заказ ${orderId})`,
+  });
+  if (retry.error) {
+    console.error('Повтор без ссылки на заказ тоже не прошёл:', retry.error.message);
+  }
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -45,9 +79,7 @@ serve(async (req) => {
 
     if (!enabled || !subdomain || !accessToken) {
       console.log('AmoCRM not configured or disabled');
-      await supabase.from('integration_logs').insert({
-        integration_type: 'amocrm',
-        order_id: orderId,
+      await logIntegration(supabase, orderId, {
         status: 'skipped',
         message: 'Интеграция не настроена или отключена',
       });
@@ -117,9 +149,7 @@ ${order.card_text ? `💌 Текст открытки: ${order.card_text}` : ''}
       const errorText = await amoResponse.text();
       console.error('AmoCRM API error:', amoResponse.status, errorText);
       
-      await supabase.from('integration_logs').insert({
-        integration_type: 'amocrm',
-        order_id: orderId,
+      await logIntegration(supabase, orderId, {
         status: 'error',
         message: `API ошибка: ${amoResponse.status}`,
         response_data: { status: amoResponse.status, body: errorText },
@@ -145,9 +175,7 @@ ${order.card_text ? `💌 Текст открытки: ${order.card_text}` : ''}
     }
 
     // Log success
-    await supabase.from('integration_logs').insert({
-      integration_type: 'amocrm',
-      order_id: orderId,
+    await logIntegration(supabase, orderId, {
       status: 'success',
       message: `Сделка создана: ${leadId}`,
       response_data: { lead_id: leadId },
@@ -163,9 +191,7 @@ ${order.card_text ? `💌 Текст открытки: ${order.card_text}` : ''}
     console.error('Error in amocrm-create-lead:', error);
 
     // Log error
-    await supabase.from('integration_logs').insert({
-      integration_type: 'amocrm',
-      order_id: orderId,
+    await logIntegration(supabase, orderId, {
       status: 'error',
       message: errorMessage,
     });
