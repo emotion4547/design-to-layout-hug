@@ -73,10 +73,16 @@ jobs:
           "
           echo "выложен релиз $REL"
 
+      # -L обязателен: после выпуска сертификата http отвечает 301 на https,
+      # и проверка без него падала бы на успешной выкладке.
       - name: Проверка живого сайта
         run: |
           sleep 3
-          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 \
-                 -H 'Host: vezubuket23.ru' "http://${{ secrets.VPS_HOST }}/")
-          echo "главная ответила: $code"
-          test "$code" = "200"
+          for path in "" "catalog" "sitemap.xml"; do
+            code=$(curl -sSL -o /dev/null -w '%{http_code}' --max-time 25 \
+                   --resolve "vezubuket23.ru:443:${{ secrets.VPS_HOST }}" \
+                   --resolve "vezubuket23.ru:80:${{ secrets.VPS_HOST }}" \
+                   "http://vezubuket23.ru/$path")
+            echo "  /$path -> $code"
+            test "$code" = "200"
+          done
