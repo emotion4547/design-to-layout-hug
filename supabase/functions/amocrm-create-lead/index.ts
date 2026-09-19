@@ -18,14 +18,14 @@ serve(async (req) => {
   let orderId: string | null = null;
 
   try {
-    const { order } = await req.json();
+    const { order, items } = await req.json();
     orderId = order?.id;
 
     // Get AmoCRM settings
     const { data: settings, error: settingsError } = await supabase
       .from('site_settings')
       .select('key, value')
-      .in('key', ['amocrm_subdomain', 'amocrm_access_token', 'amocrm_enabled']);
+      .in('key', ['amocrm_subdomain', 'amocrm_access_token', 'amocrm_enabled', 'amocrm_pipeline_id']);
 
     if (settingsError) {
       throw new Error('Failed to fetch AmoCRM settings');
@@ -39,6 +39,9 @@ serve(async (req) => {
     const subdomain = settingsMap['amocrm_subdomain'];
     const accessToken = settingsMap['amocrm_access_token'];
     const enabled = settingsMap['amocrm_enabled'] === 'true';
+    // Необязательно: без него сделка попадёт в воронку по умолчанию, а она
+    // не всегда та, в которой работают с заказами.
+    const pipelineId = Number(settingsMap['amocrm_pipeline_id']) || undefined;
 
     if (!enabled || !subdomain || !accessToken) {
       console.log('AmoCRM not configured or disabled');
@@ -61,6 +64,7 @@ serve(async (req) => {
       {
         name: `Заказ #${order.id.slice(0, 8)} - ${order.customer_name}`,
         price: order.total_price,
+        ...(pipelineId ? { pipeline_id: pipelineId } : {}),
         custom_fields_values: [
           { field_code: "PHONE", values: [{ value: order.customer_phone }] },
           ...(order.customer_email ? [{ field_code: "EMAIL", values: [{ value: order.customer_email }] }] : [])
@@ -77,6 +81,13 @@ serve(async (req) => {
       }
     ];
 
+    const positions = Array.isArray(items) && items.length > 0
+      ? items
+          .map((i: { product_name: string; quantity: number; product_price: number }) =>
+            `  • ${i.product_name} — ${i.quantity} шт. × ${i.product_price} ₽`)
+          .join('\n')
+      : '  (состав не передан)';
+
     const noteText = `
 Заказ с сайта:
 📦 ID заказа: ${order.id.slice(0, 8)}
@@ -86,6 +97,8 @@ ${order.customer_email ? `📧 Email: ${order.customer_email}` : ''}
 📍 Адрес доставки: ${order.delivery_address}
 📅 Дата доставки: ${order.delivery_date}
 ${order.delivery_time ? `⏰ Время: ${order.delivery_time}` : ''}
+🛒 Состав:
+${positions}
 💰 Сумма: ${order.total_price} ₽
 ${order.comment ? `💬 Комментарий: ${order.comment}` : ''}
 ${order.card_text ? `💌 Текст открытки: ${order.card_text}` : ''}

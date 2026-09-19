@@ -153,7 +153,7 @@ async function sendToIntegrations(
 ) {
   // Fire-and-forget; errors are logged in the function + here
   const [amo, tg] = await Promise.all([
-    supabase.functions.invoke('amocrm-create-lead', { body: { order } }),
+    supabase.functions.invoke('amocrm-create-lead', { body: { order, items } }),
     supabase.functions.invoke('telegram-notify', { body: { order, items } }),
   ]);
 

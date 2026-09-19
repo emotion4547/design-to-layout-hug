@@ -62,11 +62,13 @@ function AmoCRMSettings() {
   const { data: savedSubdomain, isLoading: loadingSubdomain } = useSetting('amocrm_subdomain');
   const { data: savedToken, isLoading: loadingToken } = useSetting('amocrm_access_token');
   const { data: savedEnabled, isLoading: loadingEnabled } = useSetting('amocrm_enabled');
+  const { data: savedPipeline } = useSetting('amocrm_pipeline_id');
   const updateSetting = useUpdateSetting();
 
   const [subdomain, setSubdomain] = useState('');
   const [accessToken, setAccessToken] = useState('');
   const [enabled, setEnabled] = useState(false);
+  const [pipelineId, setPipelineId] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<'success' | 'error' | null>(null);
@@ -74,6 +76,10 @@ function AmoCRMSettings() {
   useEffect(() => {
     if (savedSubdomain) setSubdomain(savedSubdomain);
   }, [savedSubdomain]);
+
+  useEffect(() => {
+    if (savedPipeline) setPipelineId(savedPipeline);
+  }, [savedPipeline]);
 
   useEffect(() => {
     if (savedToken) setAccessToken(savedToken);
@@ -90,6 +96,7 @@ function AmoCRMSettings() {
         updateSetting.mutateAsync({ key: 'amocrm_subdomain', value: subdomain }),
         updateSetting.mutateAsync({ key: 'amocrm_access_token', value: accessToken }),
         updateSetting.mutateAsync({ key: 'amocrm_enabled', value: enabled ? 'true' : 'false' }),
+        updateSetting.mutateAsync({ key: 'amocrm_pipeline_id', value: pipelineId.trim() }),
       ]);
       toast.success('Настройки AmoCRM сохранены');
     } catch (error) {
@@ -155,6 +162,22 @@ function AmoCRMSettings() {
           <div className="space-y-2">
             <Label>Токен доступа</Label>
             <Input type="password" value={accessToken} onChange={(e) => setAccessToken(e.target.value)} placeholder="Вставьте токен" disabled={isLoading} />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Воронка (необязательно)</Label>
+            <Input
+              value={pipelineId}
+              onChange={(e) => setPipelineId(e.target.value)}
+              placeholder="Например, 9876543"
+              disabled={isLoading}
+              inputMode="numeric"
+            />
+            <p className="text-sm text-muted-foreground">
+              Номер воронки виден в её адресе: <code>/leads/pipeline/<b>9876543</b>/</code>.
+              Если оставить пустым, сделки попадут в воронку по умолчанию — она не
+              всегда та, в которой работают с заказами.
+            </p>
           </div>
 
           <div className="flex gap-3">
