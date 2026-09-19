@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-
-export const YANDEX_METRIKA_ID = 108466036;
+import { YANDEX_METRIKA_ID, reachGoal, GOALS } from "@/lib/metrika";
 
 /** Сколько ждём заголовок новой страницы, прежде чем отправить как есть. */
 const TITLE_WAIT_MS = 2000;
@@ -61,6 +60,21 @@ export const YandexMetrika = () => {
     // Уходим с маршрута раньше, чем успели отправить — досылаем, чтобы просмотр не потерялся.
     return () => send();
   }, [pathname, search]);
+
+  // Клик по телефону — цель phone_click. Слушаем страницу одним обработчиком,
+  // а не вешаем его на каждую ссылку: номер выводится в подвале, в плавающей
+  // кнопке, на «Доставке» и в «Контактах», и при добавлении пятого места про
+  // цель бы просто забыли. Перехват на погружении — чтобы сработало даже там,
+  // где обработчик ссылки останавливает всплытие.
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      const target = event.target as Element | null;
+      const link = target?.closest?.('a[href^="tel:"]');
+      if (link) reachGoal(GOALS.phoneClick, { href: link.getAttribute('href') });
+    };
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
+  }, []);
 
   return null;
 };

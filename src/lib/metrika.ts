@@ -1,4 +1,5 @@
-import { YANDEX_METRIKA_ID } from '@/components/YandexMetrika';
+/** Номер счётчика. Он же стоит в index.html, где Метрика инициализируется. */
+export const YANDEX_METRIKA_ID = 108466036;
 
 /**
  * Цели Метрики — шаги воронки покупки.

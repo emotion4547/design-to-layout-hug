@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { reachGoal, GOALS } from '@/lib/metrika';
 import { RichText } from '@/components/RichText';
 import { stripHtml } from '@/lib/plainText.mjs';
 import { X, Heart, ShoppingBag, Minus, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -36,6 +37,9 @@ export const QuickViewModal = ({ productId, open, onOpenChange }: QuickViewModal
 
   const handleAddToCart = () => {
     if (!product) return;
+    // Из быстрого просмотра кладут в корзину так же, как со страницы товара, —
+    // без этой строки половина добавлений не попадала бы в воронку.
+    reachGoal(GOALS.addToCart, { product_id: product.id, price: product.price });
     addToCart({
       id: product.id,
       name: product.name,

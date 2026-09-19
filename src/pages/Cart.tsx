@@ -1,5 +1,5 @@
 import { reachGoal, GOALS } from '@/lib/metrika';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
@@ -36,6 +36,17 @@ const Cart = () => {
   const navigate = useNavigate();
   const [isCheckout, setIsCheckout] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Открытие непустой корзины — шаг воронки между «положил» и «оформил»:
+  // именно здесь видно, сколько людей дошли до корзины и не оформили.
+  // Шлём один раз за посещение, иначе правка количества товара насчитала бы
+  // по цели на каждый щелчок.
+  const cartCounted = useRef(false);
+  useEffect(() => {
+    if (cartCounted.current || items.length === 0) return;
+    cartCounted.current = true;
+    reachGoal(GOALS.viewCart, { total: totalPrice, positions: items.length });
+  }, [items.length, totalPrice]);
   const [formData, setFormData] = useState({
     senderName: '',
     senderPhone: '',
