@@ -180,6 +180,9 @@ interface ProductSchemaProps {
   oldPrice?: number;
   inStock?: boolean;
   url: string;
+  /** Средняя оценка и число отзывов — с ними в выдаче появляются звёзды. */
+  rating?: number;
+  reviewCount?: number;
 }
 
 export const ProductSchema = ({
@@ -190,6 +193,8 @@ export const ProductSchema = ({
   oldPrice,
   inStock = true,
   url,
+  rating,
+  reviewCount,
 }: ProductSchemaProps) => {
   const schema = {
     '@context': 'https://schema.org',
@@ -213,6 +218,19 @@ export const ProductSchema = ({
       '@type': 'Brand',
       name: SITE_NAME,
     },
+    // Без отзывов блок не добавляем: разметка с нулевым рейтингом считается
+    // разметкой без данных и может быть признана недостоверной.
+    ...(rating && reviewCount
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: rating,
+            reviewCount,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
   };
 
   useJsonLd(schema);

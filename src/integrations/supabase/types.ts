@@ -425,6 +425,50 @@ export type Database = {
           },
         ]
       }
+      reviews: {
+        Row: {
+          author_name: string
+          created_at: string
+          id: string
+          images: string[] | null
+          is_published: boolean
+          product_id: string | null
+          rating: number
+          text: string | null
+          updated_at: string
+        }
+        Insert: {
+          author_name: string
+          created_at?: string
+          id?: string
+          images?: string[] | null
+          is_published?: boolean
+          product_id?: string | null
+          rating: number
+          text?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author_name?: string
+          created_at?: string
+          id?: string
+          images?: string[] | null
+          is_published?: boolean
+          product_id?: string | null
+          rating?: number
+          text?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       promotions: {
         Row: {
           badge: string | null
@@ -550,7 +594,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      product_ratings: {
+        Row: {
+          product_id: string | null
+          rating_avg: number | null
+          rating_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: {

@@ -256,6 +256,17 @@ ${indexable.map((r) => `  <url>
 writeFileSync(join(DIST, 'sitemap.xml'), sitemap, 'utf-8');
 
 console.log(`   пререндер: ${rendered} страниц отрисовано, ${fallback} только мета`);
+
+// Одна-две страницы могут честно не иметь H1 (например, форма входа). Но если
+// не отрисовалась заметная часть — значит приложение падает, и выкладывать
+// такой результат нельзя: роботу снова достанется пустая страница.
+// Ровно это случилось, когда хук отзывов встал после условного возврата.
+const LIMIT = Math.max(3, Math.ceil(routes.length * 0.05));
+if (fallback > LIMIT) {
+  console.error(`   ОШИБКА: не отрисовано ${fallback} страниц при допустимых ${LIMIT}.`);
+  console.error('   Похоже, приложение падает на этих адресах. Сборка остановлена.');
+  process.exit(1);
+}
 console.log(`   товаров ${products.length}, подборок ${collections.length}, новостей ${news.length}, акций ${promotions.length}`);
 console.log(`   sitemap.xml: ${indexable.length} адресов`);
 

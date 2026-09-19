@@ -18,7 +18,8 @@ import {
   Settings,
   Palette,
   Plug,
-  Globe
+  Globe,
+  Star
 } from 'lucide-react';
 
 const navItems = [
@@ -57,6 +58,11 @@ const navItems = [
     label: 'Новости', 
     path: '/admin/news', 
     icon: Newspaper 
+  },
+  { 
+    label: 'Отзывы', 
+    path: '/admin/reviews', 
+    icon: Star 
   },
   { 
     label: 'Акции', 

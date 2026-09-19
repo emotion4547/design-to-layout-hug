@@ -1,3 +1,5 @@
+import { ProductReviews } from '@/components/ProductReviews';
+import { useProductReviews } from '@/hooks/useReviews';
 import { productImage, productSrcSet } from '@/lib/productImage';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
@@ -86,6 +88,13 @@ const Product = () => {
 
     fetchAddons();
   }, [product?.category_id]);
+
+  // Рейтинг нужен и разметке, и блоку отзывов — считаем один раз.
+  // Хук обязан стоять до ранних возвратов ниже: иначе число хуков при
+  // загрузке и после неё различается, и React роняет страницу.
+  const { data: reviews = [] } = useProductReviews(id);
+  const ratingAvg =
+    reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : undefined;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ru-RU').format(price);
@@ -189,6 +198,8 @@ const Product = () => {
         oldPrice={product.old_price || undefined}
         inStock={product.in_stock ?? true}
         url={`/catalog/${product.id}`}
+        rating={ratingAvg ? Number(ratingAvg.toFixed(1)) : undefined}
+        reviewCount={reviews.length || undefined}
       />
       <BreadcrumbSchema items={[
         { name: 'Главная', url: '/' },
@@ -351,6 +362,8 @@ const Product = () => {
               </div>
             </div>
           </div>
+
+          <ProductReviews productId={product.id} />
         </div>
       </section>
     </PageLayout>
