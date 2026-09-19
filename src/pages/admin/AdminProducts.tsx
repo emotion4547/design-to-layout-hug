@@ -210,6 +210,26 @@ const AdminProducts = () => {
     toast({ title: `Экспортировано ${products.length} товаров` });
   };
 
+  /**
+   * Переносит внешнюю картинку в наше хранилище.
+   *
+   * Делает это серверная функция, а не браузер: чужой CDN не отдаёт заголовки
+   * CORS, и fetch отсюда падает. Если перенести не вышло — оставляем исходную
+   * ссылку: товар без картинки хуже, чем товар с картинкой на чужом сервере.
+   */
+  const rehostImage = async (url: string, productId: string): Promise<string> => {
+    if (!url || !url.startsWith('http')) return url;
+    try {
+      const { data, error } = await supabase.functions.invoke('import-image', {
+        body: { url, productId },
+      });
+      if (error || !data?.url) return url;
+      return data.url as string;
+    } catch {
+      return url;
+    }
+  };
+
   // Import products from Excel
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -247,6 +267,7 @@ const AdminProducts = () => {
       let updated = 0;
       let errors = 0;
       const newCategories: string[] = [];
+      let rehosted = 0;
 
       // Справочник категорий по имени — чтобы не перебирать список на каждой строке.
       const byName = new Map(
@@ -294,14 +315,37 @@ const AdminProducts = () => {
         };
 
         try {
+          let productId = item.id;
+
           if (item.id && products?.some((pr) => pr.id === item.id)) {
             const { error } = await supabase.from('products').update(fields).eq('id', item.id);
             if (error) throw error;
             updated++;
           } else {
-            const { error } = await supabase.from('products').insert(fields);
+            const { data: inserted, error } = await supabase
+              .from('products')
+              .insert(fields)
+              .select('id')
+              .single();
             if (error) throw error;
+            productId = inserted?.id;
             created++;
+          }
+
+          // Картинки переносим после записи: нужен id товара, чтобы разложить
+          // файлы по папкам, и незачем качать их для строки, которая не легла.
+          if (productId) {
+            const mainUrl = await rehostImage(fields.image_url, productId);
+            const gallery = [];
+            for (const g of fields.images) gallery.push(await rehostImage(g, productId));
+
+            if (mainUrl !== fields.image_url || gallery.join() !== fields.images.join()) {
+              await supabase
+                .from('products')
+                .update({ image_url: mainUrl, images: gallery })
+                .eq('id', productId);
+              rehosted++;
+            }
           }
         } catch (err) {
           console.error('Error importing product:', err);
@@ -315,6 +359,7 @@ const AdminProducts = () => {
       if (errors) parts.push(`ошибок: ${errors}`);
       if (skipped.length) parts.push(`пропущено строк: ${skipped.length}`);
       if (newCategories.length) parts.push(`новых категорий: ${newCategories.join(', ')}`);
+      if (rehosted) parts.push(`картинок перенесено: ${rehosted}`);
 
       // Тихо потерянные строки — худший исход импорта, пишем их в консоль.
       if (skipped.length) console.warn('Пропущенные строки:', skipped);

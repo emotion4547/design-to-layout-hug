@@ -1,4 +1,4 @@
-project_id = "ljkfuyxxxaqevsxeswrv"
+project_id = "vezubuket"
 
 [functions.telegram-notify]
 verify_jwt = false
@@ -9,3 +9,5 @@ verify_jwt = false
 [functions.yandex-yml]
 verify_jwt = false
 
+[functions.import-image]
+verify_jwt = false
