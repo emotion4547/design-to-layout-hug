@@ -25,7 +25,6 @@ import { stripHtml, truncate } from '../src/lib/plainText.mjs';
 const DIST = 'dist';
 const BASE_URL = 'https://vezubuket23.ru';
 const SITE_NAME = 'Везу букет';
-const PORT = 4178;
 const DEFAULT_DESCRIPTION =
   'Доставка свежих цветов и букетов в Новороссийске. Розы, авторские композиции, букеты в шляпных коробках. Доставка от 1 часа. Заказ онлайн и по телефону.';
 
@@ -91,6 +90,7 @@ const MIME = {
   '.xml': 'application/xml', '.txt': 'text/plain; charset=utf-8',
 };
 
+/** Поднимает dist на свободном порту: фиксированный занимался подвисшей сборкой. */
 function serveDist() {
   return new Promise((resolve) => {
     const server = createServer((req, res) => {
@@ -102,7 +102,7 @@ function serveDist() {
       res.writeHead(200, { 'Content-Type': MIME[extname(file)] ?? 'application/octet-stream' });
       res.end(readFileSync(file));
     });
-    server.listen(PORT, '127.0.0.1', () => resolve(server));
+    server.listen(0, '127.0.0.1', () => resolve(server));
   });
 }
 
@@ -145,6 +145,15 @@ const [products, collections, news, promotions] = await Promise.all([
   fromApi('promotions?select=id,slug,title,description&limit=200'),
 ]);
 
+// Если база недоступна в момент сборки, пререндер молча соберёт одни
+// статические страницы, а выкладка затрёт карту сайта с 83 адресами на 9.
+// Пустой каталог у работающего магазина — это сбой, а не нормальное состояние.
+if (products.length === 0) {
+  console.error('   ОШИБКА: не получено ни одного товара — база недоступна?');
+  console.error('   Сборка остановлена, чтобы не выложить сайт без каталога.');
+  process.exit(1);
+}
+
 const routes = [
   ...STATIC_ROUTES,
   ...products.map((p) => ({
@@ -183,6 +192,7 @@ const routes = [
 ];
 
 const server = await serveDist();
+const PORT = server.address().port;
 const browser = await puppeteer.launch({
   args: ['--no-sandbox', '--disable-dev-shm-usage'],
 });
