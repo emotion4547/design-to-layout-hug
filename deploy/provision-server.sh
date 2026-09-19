@@ -16,6 +16,7 @@ echo "==> Пакеты"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq nginx ufw rsync curl ca-certificates >/dev/null
+echo "    система: $(. /etc/os-release && echo \"$PRETTY_NAME\")"
 
 echo "==> Каталоги релизов"
 mkdir -p "$WEBROOT/releases" /var/www/certbot
@@ -68,7 +69,10 @@ server {
     location = /sitemap.xml { add_header Cache-Control "no-cache"; }
 
     # $uri/ находит пререндеренный /catalog/index.html; /index.html — запасной путь.
-    location / { try_files $uri $uri/ /index.html; }
+    # $uri/index.html проверяем ДО $uri/: иначе nginx отвечает 301 и добавляет
+    # слеш (/catalog -> /catalog/), а canonical в пререндере указывает на адрес
+    # без слеша — поисковик видит противоречие.
+    location / { try_files $uri $uri/index.html $uri/ /index.html; }
 
     gzip on;
     gzip_vary on;
@@ -96,9 +100,8 @@ ufw --force enable >/dev/null
 
 if [ "${ISSUE_CERT:-false}" = "true" ]; then
   echo "==> Сертификат"
-  snap install core >/dev/null 2>&1 || true
-  snap install --classic certbot >/dev/null 2>&1 || true
-  ln -sf /snap/bin/certbot /usr/bin/certbot
+  # Через apt, а не snap: в Debian snap не ставится из коробки.
+  apt-get install -y -qq certbot python3-certbot-nginx >/dev/null
   IP=$(curl -s -4 --max-time 15 ifconfig.me)
   NAMES=""
   for h in "$DOMAIN" "www.$DOMAIN"; do

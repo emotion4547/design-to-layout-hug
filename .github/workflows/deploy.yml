@@ -4,7 +4,7 @@
 # отъедала память у Postgres. На сервер уезжает только готовый dist.
 #
 # Нужны секреты репозитория (Settings → Secrets and variables → Actions):
-#   VPS_HOST      — 144.31.48.209
+#   VPS_HOST      — 135.106.218.175
 #   VPS_USER      — root
 #   VPS_PASSWORD  — пароль root
 #
