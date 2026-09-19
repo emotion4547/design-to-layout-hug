@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as XLSX from 'xlsx';
+import { parseProductRows } from '@/lib/productImport';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -220,7 +221,7 @@ const AdminProducts = () => {
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet) as Record<string, any>[];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet) as Record<string, unknown>[];
 
       if (jsonData.length === 0) {
         toast({ title: 'Файл пустой', variant: 'destructive' });
@@ -228,69 +229,77 @@ const AdminProducts = () => {
         return;
       }
 
+      // Колонки распознаёт отдельный модуль: он понимает и нашу выгрузку,
+      // и файлы из Tilda. См. src/lib/productImport.ts
+      const { products: parsed, skipped } = parseProductRows(jsonData);
+
+      if (parsed.length === 0) {
+        toast({
+          title: 'Не нашёл ни одного товара',
+          description: 'Нужны колонки с названием и ценой: «Название»/«Title» и «Цена»/«Price».',
+          variant: 'destructive',
+        });
+        setIsImporting(false);
+        return;
+      }
+
       let created = 0;
       let updated = 0;
       let errors = 0;
+      const newCategories: string[] = [];
 
-      for (const row of jsonData) {
-        const productData: Partial<ProductInsert> & { category_id?: string } = {
-          name: String(row['Название'] || '').trim(),
-          description: String(row['Описание'] || '').trim() || null,
-          price: Number(row['Цена']) || 0,
-          old_price: row['Старая цена'] ? Number(row['Старая цена']) : null,
-          category_id: row['ID категории'] || categories?.find(c => c.name === row['Категория'])?.id || undefined,
-          article: String(row['Артикул'] || '').trim() || null,
-          size: String(row['Размер'] || '').trim() || null,
-          in_stock: row['В наличии'] === 'Да' || row['В наличии'] === true || row['В наличии'] === 'true',
-          image_url: String(row['Изображение'] || '').trim() || '',
-          images: row['Галерея'] ? String(row['Галерея']).split(',').map(s => s.trim()).filter(Boolean) : [],
-        };
+      // Справочник категорий по имени — чтобы не перебирать список на каждой строке.
+      const byName = new Map(
+        (categories ?? []).map((c) => [c.name.trim().toLowerCase(), c.id])
+      );
 
-        if (!productData.name || !productData.price) {
-          errors++;
-          continue;
+      for (const item of parsed) {
+        let categoryId = item.categoryId;
+
+        if (!categoryId && item.categoryName) {
+          const key = item.categoryName.toLowerCase();
+          categoryId = byName.get(key);
+
+          // Категории из файла может не быть в справочнике. Молча терять
+          // привязку нельзя: товар не попадёт ни в один фильтр каталога.
+          if (!categoryId) {
+            const slug = item.categoryName
+              .toLowerCase()
+              .replace(/[^a-z0-9а-яё]+/gi, '-')
+              .replace(/^-|-$/g, '');
+            const { data: cat, error } = await supabase
+              .from('categories')
+              .insert({ name: item.categoryName, slug: slug || `cat-${Date.now()}` })
+              .select('id')
+              .single();
+            if (!error && cat) {
+              categoryId = cat.id;
+              byName.set(key, cat.id);
+              newCategories.push(item.categoryName);
+            }
+          }
         }
 
-        const existingId = row['ID'];
+        const fields = {
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          old_price: item.old_price,
+          category_id: categoryId,
+          article: item.article,
+          size: item.size,
+          in_stock: item.in_stock,
+          image_url: item.image_url || '/placeholder.svg',
+          images: item.images,
+        };
 
         try {
-          if (existingId && products?.some(p => p.id === existingId)) {
-            // Update existing product
-            const { error } = await supabase
-              .from('products')
-              .update({
-                name: productData.name,
-                description: productData.description,
-                price: productData.price,
-                old_price: productData.old_price,
-                category_id: productData.category_id,
-                article: productData.article,
-                size: productData.size,
-                in_stock: productData.in_stock,
-                image_url: productData.image_url,
-                images: productData.images,
-              })
-              .eq('id', existingId);
-            
+          if (item.id && products?.some((pr) => pr.id === item.id)) {
+            const { error } = await supabase.from('products').update(fields).eq('id', item.id);
             if (error) throw error;
             updated++;
           } else {
-            // Create new product
-            const { error } = await supabase
-              .from('products')
-              .insert({
-                name: productData.name,
-                description: productData.description,
-                price: productData.price,
-                old_price: productData.old_price,
-                category_id: productData.category_id,
-                article: productData.article,
-                size: productData.size,
-                in_stock: productData.in_stock ?? true,
-                image_url: productData.image_url || '/placeholder.svg',
-                images: productData.images,
-              });
-            
+            const { error } = await supabase.from('products').insert(fields);
             if (error) throw error;
             created++;
           }
@@ -302,10 +311,15 @@ const AdminProducts = () => {
 
       queryClient.invalidateQueries({ queryKey: ['admin', 'products'] });
       
-      toast({ 
-        title: 'Импорт завершён',
-        description: `Создано: ${created}, обновлено: ${updated}, ошибок: ${errors}`,
-      });
+      const parts = [`Создано: ${created}`, `обновлено: ${updated}`];
+      if (errors) parts.push(`ошибок: ${errors}`);
+      if (skipped.length) parts.push(`пропущено строк: ${skipped.length}`);
+      if (newCategories.length) parts.push(`новых категорий: ${newCategories.join(', ')}`);
+
+      // Тихо потерянные строки — худший исход импорта, пишем их в консоль.
+      if (skipped.length) console.warn('Пропущенные строки:', skipped);
+
+      toast({ title: 'Импорт завершён', description: parts.join(', ') });
     } catch (err) {
       console.error('Import error:', err);
       toast({ title: 'Ошибка импорта файла', variant: 'destructive' });
