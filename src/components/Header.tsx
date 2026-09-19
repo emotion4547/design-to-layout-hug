@@ -81,7 +81,10 @@ export const Header = () => {
     ...(categories || []).map((cat) => ({
       id: cat.id,
       name: cat.name,
-      href: `/catalog?category=${cat.slug}`,
+      // Было ?category=<слаг>, а каталог ждёт в этом параметре идентификатор:
+      // запрос падал с invalid input syntax for type uuid, и категория из меню
+      // не открывалась. Постоянный адрес заодно индексируется поиском.
+      href: `/category/${cat.slug}`,
     })),
   ];
 

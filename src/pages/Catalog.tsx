@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
 import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
@@ -53,6 +53,10 @@ const MAX_PRICE = 50000;
 
 const Catalog = () => {
   const [searchParams] = useSearchParams();
+  // Страница категории — тот же каталог, но с постоянным адресом вида
+  // /category/bukety: его можно продвигать под запрос «купить букет
+  // в Новороссийске», а фильтр ?category= поисковик не индексирует.
+  const { slug: categorySlug } = useParams<{ slug?: string }>();
   const categoryFromUrl = searchParams.get('category') || 'all';
   const searchFromUrl = searchParams.get('search') || '';
   
@@ -74,6 +78,12 @@ const Catalog = () => {
     { id: 'all', slug: 'all', name: 'Все' },
     ...dbCategories,
   ], [dbCategories]);
+
+  // Категория из адреса /category/<слаг> важнее фильтра в query-параметре.
+  const routeCategory = useMemo(
+    () => (categorySlug ? dbCategories.find((c) => c.slug === categorySlug) : undefined),
+    [categorySlug, dbCategories]
+  );
 
   // Get active category names for display
   const activeCategoryNames = useMemo(() => {
@@ -101,10 +111,10 @@ const Catalog = () => {
 
   // Sync with URL params
   useEffect(() => {
-    setActiveCategories([categoryFromUrl]);
+    setActiveCategories([routeCategory?.id ?? categoryFromUrl]);
     setSearchQuery(searchFromUrl);
     setVisibleCount(12);
-  }, [categoryFromUrl, searchFromUrl]);
+  }, [categoryFromUrl, searchFromUrl, routeCategory?.id]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ru-RU').format(price);
@@ -228,15 +238,31 @@ const Catalog = () => {
   return (
     <PageLayout>
       <SEO
-        title="Каталог цветов и букетов"
-        description="Большой выбор букетов и цветочных композиций в Новороссийске. Авторские букеты, монобукеты, съедобные букеты, подарки. Быстрая доставка."
-        keywords="каталог цветов, купить букет Новороссийск, авторские букеты, монобукеты, съедобные букеты, цветочные композиции"
-        url="/catalog"
+        title={routeCategory ? routeCategory.name : 'Каталог цветов и букетов'}
+        description={
+          routeCategory
+            ? `${routeCategory.name} с доставкой по Новороссийску от 1 часа. Живые фото, оплата онлайн, доставка в день заказа.`
+            : 'Букеты, композиции в коробках и цветочные корзины с доставкой по Новороссийску от 1 часа. Более 60 позиций, живые фото, оплата онлайн.'
+        }
+        keywords={
+          routeCategory
+            ? `${routeCategory.name.toLowerCase()} Новороссийск, купить ${routeCategory.name.toLowerCase()}, доставка цветов Новороссийск`
+            : 'каталог цветов, купить букет Новороссийск, авторские букеты, монобукеты, съедобные букеты, цветочные композиции'
+        }
+        url={routeCategory ? `/category/${routeCategory.slug}` : '/catalog'}
       />
-      <BreadcrumbSchema items={[
-        { name: 'Главная', url: '/' },
-        { name: 'Каталог', url: '/catalog' },
-      ]} />
+      <BreadcrumbSchema items={
+        routeCategory
+          ? [
+              { name: 'Главная', url: '/' },
+              { name: 'Каталог', url: '/catalog' },
+              { name: routeCategory.name, url: `/category/${routeCategory.slug}` },
+            ]
+          : [
+              { name: 'Главная', url: '/' },
+              { name: 'Каталог', url: '/catalog' },
+            ]
+      } />
       {/* Page Header */}
       <section className="py-8 md:py-12 bg-background">
         <div className="container">
@@ -247,9 +273,19 @@ const Catalog = () => {
             <span className="text-foreground">Каталог</span>
           </nav>
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-            Каталог
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+            {routeCategory ? routeCategory.name : 'Каталог'}
           </h1>
+
+          {/* Вводный текст нужен странице категории: без него это «тонкое
+              содержимое» — та же сетка товаров, что и в общем каталоге. */}
+          {routeCategory && (
+            <p className="text-muted-foreground max-w-2xl mb-6">
+              {routeCategory.description
+                ? routeCategory.description
+                : `${routeCategory.name} с доставкой по Новороссийску от 1 часа. Собираем в день заказа из свежих цветов, присылаем фото букета перед отправкой.`}
+            </p>
+          )}
 
           {/* Search & Sort & Filter Toggle */}
           <div className="flex flex-col sm:flex-row gap-3">

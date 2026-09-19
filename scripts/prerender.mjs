@@ -138,11 +138,12 @@ function write(url, html) {
 
 const tpl = readFileSync(join(DIST, 'index.html'), 'utf-8');
 
-const [products, collections, news, promotions] = await Promise.all([
+const [products, collections, news, promotions, categories] = await Promise.all([
   fromApi('products?select=id,name,description,price,image_url&in_stock=eq.true&limit=1000'),
   fromApi('collections?select=slug,name,description,collection_products(count)&limit=200'),
   fromApi('news?select=id,slug,title,excerpt&limit=200'),
   fromApi('promotions?select=id,slug,title,description&limit=200'),
+  fromApi('categories?select=slug,name,description,is_active&limit=200'),
 ]);
 
 // Если база недоступна в момент сборки, пререндер молча соберёт одни
@@ -183,6 +184,18 @@ const routes = [
     description: n.excerpt || `${n.title} — новости магазина «Везу букет».`,
     priority: '0.5',
   })),
+  // Страницы категорий: постоянные адреса под запросы вида
+  // «купить букет в Новороссийске». Фильтр ?category= поиском не индексируется.
+  ...categories
+    .filter((c) => c.is_active !== false && c.slug)
+    .map((c) => ({
+      url: `/category/${c.slug}`,
+      title: c.name,
+      description:
+        c.description ||
+        `${c.name} с доставкой по Новороссийску от 1 часа. Живые фото, оплата онлайн, доставка в день заказа.`,
+      priority: '0.9',
+    })),
   ...promotions.map((p) => ({
     url: `/promotions/${p.slug ?? p.id}`,
     title: p.title,
@@ -267,7 +280,7 @@ if (fallback > LIMIT) {
   console.error('   Похоже, приложение падает на этих адресах. Сборка остановлена.');
   process.exit(1);
 }
-console.log(`   товаров ${products.length}, подборок ${collections.length}, новостей ${news.length}, акций ${promotions.length}`);
+console.log(`   товаров ${products.length}, категорий ${categories.length}, подборок ${collections.length}, новостей ${news.length}, акций ${promotions.length}`);
 console.log(`   sitemap.xml: ${indexable.length} адресов`);
 
 const emptyCollections = routes.filter((r) => r.empty).map((r) => r.url);
