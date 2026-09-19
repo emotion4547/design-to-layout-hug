@@ -26,6 +26,7 @@ const fallbackImages: Record<string, string> = {
 const staticNewsItems = [
   {
     id: '1',
+    slug: 'demo-1',
     title: 'Новогодняя коллекция уже доступна!',
     excerpt: 'Встречайте праздники с нашими новыми букетами и композициями. Ёлочки из нобилиса, праздничные венки и зимние букеты.',
     published_at: '2025-12-25',
@@ -34,6 +35,7 @@ const staticNewsItems = [
   },
   {
     id: '2',
+    slug: 'demo-2',
     title: 'Новинки в ассортименте',
     excerpt: 'Добавили новые авторские букеты к праздникам. Уникальные композиции от наших флористов.',
     published_at: '2025-12-22',
@@ -42,6 +44,7 @@ const staticNewsItems = [
   },
   {
     id: '3',
+    slug: 'demo-3',
     title: 'Праздничная атмосфера в вашем доме',
     excerpt: 'Создайте уют с нашими праздничными композициями. Свечи, гирлянды и живые цветы.',
     published_at: '2025-12-04',
@@ -50,6 +53,7 @@ const staticNewsItems = [
   },
   {
     id: '4',
+    slug: 'demo-4',
     title: 'Как ухаживать за зимними букетами',
     excerpt: 'Полезные советы по уходу за букетами в холодное время года. Продлите жизнь вашим цветам.',
     published_at: '2025-11-28',
@@ -58,6 +62,7 @@ const staticNewsItems = [
   },
   {
     id: '5',
+    slug: 'demo-5',
     title: 'Открытие нового сезона',
     excerpt: 'Мы рады представить обновлённую коллекцию осенних букетов с яркими красками.',
     published_at: '2025-11-15',
@@ -66,6 +71,7 @@ const staticNewsItems = [
   },
   {
     id: '6',
+    slug: 'demo-6',
     title: 'Благодарим наших клиентов',
     excerpt: 'Спасибо всем, кто выбирает нас! Более 1000 довольных клиентов за этот год.',
     published_at: '2025-11-01',
@@ -139,7 +145,7 @@ const NewsPage = () => {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {visibleNews.map((item) => (
-                  <Link to={`/news/${item.id}`} key={item.id}>
+                  <Link to={`/news/${item.slug ?? item.id}`} key={item.id}>
                     <article className="group bg-background rounded-2xl overflow-hidden border border-border hover:shadow-lg transition-shadow h-full">
                       <div className="relative aspect-[4/3] overflow-hidden rounded-t-2xl">
                         <img 

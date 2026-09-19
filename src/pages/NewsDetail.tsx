@@ -2,7 +2,8 @@ import { useParams, Link } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, Loader2 } from 'lucide-react';
-import { useNewsItem } from '@/hooks/useNews';
+import { isUuid } from '@/lib/routeParam';
+import { useNewsItem, useNewsBySlug } from '@/hooks/useNews';
 import { SEO, ArticleSchema, BreadcrumbSchema } from '@/components/SEO';
 
 import news1 from '@/assets/news/news-1.jpg';
@@ -13,7 +14,11 @@ const fallbackImages: Record<string, string> = {
 
 const NewsDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: newsItem, isLoading, error } = useNewsItem(id);
+  // Адрес может быть и слагом, и старым UUID: слаг лучше для поиска, а
+  // ссылки с UUID остались в переписках и у поисковика.
+  const byId = useNewsItem(isUuid(id) ? id : undefined);
+  const bySlug = useNewsBySlug(isUuid(id) ? undefined : id);
+  const { data: newsItem, isLoading, error } = isUuid(id) ? byId : bySlug;
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '';

@@ -1,108 +1,131 @@
 /**
- * Пререндер меты после сборки.
+ * Пререндер: сохраняем готовый HTML каждой страницы.
  *
- * Сайт рендерится на клиенте, поэтому робот, не исполняющий JS, видел у всех
- * адресов одинаковый <head> из index.html. Google JS исполняет, Яндекс — хуже
- * и с задержкой, а превью ссылок в мессенджерах не исполняют его вовсе.
+ * Сайт рисуется в браузере, поэтому роботу приходил пустой документ — ни текста,
+ * ни ссылок, ни заголовка H1. Google такие страницы дорисовывает с задержкой,
+ * Яндекс заметно хуже, а внутренних ссылок не было вовсе, и обход сайта держался
+ * на одной карте сайта.
  *
- * Скрипт кладёт рядом с index.html по файлу на каждый адрес
- * (dist/catalog/index.html и так далее) с уже проставленными title,
- * description, canonical, og и JSON-LD. Содержимое страницы по-прежнему
- * дорисовывает React — здесь только <head>.
+ * Здесь мы поднимаем dist на локальном порту, обходим все адреса настоящим
+ * браузером и сохраняем то, что он отрисовал. Получается и содержимое, и
+ * правильная мета — её проставляет сам сайт через components/SEO.tsx.
  *
- * nginx отдаёт эти файлы сам: try_files $uri $uri/ /index.html.
+ * Браузер работает на раннере GitHub, а не на боевом сервере: сборка идёт там.
  *
- * ⚠️ STATIC_ROUTES дублирует то, что страницы передают в <SEO>. Меняете там —
- * поправьте и здесь, иначе робот и человек увидят разные заголовки.
+ * Если страница почему-то не отрисовалась, откатываемся на прежний способ —
+ * подстановку мета-тегов в пустой index.html. Пустой HTML лучше не сохранять:
+ * он затрёт работающую страницу.
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, extname } from 'node:path';
+import { createServer } from 'node:http';
+import puppeteer from 'puppeteer';
 import { stripHtml, truncate } from '../src/lib/plainText.mjs';
 
 const DIST = 'dist';
 const BASE_URL = 'https://vezubuket23.ru';
 const SITE_NAME = 'Везу букет';
-const DEFAULT_DESCRIPTION = 'Доставка свежих цветов и букетов в Новороссийске. Розы, авторские композиции, букеты в шляпных коробках. Доставка от 1 часа. Заказ онлайн и по телефону.';
+const PORT = 4178;
+const DEFAULT_DESCRIPTION =
+  'Доставка свежих цветов и букетов в Новороссийске. Розы, авторские композиции, букеты в шляпных коробках. Доставка от 1 часа. Заказ онлайн и по телефону.';
 
+/**
+ * ⚠️ Дублирует то, что страницы передают в <SEO>. Нужно только как запасной
+ * вариант, если браузер не справился. Меняете там — поправьте и здесь.
+ */
 const STATIC_ROUTES = [
-  { url: '/', title: null, description: DEFAULT_DESCRIPTION },
-  { url: '/catalog', title: 'Каталог цветов и букетов', description: 'Большой выбор букетов и цветочных композиций в Новороссийске. Авторские букеты, монобукеты, съедобные букеты, подарки. Быстрая доставка.' },
-  { url: '/promotions', title: 'Акции и скидки', description: 'Актуальные акции и скидки на цветы и букеты в Новороссийске.' },
-  { url: '/news', title: 'Новости и моменты', description: 'Новости магазина цветов Везу букет. Новые коллекции, полезные советы по уходу за цветами.' },
-  { url: '/delivery', title: 'Доставка цветов', description: 'Условия доставки цветов и букетов в Новороссийске. Бесплатная доставка по городу.' },
-  { url: '/contacts', title: 'Контакты', description: 'Контактная информация магазина Везу букет в Новороссийске. Телефон, адрес, режим работы.' },
-  { url: '/privacy', title: 'Политика обработки персональных данных', description: 'Политика обработки персональных данных ИП Момонт Регина Валерьевна.' },
-  { url: '/terms', title: 'Пользовательское соглашение', description: 'Условия использования сайта Везу букет.' },
-  { url: '/return', title: 'Возврат товара', description: 'Условия возврата и обмена товаров в магазине Везу букет.' },
-  // Корзина, избранное и вход — служебные, из индекса исключены в robots.txt.
-  { url: '/cart', title: 'Корзина', description: 'Ваша корзина покупок в магазине Везу букет', noindex: true },
+  { url: '/', title: null, description: DEFAULT_DESCRIPTION, priority: '1.0' },
+  { url: '/catalog', title: 'Каталог цветов и букетов', description: 'Букеты, композиции в коробках и цветочные корзины с доставкой по Новороссийску от 1 часа. Более 60 позиций, живые фото, оплата онлайн.', priority: '0.9' },
+  { url: '/promotions', title: 'Акции и скидки', description: 'Действующие скидки на букеты и композиции в Новороссийске. Обновляем еженедельно — успевайте заказать по выгодной цене.', priority: '0.8' },
+  { url: '/news', title: 'Новости и моменты', description: 'Новые коллекции, сезонные букеты и советы по уходу за цветами от магазина «Везу букет» в Новороссийске.', priority: '0.7' },
+  { url: '/delivery', title: 'Доставка цветов', description: 'Доставка цветов по Новороссийску от 1 часа, в том числе анонимно и к назначенному времени. Условия, зоны и стоимость.', priority: '0.8' },
+  { url: '/contacts', title: 'Контакты', description: 'Магазин «Везу букет»: Новороссийск, Куникова 47а. Телефон +7 (969) 660-40-40, доставка по городу ежедневно.', priority: '0.7' },
+  { url: '/privacy', title: 'Политика конфиденциальности', description: 'Как магазин «Везу букет» обрабатывает и защищает персональные данные покупателей.', priority: '0.3' },
+  { url: '/terms', title: 'Пользовательское соглашение', description: 'Условия использования сайта и оформления заказов в магазине «Везу букет».', priority: '0.3' },
+  { url: '/return', title: 'Возврат товара', description: 'Условия возврата и обмена цветов, гарантия свежести и что делать при повреждении букета.', priority: '0.3' },
+  { url: '/cart', title: 'Корзина', description: 'Ваша корзина покупок', noindex: true },
   { url: '/favorites', title: 'Избранное', description: 'Ваш список избранных товаров', noindex: true },
   { url: '/auth', title: 'Вход', description: 'Вход в личный кабинет', noindex: true },
 ];
 
-const esc = (s) => String(s ?? '')
-  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;');
+const esc = (s) =>
+  String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-/** Достаёт опубликованные товары, чтобы у карточек были свои заголовки. */
-async function fetchProducts() {
-  const env = Object.fromEntries(
+// ---------------------------------------------------------------- данные
+
+function env() {
+  return Object.fromEntries(
     readFileSync('.env', 'utf-8').split('\n')
       .map((l) => l.match(/^(\w+)="?([^"]*)"?$/)).filter(Boolean)
       .map((m) => [m[1], m[2]])
   );
-  const url = env.VITE_SUPABASE_URL;
-  const key = env.VITE_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !key) {
-    console.warn('   нет ключей Supabase — карточки товаров пропускаю');
-    return [];
-  }
-  const res = await fetch(
-    `${url}/rest/v1/products?select=id,name,description,price,image_url&in_stock=eq.true&limit=1000`,
-    { headers: { apikey: key, Authorization: `Bearer ${key}` } }
-  );
-  if (!res.ok) {
-    console.warn(`   Supabase ответил ${res.status} — карточки товаров пропускаю`);
-    return [];
-  }
-  return res.json();
 }
 
-/** Подменяет в шаблоне то, что относится к конкретному адресу. */
-function renderHead(tpl, { url, title, description, image, jsonLd, noindex }) {
+async function fromApi(path) {
+  const e = env();
+  const url = e.VITE_SUPABASE_URL, key = e.VITE_SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !key) return [];
+  try {
+    const res = await fetch(`${url}/rest/v1/${path}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+    });
+    if (!res.ok) {
+      console.warn(`   ${path} -> ${res.status}, пропускаю`);
+      return [];
+    }
+    return await res.json();
+  } catch (e) {
+    console.warn(`   ${path} недоступен: ${e.message}`);
+    return [];
+  }
+}
+
+// ---------------------------------------------------------------- сервер
+
+const MIME = {
+  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css',
+  '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png',
+  '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp',
+  '.avif': 'image/avif', '.ico': 'image/x-icon', '.woff2': 'font/woff2',
+  '.xml': 'application/xml', '.txt': 'text/plain; charset=utf-8',
+};
+
+function serveDist() {
+  return new Promise((resolve) => {
+    const server = createServer((req, res) => {
+      const path = decodeURIComponent(req.url.split('?')[0]);
+      // Как настоящий nginx: файл, потом index.html внутри каталога, потом корень.
+      const candidates = [join(DIST, path), join(DIST, path, 'index.html'), join(DIST, 'index.html')];
+      const file = candidates.find((p) => existsSync(p) && extname(p));
+      if (!file) { res.writeHead(404); res.end(); return; }
+      res.writeHead(200, { 'Content-Type': MIME[extname(file)] ?? 'application/octet-stream' });
+      res.end(readFileSync(file));
+    });
+    server.listen(PORT, '127.0.0.1', () => resolve(server));
+  });
+}
+
+// ---------------------------------------------------------------- запасной путь
+
+function renderHeadOnly(tpl, { url, title, description, image, noindex }) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — Доставка цветов и букетов`;
   const fullUrl = BASE_URL + url;
   const img = image || `${BASE_URL}/og-image.jpg`;
-
-  let html = tpl;
-  html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(fullTitle)}</title>`);
+  let html = tpl.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(fullTitle)}</title>`);
 
   const setMeta = (attr, key, value) => {
     const re = new RegExp(`<meta\\s+${attr}="${key}"\\s+content="[^"]*"\\s*/?>`);
     const tag = `<meta ${attr}="${key}" content="${esc(value)}" />`;
     html = re.test(html) ? html.replace(re, tag) : html.replace('</head>', `    ${tag}\n  </head>`);
   };
-
-  setMeta('name', 'title', fullTitle);
-  setMeta('name', 'description', description);
+  setMeta('name', 'description', truncate(description));
   setMeta('name', 'robots', noindex ? 'noindex, nofollow' : 'index, follow');
   setMeta('property', 'og:url', fullUrl);
   setMeta('property', 'og:title', fullTitle);
-  setMeta('property', 'og:description', description);
+  setMeta('property', 'og:description', truncate(description));
   setMeta('property', 'og:image', img);
-  setMeta('name', 'twitter:url', fullUrl);
-  setMeta('name', 'twitter:title', fullTitle);
-  setMeta('name', 'twitter:description', description);
-  setMeta('name', 'twitter:image', img);
-
-  html = html.replace('</head>',
-    `    <link rel="canonical" href="${esc(fullUrl)}" />\n  </head>`);
-
-  if (jsonLd) {
-    html = html.replace('</head>',
-      `    <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>\n  </head>`);
-  }
-  return html;
+  return html.replace('</head>', `    <link rel="canonical" href="${esc(fullUrl)}" />\n  </head>`);
 }
 
 function write(url, html) {
@@ -111,62 +134,122 @@ function write(url, html) {
   writeFileSync(path, html, 'utf-8');
 }
 
+// ---------------------------------------------------------------- основной проход
+
 const tpl = readFileSync(join(DIST, 'index.html'), 'utf-8');
-let count = 0;
 
-for (const r of STATIC_ROUTES) {
-  write(r.url, renderHead(tpl, r));
-  count++;
-}
+const [products, collections, news, promotions] = await Promise.all([
+  fromApi('products?select=id,name,description,price,image_url&in_stock=eq.true&limit=1000'),
+  fromApi('collections?select=slug,name,description,collection_products(count)&limit=200'),
+  fromApi('news?select=id,slug,title,excerpt&limit=200'),
+  fromApi('promotions?select=id,slug,title,description&limit=200'),
+]);
 
-const products = await fetchProducts();
-for (const p of products) {
-  const image = p.image_url || undefined;
-  write(`/catalog/${p.id}`, renderHead(tpl, {
+const routes = [
+  ...STATIC_ROUTES,
+  ...products.map((p) => ({
     url: `/catalog/${p.id}`,
     title: p.name,
-    // В мету уходит чистый текст: описания из Tilda размечены, и теги
-    // попадали в выдачу поисковика вместе с описанием.
-    description: truncate(p.description) || `Купить ${p.name} с доставкой в Новороссийске. Цена: ${p.price} ₽`,
-    image,
-    jsonLd: {
-      '@context': 'https://schema.org',
-      '@type': 'Product',
-      name: p.name,
-      description: stripHtml(p.description),
-      image,
-      url: `${BASE_URL}/catalog/${p.id}`,
-      offers: {
-        '@type': 'Offer',
-        price: p.price,
-        priceCurrency: 'RUB',
-        availability: 'https://schema.org/InStock',
+    description: p.description || `Купить ${p.name} с доставкой в Новороссийске. Цена: ${p.price} ₽`,
+    image: p.image_url,
+    priority: '0.7',
+  })),
+  // Пустые подборки отдаём как страницы, но в карту сайта не кладём и
+  // закрываем от индексации: страница без товаров — это «тонкое содержимое»,
+  // за которое поисковики понижают сайт целиком.
+  ...collections.map((c) => {
+    const count = c.collection_products?.[0]?.count ?? 0;
+    return {
+      url: `/collection/${c.slug}`,
+      title: c.name,
+      description: c.description || `${c.name}: подборка букетов с доставкой по Новороссийску от 1 часа.`,
+      priority: '0.8',
+      noindex: count === 0,
+      empty: count === 0,
+    };
+  }),
+  ...news.map((n) => ({
+    url: `/news/${n.slug ?? n.id}`,
+    title: n.title,
+    description: n.excerpt || `${n.title} — новости магазина «Везу букет».`,
+    priority: '0.5',
+  })),
+  ...promotions.map((p) => ({
+    url: `/promotions/${p.slug ?? p.id}`,
+    title: p.title,
+    description: p.description || `${p.title} — акция магазина «Везу букет» в Новороссийске.`,
+    priority: '0.6',
+  })),
+];
+
+const server = await serveDist();
+const browser = await puppeteer.launch({
+  args: ['--no-sandbox', '--disable-dev-shm-usage'],
+});
+
+let rendered = 0, fallback = 0;
+const page = await browser.newPage();
+await page.setViewport({ width: 1280, height: 900 });
+
+for (const route of routes) {
+  try {
+    // Ждём загрузку документа, а не тишину в сети: на странице контактов
+    // встроена карта, которая тянет запросы постоянно, и networkidle не наступает.
+    await page.goto(`http://127.0.0.1:${PORT}${route.url}`, {
+      waitUntil: 'domcontentloaded', timeout: 30000,
+    });
+    // Ждём именно заголовок страницы: 200 символов текста набирает уже одна
+    // шапка, и снимок получался до появления содержимого.
+    await page.waitForFunction(
+      () => {
+        const h1 = document.querySelector('h1');
+        return !!h1 && (h1.innerText ?? '').trim().length > 0;
       },
-      brand: { '@type': 'Brand', name: SITE_NAME },
-    },
-  }));
-  count++;
+      { timeout: 25000, polling: 'mutation' }
+    );
+    // Заголовок появляется раньше, чем подтянутся карточки товаров, поэтому
+    // даём сети успокоиться. На странице контактов карта шумит постоянно —
+    // там просто выходим по таймауту и снимаем что есть.
+    await page.waitForNetworkIdle({ idleTime: 700, timeout: 8000 }).catch(() => {});
+
+    const html = await page.content();
+
+    // Пустую страницу не сохраняем: она затрёт рабочую.
+    if (html.length < 4000 || !/<h1[\s>]/i.test(html)) throw new Error('пусто или нет H1');
+
+    write(route.url, html);
+    rendered++;
+  } catch (err) {
+    write(route.url, renderHeadOnly(tpl, route));
+    fallback++;
+    console.warn(`   ${route.url}: ${err.message} — сохранил только мету`);
+  }
 }
 
-// Карта сайта собирается здесь же: все адреса уже известны, и статический
-// файл надёжнее Supabase-функции — её ещё надо задеплоить и проксировать,
-// а nginx на неизвестный путь отдавал бы index.html вместо XML.
-const urls = [
-  ...STATIC_ROUTES.filter((r) => !r.noindex).map((r) => ({ loc: BASE_URL + r.url, priority: r.url === '/' ? '1.0' : '0.8' })),
-  ...products.map((p) => ({ loc: `${BASE_URL}/catalog/${p.id}`, priority: '0.6' })),
-];
+await browser.close();
+server.close();
+
+// ---------------------------------------------------------------- карта сайта
+
+const indexable = routes.filter((r) => !r.noindex);
 const today = new Date().toISOString().slice(0, 10);
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((u) => `  <url>
-    <loc>${esc(u.loc)}</loc>
+${indexable.map((r) => `  <url>
+    <loc>${esc(BASE_URL + r.url)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>${u.priority}</priority>
+    <priority>${r.priority ?? '0.5'}</priority>
   </url>`).join('\n')}
 </urlset>
 `;
 writeFileSync(join(DIST, 'sitemap.xml'), sitemap, 'utf-8');
 
-console.log(`   пререндер: ${count} адресов (${products.length} карточек товаров)`);
-console.log(`   sitemap.xml: ${urls.length} адресов`);
+console.log(`   пререндер: ${rendered} страниц отрисовано, ${fallback} только мета`);
+console.log(`   товаров ${products.length}, подборок ${collections.length}, новостей ${news.length}, акций ${promotions.length}`);
+console.log(`   sitemap.xml: ${indexable.length} адресов`);
+
+const emptyCollections = routes.filter((r) => r.empty).map((r) => r.url);
+if (emptyCollections.length) {
+  console.log(`   ⚠ подборки без товаров, скрыты от поиска: ${emptyCollections.join(', ')}`);
+}

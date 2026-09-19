@@ -1,8 +1,9 @@
+import { isUuid } from '@/lib/routeParam';
 import { useParams, Link } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, Percent, Loader2 } from 'lucide-react';
-import { usePromotion } from '@/hooks/usePromotions';
+import { usePromotion, usePromotionBySlug } from '@/hooks/usePromotions';
 import { SEO, BreadcrumbSchema } from '@/components/SEO';
 
 import promoCombo from '@/assets/promo-combo.jpg';
@@ -13,7 +14,10 @@ const fallbackImages: Record<string, string> = {
 
 const PromotionDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: promotion, isLoading, error } = usePromotion(id);
+  // Адрес может быть и слагом, и старым UUID.
+  const byId = usePromotion(isUuid(id) ? id : undefined);
+  const bySlug = usePromotionBySlug(isUuid(id) ? undefined : id);
+  const { data: promotion, isLoading, error } = isUuid(id) ? byId : bySlug;
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '';

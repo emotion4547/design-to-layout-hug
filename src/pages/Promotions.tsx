@@ -95,7 +95,7 @@ const Promotions = () => {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {promotions.map((promo) => (
-                  <Link to={`/promotions/${promo.id}`} key={promo.id}>
+                  <Link to={`/promotions/${promo.slug ?? promo.id}`} key={promo.id}>
                     <article className="group bg-secondary/50 rounded-2xl overflow-hidden hover:shadow-lg transition-shadow h-full">
                       <div className="relative aspect-[4/3] overflow-hidden rounded-t-2xl">
                         <img 
