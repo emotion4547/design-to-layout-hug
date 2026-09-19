@@ -1,3 +1,4 @@
+import { stripHtml } from '@/lib/plainText.mjs';
 import { productImage, productSrcSet } from '@/lib/productImage';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -104,7 +105,9 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
           </h3>
 
           <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-            {description}
+            {/* Описания размечены: в карточке нужен обычный текст,
+                иначе посетитель видит сами теги. */}
+            {stripHtml(description)}
           </p>
         </Link>
       </article>

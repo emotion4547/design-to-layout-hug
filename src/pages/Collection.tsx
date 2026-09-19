@@ -1,3 +1,4 @@
+import { RichText } from '@/components/RichText';
 import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
@@ -110,11 +111,7 @@ const CollectionPage = () => {
             {collection.name}
           </h1>
           
-          {collection.description && (
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              {collection.description}
-            </p>
-          )}
+          <RichText html={collection.description} className="text-lg text-muted-foreground max-w-2xl" />
         </div>
       </section>
 

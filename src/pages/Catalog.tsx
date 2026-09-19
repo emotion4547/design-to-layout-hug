@@ -1,3 +1,4 @@
+import { RichText } from '@/components/RichText';
 import { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
@@ -280,11 +281,13 @@ const Catalog = () => {
           {/* Вводный текст нужен странице категории: без него это «тонкое
               содержимое» — та же сетка товаров, что и в общем каталоге. */}
           {routeCategory && (
-            <p className="text-muted-foreground max-w-2xl mb-6">
-              {routeCategory.description
-                ? routeCategory.description
-                : `${routeCategory.name} с доставкой по Новороссийску от 1 часа. Собираем в день заказа из свежих цветов, присылаем фото букета перед отправкой.`}
-            </p>
+            <RichText
+              html={
+                routeCategory.description ||
+                `${routeCategory.name} с доставкой по Новороссийску от 1 часа. Собираем в день заказа из свежих цветов, присылаем фото букета перед отправкой.`
+              }
+              className="text-muted-foreground max-w-2xl mb-6"
+            />
           )}
 
           {/* Search & Sort & Filter Toggle */}
