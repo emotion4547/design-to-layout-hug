@@ -65,10 +65,9 @@ serve(async (req) => {
         name: `Заказ #${order.id.slice(0, 8)} - ${order.customer_name}`,
         price: order.total_price,
         ...(pipelineId ? { pipeline_id: pipelineId } : {}),
-        custom_fields_values: [
-          { field_code: "PHONE", values: [{ value: order.customer_phone }] },
-          ...(order.customer_email ? [{ field_code: "EMAIL", values: [{ value: order.customer_email }] }] : [])
-        ],
+        // Телефон и почта — поля контакта, у сделки таких нет. Когда они
+        // стояли и на сделке, amoCRM отвечала 400 NotSupportedChoice на
+        // custom_fields_values.0.field_code, и ни одна заявка не доходила.
         _embedded: {
           contacts: [{
             name: order.customer_name,
