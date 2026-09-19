@@ -1,3 +1,4 @@
+import { productImage, productSrcSet } from '@/lib/productImage';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
@@ -211,8 +212,12 @@ const Product = () => {
               {/* Main Image */}
               <div className="relative aspect-square rounded-2xl overflow-hidden bg-secondary">
                 <img
-                  src={productImages[selectedImage]}
+                  src={productImage(productImages[selectedImage], 800)}
+                  srcSet={productSrcSet(productImages[selectedImage])}
+                  sizes="(max-width: 1024px) 100vw, 600px"
                   alt={product.name}
+                  fetchPriority="high"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
                 <button
@@ -243,8 +248,10 @@ const Product = () => {
                       )}
                     >
                       <img
-                        src={image}
-                        alt={`${product.name} - фото ${index + 1}`}
+                        src={productImage(image, 400)}
+                        alt={`${product.name} — фото ${index + 1}`}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover"
                       />
                     </button>

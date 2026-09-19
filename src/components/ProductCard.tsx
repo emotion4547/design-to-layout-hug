@@ -1,3 +1,4 @@
+import { productImage, productSrcSet } from '@/lib/productImage';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Eye } from 'lucide-react';
@@ -41,9 +42,12 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
         {/* Image Container */}
         <Link to={`/catalog/${id}`} className="block relative aspect-[3/4] overflow-hidden bg-secondary rounded-2xl mb-4">
           <img
-            src={image}
+            src={productImage(image, 400)}
+            srcSet={productSrcSet(image)}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 300px"
             alt={name}
             loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           
