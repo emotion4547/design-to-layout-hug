@@ -326,7 +326,6 @@ export const Header = () => {
               }}
               inputRef={searchInputRef}
               showCloseButton
-              variant="desktop"
             />
           </div>
         </div>
@@ -436,7 +435,6 @@ export const Header = () => {
                     setMobileMenuOpen(false);
                   }
                 }}
-                variant="mobile"
                 inputClassName="bg-white/10 border-white/20"
               />
             </div>
