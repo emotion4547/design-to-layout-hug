@@ -1,3 +1,4 @@
+import { reachGoal, GOALS } from '@/lib/metrika';
 import { ProductReviews } from '@/components/ProductReviews';
 import { useProductReviews } from '@/hooks/useReviews';
 import { productImage, productSrcSet } from '@/lib/productImage';
@@ -93,6 +94,11 @@ const Product = () => {
   // Хук обязан стоять до ранних возвратов ниже: иначе число хуков при
   // загрузке и после неё различается, и React роняет страницу.
   const { data: reviews = [] } = useProductReviews(id);
+
+  // Просмотр карточки — первый шаг воронки.
+  useEffect(() => {
+    if (product?.id) reachGoal(GOALS.viewProduct, { product_id: product.id });
+  }, [product?.id]);
   const ratingAvg =
     reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : undefined;
 
@@ -151,6 +157,7 @@ const Product = () => {
   const totalPrice = (product.price + totalAddonsPrice) * quantity;
 
   const handleAddToCart = () => {
+    reachGoal(GOALS.addToCart, { product_id: product.id, price: product.price });
     addToCart({
       id: product.id,
       name: product.name,

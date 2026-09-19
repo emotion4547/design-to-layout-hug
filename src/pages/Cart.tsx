@@ -1,3 +1,4 @@
+import { reachGoal, GOALS } from '@/lib/metrika';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
@@ -84,6 +85,7 @@ const Cart = () => {
         ? formData.address.trim() 
         : 'Самовывоз';
 
+      reachGoal(GOALS.purchase, { total: totalPrice });
       await createOrder({
         senderName: formData.senderName.trim(),
         senderPhone: formData.senderPhone.trim(),

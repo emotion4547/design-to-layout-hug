@@ -1,3 +1,4 @@
+import { reachGoal, GOALS } from '@/lib/metrika';
 import { useState } from 'react';
 import { Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -66,6 +67,7 @@ export const ProductReviews = ({ productId }: ProductReviewsProps) => {
     }
     try {
       await submit.mutateAsync({ productId, authorName: name, rating, text });
+      reachGoal(GOALS.reviewSubmit, { product_id: productId, rating });
       setSent(true);
       setName(''); setText(''); setRating(5);
       // Отзыв не появится сразу — честно предупреждаем, иначе человек
