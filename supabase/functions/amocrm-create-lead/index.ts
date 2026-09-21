@@ -59,7 +59,7 @@ serve(async (req) => {
     const { data: settings, error: settingsError } = await supabase
       .from('site_settings')
       .select('key, value')
-      .in('key', ['amocrm_subdomain', 'amocrm_access_token', 'amocrm_enabled', 'amocrm_pipeline_id']);
+      .in('key', ['amocrm_subdomain', 'amocrm_access_token', 'amocrm_enabled', 'amocrm_pipeline_id', 'amocrm_unsorted']);
 
     if (settingsError) {
       throw new Error('Failed to fetch AmoCRM settings');
@@ -76,6 +76,12 @@ serve(async (req) => {
     // Необязательно: без него сделка попадёт в воронку по умолчанию, а она
     // не всегда та, в которой работают с заказами.
     const pipelineId = Number(settingsMap['amocrm_pipeline_id']) || undefined;
+    // Куда класть заявку. По умолчанию — прямо в воронку, как было.
+    // При включённой настройке — в «Неразобранное»: там заявка поднимает
+    // счётчик входящих, менеджер принимает её и берёт на себя. Сделка,
+    // созданная обычным способом, в «Неразобранное» не попадает никогда и
+    // тихо появляется карточкой в колонке — её легко не заметить.
+    const toUnsorted = settingsMap['amocrm_unsorted'] === 'true';
 
     if (!enabled || !subdomain || !accessToken) {
       console.log('AmoCRM not configured or disabled');
@@ -89,26 +95,56 @@ serve(async (req) => {
       );
     }
 
-    console.log('Creating lead for order:', order.id);
+    console.log('Creating lead for order:', order.id, toUnsorted ? '(в Неразобранное)' : '(в воронку)');
+
+    const contact = {
+      name: order.customer_name,
+      custom_fields_values: [
+        { field_code: "PHONE", values: [{ value: order.customer_phone }] },
+        ...(order.customer_email ? [{ field_code: "EMAIL", values: [{ value: order.customer_email }] }] : [])
+      ],
+    };
+
+    const leadName = `Заказ #${order.id.slice(0, 8)} - ${order.customer_name}`;
 
     // Prepare lead data
     const leadData = [
       {
-        name: `Заказ #${order.id.slice(0, 8)} - ${order.customer_name}`,
+        name: leadName,
         price: order.total_price,
         ...(pipelineId ? { pipeline_id: pipelineId } : {}),
         // Телефон и почта — поля контакта, у сделки таких нет. Когда они
         // стояли и на сделке, amoCRM отвечала 400 NotSupportedChoice на
         // custom_fields_values.0.field_code, и ни одна заявка не доходила.
+        _embedded: { contacts: [contact] }
+      }
+    ];
+
+    // «Неразобранное» — отдельная ручка API со своим форматом: нужен источник,
+    // который менеджер увидит в карточке, и блок metadata, иначе запрос
+    // отвергается. request_id берём от заказа, чтобы повторная отправка того
+    // же заказа была узнаваема в ответе.
+    const nowSec = Math.floor(Date.now() / 1000);
+    const unsortedData = [
+      {
+        request_id: order.id,
+        source_name: 'Сайт vezubuket23.ru',
+        source_uid: 'vezubuket-site',
+        ...(pipelineId ? { pipeline_id: pipelineId } : {}),
+        created_at: nowSec,
+        metadata: {
+          category: 'forms',
+          form_id: 'order-form',
+          form_name: 'Заказ с сайта',
+          form_page: 'https://vezubuket23.ru/cart',
+          form_sent_at: nowSec,
+          ip: '0.0.0.0',
+          referer: 'https://vezubuket23.ru/',
+        },
         _embedded: {
-          contacts: [{
-            name: order.customer_name,
-            custom_fields_values: [
-              { field_code: "PHONE", values: [{ value: order.customer_phone }] },
-              ...(order.customer_email ? [{ field_code: "EMAIL", values: [{ value: order.customer_email }] }] : [])
-            ]
-          }]
-        }
+          leads: [{ name: leadName, price: order.total_price }],
+          contacts: [contact],
+        },
       }
     ];
 
@@ -136,13 +172,14 @@ ${order.card_text ? `💌 Текст открытки: ${order.card_text}` : ''}
     `.trim();
 
     // Create lead
-    const amoResponse = await fetch(`https://${subdomain}.amocrm.ru/api/v4/leads/complex`, {
+    const endpoint = toUnsorted ? 'leads/unsorted/forms' : 'leads/complex';
+    const amoResponse = await fetch(`https://${subdomain}.amocrm.ru/api/v4/${endpoint}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(leadData),
+      body: JSON.stringify(toUnsorted ? unsortedData : leadData),
     });
 
     if (!amoResponse.ok) {
@@ -159,8 +196,14 @@ ${order.card_text ? `💌 Текст открытки: ${order.card_text}` : ''}
     }
 
     const amoResult = await amoResponse.json();
-    const leadId = amoResult[0]?.id;
-    console.log('Lead created:', leadId);
+    // Ответы у двух ручек разной формы. У «Неразобранного» идентификатор
+    // сделки приходит сразу, ещё до того как менеджер примет заявку, —
+    // поэтому примечание с составом заказа можно приложить тем же способом.
+    const unsortedEntry = amoResult?._embedded?.unsorted?.[0];
+    const leadId = toUnsorted
+      ? unsortedEntry?._embedded?.leads?.[0]?.id
+      : amoResult?.[0]?.id;
+    console.log('Lead created:', leadId, toUnsorted ? `(uid ${unsortedEntry?.uid})` : '');
 
     // Add note
     if (leadId) {
@@ -177,12 +220,14 @@ ${order.card_text ? `💌 Текст открытки: ${order.card_text}` : ''}
     // Log success
     await logIntegration(supabase, orderId, {
       status: 'success',
-      message: `Сделка создана: ${leadId}`,
-      response_data: { lead_id: leadId },
+      message: toUnsorted
+        ? `Заявка в Неразобранном, сделка ${leadId}`
+        : `Сделка создана: ${leadId}`,
+      response_data: { lead_id: leadId, unsorted: toUnsorted, uid: unsortedEntry?.uid ?? null },
     });
 
     return new Response(
-      JSON.stringify({ success: true, lead_id: leadId }),
+      JSON.stringify({ success: true, lead_id: leadId, unsorted: toUnsorted }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
