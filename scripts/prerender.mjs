@@ -138,6 +138,18 @@ function write(url, html) {
 
 const tpl = readFileSync(join(DIST, 'index.html'), 'utf-8');
 
+// Запасная страница для адресов, которых нет. Раньше nginx отдавал на них
+// index.html — то есть готовую разметку главной, и робот видел содержимое
+// главной по десятку чужих адресов. Здесь та же оболочка приложения, но с
+// пометкой noindex: человек попадёт на нужный экран, когда приложение
+// запустится, а робот такой адрес в индекс не возьмёт.
+const fallbackHtml = /<meta\s+name="robots"[^>]*>/i.test(tpl)
+  // Заменяем, а не дописываем: две пометки robots в одном документе — это
+  // указание, которое робот трактует на своё усмотрение.
+  ? tpl.replace(/<meta\s+name="robots"[^>]*>/i, '<meta name="robots" content="noindex, follow" />')
+  : tpl.replace('</head>', '    <meta name="robots" content="noindex, follow" />\n  </head>');
+writeFileSync(join(DIST, 'fallback.html'), fallbackHtml, 'utf-8');
+
 const [products, collections, news, promotions, categories] = await Promise.all([
   fromApi('products?select=id,name,description,price,image_url&in_stock=eq.true&limit=1000'),
   fromApi('collections?select=slug,name,description,collection_products(count)&limit=200'),
