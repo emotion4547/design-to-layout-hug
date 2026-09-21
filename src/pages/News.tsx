@@ -1,8 +1,11 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Loader2, Search, X } from 'lucide-react';
+import { stripHtml } from '@/lib/plainText.mjs';
+import { cn } from '@/lib/utils';
 import { useNews } from '@/hooks/useNews';
 import { SEO, BreadcrumbSchema } from '@/components/SEO';
 
@@ -22,6 +25,11 @@ const fallbackImages: Record<string, string> = {
   '/news/news-6.jpg': news6,
 };
 
+const ALL = 'all';
+
+/** Нижний регистр и «ё» как «е»: иначе «мед» не найдёт «мёд». */
+const norm = (v: string) => v.toLowerCase().replace(/ё/g, 'е');
+
 const NewsPage = () => {
   // Показываем сразу все: при шести карточках в разметке поисковик видел
   // ссылки лишь на шесть статей из двадцати, а остальные оставались без
@@ -29,14 +37,74 @@ const NewsPage = () => {
   // вернётся сама, когда статей станет больше двадцати.
   const [visibleCount, setVisibleCount] = useState(20);
   const { data: dbNews, isLoading, error } = useNews();
-  
+
   // Подставлять выдуманные новости, когда база молчит, нельзя: их адреса
   // никуда не ведут, а текст обещает то, чего нет. Пустой список честнее —
   // состояние «пока пусто» ниже уже предусмотрено.
-  const newsItems = dbNews ?? [];
+  const allNews = useMemo(() => dbNews ?? [], [dbNews]);
 
-  const visibleNews = newsItems.slice(0, visibleCount);
-  const hasMore = visibleCount < newsItems.length;
+  // Рубрика и запрос живут в адресе: так состояние переживает обновление
+  // страницы, работает кнопка «назад» и подборкой можно поделиться ссылкой.
+  // Канонический адрес при этом остаётся /news, поэтому лишние страницы
+  // в индексе не заводятся.
+  const [params, setParams] = useSearchParams();
+  const category = params.get('category') || ALL;
+  const query = params.get('q') || '';
+
+  const setParam = (key: string, value: string | null) => {
+    const next = new URLSearchParams(params);
+    if (value && value !== ALL) next.set(key, value);
+    else next.delete(key);
+    setParams(next, { replace: true });
+    setVisibleCount(20);
+  };
+
+  // Рубрики берём из самих статей, а не из заранее заданного списка: иначе
+  // новая рубрика появилась бы в базе и не появилась бы в фильтре.
+  const categories = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const item of allNews) {
+      if (!item.category) continue;
+      counts.set(item.category, (counts.get(item.category) ?? 0) + 1);
+    }
+    return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'ru'));
+  }, [allNews]);
+
+  // Текст статьи храним размеченным, поэтому перед поиском снимаем теги —
+  // иначе запрос «розы» совпадал бы со словом внутри адреса ссылки.
+  const haystacks = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const item of allNews) {
+      map.set(item.id, norm([
+        item.title,
+        item.excerpt ?? '',
+        item.category ?? '',
+        stripHtml(item.content ?? ''),
+      ].join(' ')));
+    }
+    return map;
+  }, [allNews]);
+
+  const filtered = useMemo(() => {
+    const words = norm(query).split(/\s+/).filter(Boolean);
+    return allNews.filter((item) => {
+      if (category !== ALL && item.category !== category) return false;
+      if (!words.length) return true;
+      const hay = haystacks.get(item.id) ?? '';
+      // Все слова запроса должны найтись — так «уход розы» не выдаёт всё
+      // подряд про уход и всё подряд про розы.
+      return words.every((w) => hay.includes(w));
+    });
+  }, [allNews, category, query, haystacks]);
+
+  const visibleNews = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
+  const isFiltered = category !== ALL || query.trim().length > 0;
+
+  const reset = () => {
+    setParams(new URLSearchParams(), { replace: true });
+    setVisibleCount(20);
+  };
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '';
@@ -74,6 +142,91 @@ const NewsPage = () => {
           <p className="text-lg text-muted-foreground max-w-2xl">
             Узнайте интересное и актуальное из нашей работы
           </p>
+        </div>
+      </section>
+
+      {/* Поиск и рубрики */}
+      <section className="pb-8">
+        <div className="container">
+          <div className="flex flex-col gap-4">
+            <div className="relative max-w-md">
+              <Search
+                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none"
+                aria-hidden="true"
+              />
+              <label htmlFor="news-search" className="sr-only">Поиск по статьям</label>
+              <Input
+                id="news-search"
+                type="text"
+                inputMode="search"
+                enterKeyHint="search"
+                autoComplete="off"
+                placeholder="Поиск по статьям"
+                value={query}
+                onChange={(e) => setParam('q', e.target.value)}
+                className="pl-9 pr-9"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setParam('q', null)}
+                  aria-label="Очистить поиск"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            {categories.length > 0 && (
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Рубрики">
+                <button
+                  type="button"
+                  onClick={() => setParam('category', null)}
+                  aria-pressed={category === ALL}
+                  className={cn(
+                    'px-4 py-1.5 rounded-full text-sm border transition-colors',
+                    category === ALL
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-background border-border hover:border-primary/50',
+                  )}
+                >
+                  Все <span className="opacity-60">{allNews.length}</span>
+                </button>
+                {categories.map(([name, count]) => (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => setParam('category', category === name ? null : name)}
+                    aria-pressed={category === name}
+                    className={cn(
+                      'px-4 py-1.5 rounded-full text-sm border transition-colors',
+                      category === name
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-background border-border hover:border-primary/50',
+                    )}
+                  >
+                    {name} <span className="opacity-60">{count}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {isFiltered && !isLoading && (
+              <p className="text-sm text-muted-foreground" aria-live="polite">
+                {filtered.length === 0
+                  ? 'Ничего не нашлось'
+                  : `Нашлось статей: ${filtered.length}`}
+                <button
+                  type="button"
+                  onClick={reset}
+                  className="ml-3 underline underline-offset-2 hover:text-foreground transition-colors"
+                >
+                  сбросить
+                </button>
+              </p>
+            )}
+          </div>
         </div>
       </section>
 
@@ -120,7 +273,19 @@ const NewsPage = () => {
 
               {visibleNews.length === 0 && !isLoading && (
                 <div className="text-center py-12">
-                  <p className="text-muted-foreground">Новостей пока нет</p>
+                  {isFiltered ? (
+                    <>
+                      <p className="text-muted-foreground mb-4">
+                        По этому запросу статей нет. Попробуйте другое слово или
+                        посмотрите все рубрики.
+                      </p>
+                      <Button variant="outline" onClick={reset}>
+                        Показать все статьи
+                      </Button>
+                    </>
+                  ) : (
+                    <p className="text-muted-foreground">Новостей пока нет</p>
+                  )}
                 </div>
               )}
 

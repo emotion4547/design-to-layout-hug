@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Loader2 } from 'lucide-react';
 import { isUuid } from '@/lib/routeParam';
 import { useNewsItem, useNewsBySlug } from '@/hooks/useNews';
 import { SEO, ArticleSchema, BreadcrumbSchema } from '@/components/SEO';
+import { RichText } from '@/components/RichText';
 
 import news1 from '@/assets/news/news-1.jpg';
 
@@ -48,6 +49,10 @@ const NewsDetail = () => {
   if (error || !newsItem) {
     return (
       <PageLayout>
+        {/* Снятая с сайта статья отвечает кодом 200 с оболочкой приложения:
+            обычный SPA иначе не умеет. Чтобы такой адрес не осел в индексе
+            как пустая страница, помечаем его noindex явно. */}
+        <SEO title="Новость не найдена" noindex />
         <div className="container py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Новость не найдена</h1>
           <Link to="/news">
@@ -118,7 +123,7 @@ const NewsDetail = () => {
           {/* Content */}
           <div className="prose prose-lg max-w-none">
             {newsItem.content ? (
-              <div dangerouslySetInnerHTML={{ __html: newsItem.content }} />
+              <RichText html={newsItem.content} />
             ) : newsItem.excerpt ? (
               <p className="text-lg leading-relaxed text-foreground/80">
                 {newsItem.excerpt}
