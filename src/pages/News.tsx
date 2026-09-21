@@ -23,7 +23,11 @@ const fallbackImages: Record<string, string> = {
 };
 
 const NewsPage = () => {
-  const [visibleCount, setVisibleCount] = useState(6);
+  // Показываем сразу все: при шести карточках в разметке поисковик видел
+  // ссылки лишь на шесть статей из двадцати, а остальные оставались без
+  // единой внутренней ссылки — только в карте сайта. Кнопка «показать ещё»
+  // вернётся сама, когда статей станет больше двадцати.
+  const [visibleCount, setVisibleCount] = useState(20);
   const { data: dbNews, isLoading, error } = useNews();
   
   // Подставлять выдуманные новости, когда база молчит, нельзя: их адреса
