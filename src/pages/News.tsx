@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
 import { Button } from '@/components/ui/button';
@@ -22,75 +22,14 @@ const fallbackImages: Record<string, string> = {
   '/news/news-6.jpg': news6,
 };
 
-// Static fallback data
-const staticNewsItems = [
-  {
-    id: '1',
-    slug: 'demo-1',
-    title: 'Новогодняя коллекция уже доступна!',
-    excerpt: 'Встречайте праздники с нашими новыми букетами и композициями. Ёлочки из нобилиса, праздничные венки и зимние букеты.',
-    published_at: '2025-12-25',
-    image_url: '/news/news-1.jpg',
-    category: 'Новинки',
-  },
-  {
-    id: '2',
-    slug: 'demo-2',
-    title: 'Новинки в ассортименте',
-    excerpt: 'Добавили новые авторские букеты к праздникам. Уникальные композиции от наших флористов.',
-    published_at: '2025-12-22',
-    image_url: '/news/news-2.jpg',
-    category: 'Ассортимент',
-  },
-  {
-    id: '3',
-    slug: 'demo-3',
-    title: 'Праздничная атмосфера в вашем доме',
-    excerpt: 'Создайте уют с нашими праздничными композициями. Свечи, гирлянды и живые цветы.',
-    published_at: '2025-12-04',
-    image_url: '/news/news-3.jpg',
-    category: 'Советы',
-  },
-  {
-    id: '4',
-    slug: 'demo-4',
-    title: 'Как ухаживать за зимними букетами',
-    excerpt: 'Полезные советы по уходу за букетами в холодное время года. Продлите жизнь вашим цветам.',
-    published_at: '2025-11-28',
-    image_url: '/news/news-4.jpg',
-    category: 'Советы',
-  },
-  {
-    id: '5',
-    slug: 'demo-5',
-    title: 'Открытие нового сезона',
-    excerpt: 'Мы рады представить обновлённую коллекцию осенних букетов с яркими красками.',
-    published_at: '2025-11-15',
-    image_url: '/news/news-5.jpg',
-    category: 'Новости',
-  },
-  {
-    id: '6',
-    slug: 'demo-6',
-    title: 'Благодарим наших клиентов',
-    excerpt: 'Спасибо всем, кто выбирает нас! Более 1000 довольных клиентов за этот год.',
-    published_at: '2025-11-01',
-    image_url: '/news/news-6.jpg',
-    category: 'Новости',
-  },
-];
-
 const NewsPage = () => {
   const [visibleCount, setVisibleCount] = useState(6);
   const { data: dbNews, isLoading, error } = useNews();
   
-  // Use DB data if available, otherwise use static data
-  const newsItems = useMemo(() => {
-    if (dbNews && dbNews.length > 0) {
-      return dbNews;
-    }
-    return staticNewsItems;
-  }, [dbNews]);
+  // Подставлять выдуманные новости, когда база молчит, нельзя: их адреса
+  // никуда не ведут, а текст обещает то, чего нет. Пустой список честнее —
+  // состояние «пока пусто» ниже уже предусмотрено.
+  const newsItems = dbNews ?? [];
 
   const visibleNews = newsItems.slice(0, visibleCount);
   const hasMore = visibleCount < newsItems.length;
