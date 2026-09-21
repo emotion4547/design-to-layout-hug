@@ -129,7 +129,7 @@ const NewsDetail = () => {
           {/* Footer */}
           <div className="mt-12 pt-6 border-t border-border flex items-center justify-between">
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span>Flowers & Toys</span>
+              <span>Везу букет</span>
               <span className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
                 {formatDate(newsItem.published_at || newsItem.created_at)}
