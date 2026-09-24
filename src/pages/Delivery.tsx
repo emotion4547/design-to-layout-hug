@@ -14,7 +14,7 @@ const deliveryZones = [
   {
     icon: Clock,
     title: 'Доставка по городу',
-    description: 'Ежедневно с 7:00 до 23:00. Стоимость доставки от 300 рублей по городу.',
+    description: 'Ежедневно с 7:00 до 23:00. От 300 рублей по городу, бесплатно при заказе от 5000 рублей.',
     price: 'от 0 ₽',
   },
   {
@@ -34,6 +34,7 @@ const deliveryZones = [
 const deliveryDetails = [
   'Доставка осуществляется ежедневно с 7:00 до 23:00',
   'Стоимость доставки от 300 рублей по городу',
+  'Бесплатная доставка при заказе от 5000 рублей',
   'Доставка за город рассчитывается индивидуально',
   'Возможна срочная доставка за 30 минут',
   'Курьер позвонит за 15-30 минут до прибытия',
@@ -42,13 +43,13 @@ const deliveryDetails = [
 
 const DeliveryPage = () => {
   const { data: phone } = useSetting('phone');
-  const displayPhone = phone || '8 964 456 00 66';
+  const displayPhone = phone || '+7 (969) 660-40-40';
   const phoneHref = 'tel:' + displayPhone.replace(/[^+\d]/g, '');
   return (
     <PageLayout>
       <SEO
         title="Доставка цветов"
-        description="Условия доставки цветов и букетов в Новороссийске: ежедневно с 7:00 до 23:00, стоимость от 300 рублей по городу, срочная доставка за 30 минут, самовывоз."
+        description="Условия доставки цветов и букетов в Новороссийске: ежедневно с 7:00 до 23:00, от 300 рублей по городу, бесплатно от 5000 рублей, срочная доставка за 30 минут."
         keywords="доставка цветов Новороссийск, срочная доставка букетов, курьерская доставка цветов, самовывоз цветов"
         url="/delivery"
       />
@@ -57,7 +58,7 @@ const DeliveryPage = () => {
         { name: 'Доставка', url: '/delivery' },
       ]} />
       <FAQSchema items={[
-        { question: 'Сколько стоит доставка цветов в Новороссийске?', answer: 'Стоимость доставки от 300 рублей по городу. Доставка за город рассчитывается индивидуально.' },
+        { question: 'Сколько стоит доставка цветов в Новороссийске?', answer: 'От 300 рублей по городу. При заказе от 5000 рублей доставка по городу бесплатная. Доставка за город рассчитывается индивидуально.' },
         { question: 'Какое время работы доставки?', answer: 'Доставка осуществляется ежедневно с 7:00 до 23:00.' },
         { question: 'Можно ли заказать срочную доставку?', answer: 'Да, возможна срочная доставка за 30 минут.' },
         { question: 'Как узнать, когда приедет курьер?', answer: 'Курьер позвонит за 15-30 минут до прибытия.' },
@@ -118,25 +119,6 @@ const DeliveryPage = () => {
         </div>
       </section>
 
-      {/* Delivery Map Area */}
-      <section className="py-16">
-        <div className="container">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8">
-            Зона доставки
-          </h2>
-          <div className="aspect-[16/9] md:aspect-[21/9] bg-secondary/50 rounded-lg flex items-center justify-center">
-            <div className="text-center p-8">
-              <MapPin className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground mb-4 text-lg font-medium">
-                Доставка по г. Новороссийск и пригороду
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Для уточнения стоимости доставки в ваш район — свяжитесь с нами
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* CTA Section */}
       <section className="py-16 bg-secondary/30">

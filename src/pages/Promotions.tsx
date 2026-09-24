@@ -37,7 +37,7 @@ const staticPromotions = [
   {
     id: '3',
     title: 'Качество нашего сервиса',
-    description: 'Гарантия свежести букета 24 часа. Бесплатная доставка от 3000₽.',
+    description: 'Гарантия свежести букета 24 часа. Бесплатная доставка от 5000 ₽.',
     image_url: '/promotions/service.jpg',
     badge: null,
     slug: 'service-quality',

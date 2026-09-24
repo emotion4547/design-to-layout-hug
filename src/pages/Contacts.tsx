@@ -21,8 +21,8 @@ const getContactInfo = (phone: string, email: string | null, address: string | n
   {
     icon: Mail,
     label: 'Email',
-    value: email || 'info@butonvton.ru',
-    href: `mailto:${email || 'info@butonvton.ru'}`,
+    value: email || 'Regina.momont@ya.ru',
+    href: `mailto:${email || 'Regina.momont@ya.ru'}`,
   },
   {
     icon: Clock,
@@ -79,7 +79,7 @@ const ContactsPage = () => {
   const { data: whatsappUrl } = useSetting('whatsapp_url');
   const { data: instagramUrl } = useSetting('instagram_url');
   const { data: maxUrl } = useSetting('max_url');
-  const contactInfo = getContactInfo(phone || '8 964 456 00 66', email, address);
+  const contactInfo = getContactInfo(phone || '+7 (969) 660-40-40', email, address);
   return (
     <PageLayout>
       <SEO

@@ -19,6 +19,7 @@ import { useCart } from '@/contexts/CartContext';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createOrder } from '@/services/orders';
+import { formatRuPhone, isCompleteRuPhone } from '@/lib/phone';
 import { SEO } from '@/components/SEO';
 
 const TIME_SLOTS = [
@@ -78,6 +79,16 @@ const Cart = () => {
     }
     if (!formData.senderPhone.trim()) {
       toast({ title: "Ошибка", description: "Укажите телефон отправителя", variant: "destructive" });
+      return;
+    }
+    // Недобранный номер лучше поймать здесь: в заявке он выглядит настоящим,
+    // а менеджер узнаёт о нём, только когда не может дозвониться.
+    if (!isCompleteRuPhone(formData.senderPhone)) {
+      toast({ title: "Ошибка", description: "Телефон отправителя неполный — нужно 10 цифр после +7", variant: "destructive" });
+      return;
+    }
+    if (formData.recipientPhone.trim() && !isCompleteRuPhone(formData.recipientPhone)) {
+      toast({ title: "Ошибка", description: "Телефон получателя неполный — нужно 10 цифр после +7", variant: "destructive" });
       return;
     }
     if (!formData.date) {
@@ -317,7 +328,9 @@ const Cart = () => {
                       required
                       type="tel"
                       value={formData.senderPhone}
-                      onChange={(e) => setFormData({ ...formData, senderPhone: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, senderPhone: formatRuPhone(e.target.value) })}
+                      inputMode="tel"
+                      maxLength={18}
                       placeholder="+7 (___) ___-__-__"
                       disabled={isSubmitting}
                     />
@@ -360,7 +373,9 @@ const Cart = () => {
                     <Input
                       type="tel"
                       value={formData.recipientPhone}
-                      onChange={(e) => setFormData({ ...formData, recipientPhone: e.target.value })}
+                      onChange={(e) => setFormData({ ...formData, recipientPhone: formatRuPhone(e.target.value) })}
+                      inputMode="tel"
+                      maxLength={18}
                       placeholder="+7 (___) ___-__-__"
                       disabled={isSubmitting}
                     />

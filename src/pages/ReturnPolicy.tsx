@@ -44,7 +44,7 @@ const ReturnPolicy = () => {
             <h2 className="text-xl font-semibold mt-8 mb-4 text-foreground">Как оформить возврат</h2>
             <ol className="list-decimal pl-6 mb-4 space-y-2">
               <li>Сфотографируйте полученный букет</li>
-              <li>Свяжитесь с нами по телефону 8 964 456 00 66 или напишите на info@butonvton.ru в течение 2 часов после получения</li>
+              <li>Свяжитесь с нами по телефону +7 (969) 660-40-40 или напишите на Regina.momont@ya.ru в течение 2 часов после получения</li>
               <li>Опишите проблему и приложите фотографии</li>
               <li>Мы рассмотрим обращение в течение 24 часов</li>
             </ol>
@@ -70,8 +70,8 @@ const ReturnPolicy = () => {
 
             <h2 className="text-xl font-semibold mt-8 mb-4 text-foreground">Контакты для обращений</h2>
             <p className="mb-4">
-              Телефон: 8 964 456 00 66<br />
-              Email: info@butonvton.ru<br />
+              Телефон: +7 (969) 660-40-40<br />
+              Email: Regina.momont@ya.ru<br />
               Время работы: ежедневно с 9:00 до 21:00
             </p>
           </div>

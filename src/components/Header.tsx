@@ -1,7 +1,7 @@
 import { MaxIcon } from '@/components/icons/MaxIcon';
 import { useState, useRef, useEffect } from 'react';
 import logoImage from '@/assets/logo.png';
-import { Search, Menu, X, ShoppingBag, Heart, ChevronDown } from 'lucide-react';
+import { Search, Menu, X, ShoppingBag, Heart, ChevronDown, Phone } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/contexts/CartContext';
@@ -70,6 +70,9 @@ export const Header = () => {
   const whatsappUrl = settings?.whatsapp_url;
   const instagramUrl = settings?.instagram_url;
   const maxUrl = settings?.max_url;
+  const phone = settings?.phone;
+  // tel: не принимает пробелы и скобки — оставляем только плюс и цифры.
+  const phoneHref = phone ? `tel:${phone.replace(/[^+\d]/g, '')}` : null;
 
   const { data: categories } = useCategories({ activeOnly: true });
   const catalogCategories = [
@@ -225,10 +228,24 @@ export const Header = () => {
                   <MaxIcon />
                 </a>
               )}
+              {/* Звонок. Соседи полупрозрачные и круглые, а эта кнопка сплошная
+                  и вытянутая: рядом с иконками мессенджеров звонок должен
+                  читаться как отдельное действие, а не как ещё одна соцсеть. */}
+              {phoneHref && (
+                <a
+                  href={phoneHref}
+                  aria-label={`Позвонить ${phone}`}
+                  title={`Позвонить ${phone}`}
+                  data-goal="phone_click"
+                  className="ml-1 px-3 py-2 rounded-full bg-white text-primary hover:bg-white/90 transition-colors shadow-sm"
+                >
+                  <Phone className="h-4 w-4" strokeWidth={2.5} />
+                </a>
+              )}
             </div>
 
             {/* Divider - only show if there are social links */}
-            {(vkUrl || telegramUrl || whatsappUrl || instagramUrl) && (
+            {(vkUrl || telegramUrl || whatsappUrl || instagramUrl || maxUrl || phoneHref) && (
               <div className="w-px h-6 bg-white/20 mx-2" />
             )}
 

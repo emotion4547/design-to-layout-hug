@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Gift, CalendarHeart, ShieldCheck, ArrowRight, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { formatRuPhone } from '@/lib/phone';
 
 export const QuizPopup = () => {
   const [open, setOpen] = useState(false);
@@ -145,7 +146,7 @@ export const QuizPopup = () => {
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="quiz-phone" className="text-sm">Номер телефона</Label>
-                    <Input id="quiz-phone" type="tel" placeholder="+7 (___) ___-__-__" value={phone} onChange={(e) => setPhone(e.target.value)} className="rounded-lg" />
+                    <Input id="quiz-phone" type="tel" placeholder="+7 (___) ___-__-__" value={phone} onChange={(e) => setPhone(formatRuPhone(e.target.value))} className="rounded-lg" />
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="quiz-birthday" className="text-sm">Дата рождения</Label>
