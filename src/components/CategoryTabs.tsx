@@ -88,7 +88,7 @@ export const CategoryTabs = ({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute -left-2 top-1/2 -translate-y-1/2 z-10 hidden lg:flex h-8 w-8 bg-background/80 backdrop-blur-sm shadow-sm"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 hidden lg:flex h-8 w-8 bg-background/80 backdrop-blur-sm shadow-sm"
           onClick={() => scroll('left')}
         >
           <ChevronLeft className="h-4 w-4" />
@@ -139,7 +139,7 @@ export const CategoryTabs = ({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 hidden lg:flex h-8 w-8 bg-background/80 backdrop-blur-sm shadow-sm"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 hidden lg:flex h-8 w-8 bg-background/80 backdrop-blur-sm shadow-sm"
           onClick={() => scroll('right')}
         >
           <ChevronRight className="h-4 w-4" />

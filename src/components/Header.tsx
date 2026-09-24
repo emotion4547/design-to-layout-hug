@@ -306,9 +306,23 @@ export const Header = () => {
                 </span>
               )}
             </Link>
+            {/* Звонок рядом с бургером. Соцсети на узких экранах прячутся
+                в меню, а звонок — основное действие для телефона, ему место
+                снаружи: сплошная белая на фоне полупрозрачных иконок. */}
+            {phoneHref && (
+              <a
+                href={phoneHref}
+                aria-label={`Позвонить ${phone}`}
+                data-goal="phone_click"
+                className="ml-0.5 px-3 py-2 rounded-full bg-white text-primary hover:bg-white/90 transition-colors shadow-sm"
+              >
+                <Phone className="h-5 w-5" strokeWidth={2.5} />
+              </a>
+            )}
             <button
               className="p-2 text-white/90 hover:text-white"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
             >
               {mobileMenuOpen ? (
                 <X className="h-6 w-6" />
