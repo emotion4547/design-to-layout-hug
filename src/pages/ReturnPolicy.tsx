@@ -72,7 +72,7 @@ const ReturnPolicy = () => {
             <p className="mb-4">
               Телефон: +7 (969) 660-40-40<br />
               Email: Regina.momont@ya.ru<br />
-              Время работы: ежедневно с 9:00 до 21:00
+              Время работы: ежедневно с 7:00 до 23:00
             </p>
           </div>
         </div>

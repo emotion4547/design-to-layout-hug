@@ -16,7 +16,7 @@ const getContactInfo = (phone: string, email: string | null, address: string | n
     icon: MapPin,
     label: 'Адрес',
     value: address || 'г. Новороссийск',
-    href: 'https://yandex.ru/maps/-/CHQoiDYT',
+    href: 'https://yandex.ru/maps/org/vezu_buket/128104040065/',
   },
   {
     icon: Mail,
@@ -94,14 +94,16 @@ const ContactsPage = () => {
       ]} />
       <FAQSchema items={[
         { question: 'Как связаться с магазином Везу букет?', answer: 'Позвоните по телефону 8 969 660 40 40 или напишите нам в мессенджер.' },
-        { question: 'Где находится магазин цветов в Новороссийске?', answer: 'Мы находимся в городе Новороссийск. Работаем ежедневно с 9:00 до 21:00.' },
+        { question: 'Где находится магазин цветов в Новороссийске?', answer: 'Новороссийск, проспект Ленина, 79. Работаем ежедневно с 7:00 до 23:00.' },
         { question: 'Как оставить отзыв о работе магазина?', answer: 'Вы можете оставить отзыв на Яндекс Картах или связаться с нами напрямую.' },
       ]} />
       {/* Full-width Map Section - At the very top, under header */}
       <section className="w-full -mt-4">
         <div className="w-full h-[400px] md:h-[450px]">
           <iframe
-            src={`https://yandex.ru/map-widget/v1/?ll=37.769828%2C44.693483&z=16&pt=37.769828%2C44.693483%2Cpm2rdm`}
+            // Карточка организации, а не точка по координатам: адрес и режим
+            // работы подтягиваются из Яндекса и не разъедутся с сайтом.
+            src="https://yandex.ru/map-widget/v1/org/vezu_buket/128104040065/"
             width="100%"
             height="100%"
             frameBorder="0"
@@ -215,7 +217,7 @@ const ContactsPage = () => {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a 
-                href="https://yandex.ru/maps" 
+                href="https://yandex.ru/maps/org/vezu_buket/128104040065/reviews/" 
                 target="_blank" 
                 rel="noopener noreferrer"
               >
@@ -225,7 +227,7 @@ const ContactsPage = () => {
                 </Button>
               </a>
               <a 
-                href="https://yandex.ru/maps" 
+                href="https://yandex.ru/maps/org/vezu_buket/128104040065/" 
                 target="_blank" 
                 rel="noopener noreferrer"
               >

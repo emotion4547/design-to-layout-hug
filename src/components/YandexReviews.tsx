@@ -1,5 +1,11 @@
 import { useRef, useState, useEffect } from 'react';
 
+/**
+ * Виджет отзывов Яндекса. Раньше сюда был вписан идентификатор 44543137069 —
+ * чужой срез: он отдавал «113 отзывов, 7 оценок» и пустые серые звёзды, хотя
+ * у карточки 134 отзыва, 152 оценки и рейтинг 5,0. Идентификатор должен
+ * совпадать с номером организации на Яндекс Картах.
+ */
 const YandexReviews = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -31,7 +37,7 @@ const YandexReviews = () => {
             <iframe
               className="w-full"
               style={{ height: 600, border: 'none' }}
-              src="https://yandex.ru/maps-reviews-widget/44543137069?comments"
+              src="https://yandex.ru/maps-reviews-widget/128104040065?comments"
               title="Отзывы на Яндекс.Картах"
               allowFullScreen
               loading="lazy"
