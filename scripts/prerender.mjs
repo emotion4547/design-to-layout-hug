@@ -128,10 +128,29 @@ function renderHeadOnly(tpl, { url, title, description, image, noindex }) {
   return html.replace('</head>', `    <link rel="canonical" href="${esc(fullUrl)}" />\n  </head>`);
 }
 
+/**
+ * Таблицу с @font-face встраиваем в каждую страницу. Отдельным файлом она
+ * была запросом, блокирующим отрисовку: 1,3 КБ по сети стоили 210 мс
+ * ожидания, потому что браузер не рисует страницу, пока не получит все
+ * стили. Источник остаётся один — public/fonts/fonts.css.
+ *
+ * Подстановка идёт именно здесь, а не в шаблоне: страницы сохраняются такими,
+ * какими их отдал браузер, и правка шаблона до них не доходила.
+ */
+const FONTS_CSS = readFileSync(join(DIST, 'fonts', 'fonts.css'), 'utf-8');
+const FONTS_LINK_RE = /<link[^>]+href="\/fonts\/fonts\.css"[^>]*>/i;
+let fontsInlined = 0;
+
+function inlineFonts(html) {
+  if (!FONTS_LINK_RE.test(html)) return html;
+  fontsInlined += 1;
+  return html.replace(FONTS_LINK_RE, `<style>${FONTS_CSS}</style>`);
+}
+
 function write(url, html) {
   const path = url === '/' ? join(DIST, 'index.html') : join(DIST, url, 'index.html');
   mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, html, 'utf-8');
+  writeFileSync(path, inlineFonts(html), 'utf-8');
 }
 
 // ---------------------------------------------------------------- основной проход
@@ -148,7 +167,7 @@ const fallbackHtml = /<meta\s+name="robots"[^>]*>/i.test(tpl)
   // указание, которое робот трактует на своё усмотрение.
   ? tpl.replace(/<meta\s+name="robots"[^>]*>/i, '<meta name="robots" content="noindex, follow" />')
   : tpl.replace('</head>', '    <meta name="robots" content="noindex, follow" />\n  </head>');
-writeFileSync(join(DIST, 'fallback.html'), fallbackHtml, 'utf-8');
+writeFileSync(join(DIST, 'fallback.html'), inlineFonts(fallbackHtml), 'utf-8');
 
 const [products, collections, news, promotions, categories] = await Promise.all([
   fromApi('products?select=id,name,description,price,image_url&in_stock=eq.true&limit=1000'),
@@ -293,6 +312,7 @@ if (fallback > LIMIT) {
   process.exit(1);
 }
 console.log(`   товаров ${products.length}, категорий ${categories.length}, подборок ${collections.length}, новостей ${news.length}, акций ${promotions.length}`);
+console.log(`   шрифты встроены в ${fontsInlined} страниц`);
 console.log(`   sitemap.xml: ${indexable.length} адресов`);
 
 const emptyCollections = routes.filter((r) => r.empty).map((r) => r.url);

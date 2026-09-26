@@ -7,7 +7,7 @@ import { useNewsItem, useNewsBySlug } from '@/hooks/useNews';
 import { SEO, ArticleSchema, BreadcrumbSchema } from '@/components/SEO';
 import { RichText } from '@/components/RichText';
 
-import news1 from '@/assets/news/news-1.jpg';
+import news1 from '@/assets/news/news-1.webp';
 
 const fallbackImages: Record<string, string> = {
   '/news/news-1.jpg': news1,

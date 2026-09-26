@@ -9,12 +9,12 @@ import { cn } from '@/lib/utils';
 import { useNews } from '@/hooks/useNews';
 import { SEO, BreadcrumbSchema } from '@/components/SEO';
 
-import news1 from '@/assets/news/news-1.jpg';
-import news2 from '@/assets/news/news-2.jpg';
-import news3 from '@/assets/news/news-3.jpg';
-import news4 from '@/assets/news/news-4.jpg';
-import news5 from '@/assets/news/news-5.jpg';
-import news6 from '@/assets/news/news-6.jpg';
+import news1 from '@/assets/news/news-1.webp';
+import news2 from '@/assets/news/news-2.webp';
+import news3 from '@/assets/news/news-3.webp';
+import news4 from '@/assets/news/news-4.webp';
+import news5 from '@/assets/news/news-5.webp';
+import news6 from '@/assets/news/news-6.webp';
 
 const fallbackImages: Record<string, string> = {
   '/news/news-1.jpg': news1,
