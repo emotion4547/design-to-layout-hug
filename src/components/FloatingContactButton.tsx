@@ -118,7 +118,7 @@ export const FloatingContactButton = () => {
   if (links.length === 0) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <aside aria-label="Быстрая связь" className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
       <div className={cn(
         "flex flex-col gap-2 transition-all duration-300",
         isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
@@ -142,6 +142,8 @@ export const FloatingContactButton = () => {
 
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={isOpen ? 'Закрыть способы связи' : 'Способы связи'}
+        aria-expanded={isOpen}
         className={cn(
           "w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-white transition-all duration-300",
           isOpen
@@ -151,6 +153,6 @@ export const FloatingContactButton = () => {
       >
         {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
       </button>
-    </div>
+    </aside>
   );
 };

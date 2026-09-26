@@ -111,7 +111,7 @@ export const Footer = () => {
               <div className="flex lg:justify-end gap-3 mb-8">
                 {vkUrl && (
                   <a 
-                    href={vkUrl} 
+                    href={vkUrl} aria-label="ВКонтакте" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="p-3 rounded-full border border-white/30 text-white/90 hover:bg-white/10 hover:text-white transition-colors"
@@ -121,7 +121,7 @@ export const Footer = () => {
                 )}
                 {instagramUrl && (
                   <a 
-                    href={instagramUrl}
+                    href={instagramUrl} aria-label="Instagram"
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="p-3 rounded-full border border-white/30 text-white/90 hover:bg-white/10 hover:text-white transition-colors"
@@ -131,7 +131,7 @@ export const Footer = () => {
                 )}
                 {telegramUrl && (
                   <a 
-                    href={telegramUrl} 
+                    href={telegramUrl} aria-label="Telegram" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="p-3 rounded-full border border-white/30 text-white/90 hover:bg-white/10 hover:text-white transition-colors"
@@ -141,7 +141,7 @@ export const Footer = () => {
                 )}
                 {whatsappUrl && (
                   <a 
-                    href={whatsappUrl} 
+                    href={whatsappUrl} aria-label="WhatsApp" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="p-3 rounded-full border border-white/30 text-white/90 hover:bg-white/10 hover:text-white transition-colors"
@@ -151,7 +151,7 @@ export const Footer = () => {
                 )}
                 {maxUrl && (
                   <a 
-                    href={maxUrl} 
+                    href={maxUrl} aria-label="MAX" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="p-3 rounded-full border border-white/30 text-white/90 hover:bg-white/10 hover:text-white transition-colors"

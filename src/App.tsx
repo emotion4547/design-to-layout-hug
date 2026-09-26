@@ -13,6 +13,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { CookieConsent } from "./components/CookieConsent";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { YandexMetrika } from "./components/YandexMetrika";
+import { Deferred } from "./components/Deferred";
 
 // Lazy-loaded pages
 const Catalog = lazy(() => import("./pages/Catalog"));
@@ -69,10 +70,14 @@ const App = () => (
         <ThemeProvider>
           <CartProvider>
             <FavoritesProvider>
-              <Toaster />
-              <Sonner />
+              <Deferred>
+                <Toaster />
+                <Sonner />
+              </Deferred>
               <BrowserRouter>
                 <ScrollToTop />
+                {/* Не откладывается: внутри обработчик кликов по телефону,
+                    отложенный он пропустил бы первые звонки. */}
                 <YandexMetrika />
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
@@ -115,7 +120,9 @@ const App = () => (
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
-                <CookieConsent />
+                <Deferred>
+                  <CookieConsent />
+                </Deferred>
               </BrowserRouter>
             </FavoritesProvider>
           </CartProvider>

@@ -88,6 +88,7 @@ export const CategoryTabs = ({
         <Button
           variant="ghost"
           size="icon"
+          aria-label="Прокрутить рубрики влево"
           className="absolute left-0 top-1/2 -translate-y-1/2 z-10 hidden lg:flex h-8 w-8 bg-background/80 backdrop-blur-sm shadow-sm"
           onClick={() => scroll('left')}
         >
@@ -139,6 +140,7 @@ export const CategoryTabs = ({
         <Button
           variant="ghost"
           size="icon"
+          aria-label="Прокрутить рубрики вправо"
           className="absolute right-0 top-1/2 -translate-y-1/2 z-10 hidden lg:flex h-8 w-8 bg-background/80 backdrop-blur-sm shadow-sm"
           onClick={() => scroll('right')}
         >

@@ -29,7 +29,7 @@ export const CookieConsent = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 animate-in slide-in-from-bottom duration-300">
+    <aside aria-label="Использование файлов cookie" className="fixed bottom-0 left-0 right-0 z-50 p-4 animate-in slide-in-from-bottom duration-300">
       <div className="container">
         <div className="bg-card border border-border rounded-2xl shadow-lg p-4 md:p-6 max-w-4xl mx-auto">
           <div className="flex flex-col md:flex-row gap-4 md:items-center">
@@ -49,7 +49,7 @@ export const CookieConsent = () => {
               </p>
               <p>
                 На сайте используется Яндекс.Метрика и Яндекс.Директ для аналитики и рекламы.{' '}
-                <Link to="/privacy" className="text-primary hover:underline">
+                <Link to="/privacy" className="text-primary underline underline-offset-2">
                   Подробнее в Политике конфиденциальности
                 </Link>
               </p>
@@ -74,6 +74,6 @@ export const CookieConsent = () => {
           </div>
         </div>
       </div>
-    </div>
+    </aside>
   );
 };

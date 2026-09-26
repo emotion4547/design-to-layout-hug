@@ -180,7 +180,7 @@ export const Header = () => {
             <div className="flex items-center gap-1">
               {vkUrl && (
                 <a 
-                  href={vkUrl} 
+                  href={vkUrl} aria-label="ВКонтакте" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
@@ -190,7 +190,7 @@ export const Header = () => {
               )}
               {telegramUrl && (
                 <a 
-                  href={telegramUrl} 
+                  href={telegramUrl} aria-label="Telegram" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
@@ -200,7 +200,7 @@ export const Header = () => {
               )}
               {whatsappUrl && (
                 <a 
-                  href={whatsappUrl} 
+                  href={whatsappUrl} aria-label="WhatsApp" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
@@ -210,7 +210,7 @@ export const Header = () => {
               )}
               {instagramUrl && (
                 <a 
-                  href={instagramUrl} 
+                  href={instagramUrl} aria-label="Instagram" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
@@ -220,7 +220,7 @@ export const Header = () => {
               )}
               {maxUrl && (
                 <a 
-                  href={maxUrl} 
+                  href={maxUrl} aria-label="MAX" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="p-2 rounded-full bg-white/10 text-white/90 hover:bg-white/20 hover:text-white transition-colors"
@@ -253,11 +253,13 @@ export const Header = () => {
             <div className="flex items-center gap-1">
               <button 
                 onClick={() => setSearchOpen(!searchOpen)}
+                aria-label="Поиск по сайту"
+                aria-expanded={searchOpen}
                 className="p-2 text-white/90 hover:text-white transition-colors"
               >
                 <Search className="h-5 w-5" />
               </button>
-              <Link to="/favorites" className="relative p-2 text-white/90 hover:text-white transition-colors">
+              <Link to="/favorites" aria-label="Избранное" className="relative p-2 text-white/90 hover:text-white transition-colors">
                 <Heart className="h-5 w-5" />
                 {totalFavorites > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
@@ -265,7 +267,7 @@ export const Header = () => {
                   </span>
                 )}
               </Link>
-              <Link to="/cart" className="relative p-2 text-white/90 hover:text-white transition-colors">
+              <Link to="/cart" aria-label="Корзина" className="relative p-2 text-white/90 hover:text-white transition-colors">
                 <ShoppingBag className={cn(
                   "h-5 w-5 transition-transform",
                   cartPulse && "animate-[pulse_0.6s_ease-in-out]"
@@ -284,7 +286,7 @@ export const Header = () => {
 
           {/* Mobile Action Icons + Menu Button */}
           <div className="lg:hidden flex items-center gap-1">
-            <Link to="/favorites" className="relative p-2 text-white/90 hover:text-white">
+            <Link to="/favorites" aria-label="Избранное" className="relative p-2 text-white/90 hover:text-white">
               <Heart className="h-5 w-5" />
               {totalFavorites > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
@@ -292,7 +294,7 @@ export const Header = () => {
                 </span>
               )}
             </Link>
-            <Link to="/cart" className="relative p-2 text-white/90 hover:text-white">
+            <Link to="/cart" aria-label="Корзина" className="relative p-2 text-white/90 hover:text-white">
               <ShoppingBag className={cn(
                 "h-5 w-5 transition-transform",
                 cartPulse && "animate-[pulse_0.6s_ease-in-out]"
@@ -427,27 +429,27 @@ export const Header = () => {
             {/* Social Icons - Mobile */}
             <div className="flex items-center gap-2 pt-3">
               {vkUrl && (
-                <a href={vkUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
+                <a href={vkUrl} aria-label="ВКонтакте" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
                   <VKIcon />
                 </a>
               )}
               {telegramUrl && (
-                <a href={telegramUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
+                <a href={telegramUrl} aria-label="Telegram" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
                   <TelegramIcon />
                 </a>
               )}
               {whatsappUrl && (
-                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
+                <a href={whatsappUrl} aria-label="WhatsApp" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
                   <WhatsAppIcon />
                 </a>
               )}
               {instagramUrl && (
-                <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
+                <a href={instagramUrl} aria-label="Instagram" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
                   <MessengerIcon />
                 </a>
               )}
               {maxUrl && (
-                <a href={maxUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
+                <a href={maxUrl} aria-label="MAX" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white/10 text-white/90">
                   <MaxIcon />
                 </a>
               )}
