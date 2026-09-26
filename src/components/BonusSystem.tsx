@@ -1,4 +1,4 @@
-import bonusFlowers from '@/assets/bonus-flowers.avif';
+import bonusFlowers from '@/assets/bonus-flowers.webp';
 
 const bonusPoints = [
   'никаких баллов - бонусная система 1 бонус = 1 рубль',
