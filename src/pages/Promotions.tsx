@@ -6,9 +6,9 @@ import { ChevronRight, Loader2 } from 'lucide-react';
 import { usePromotions } from '@/hooks/usePromotions';
 import { SEO, BreadcrumbSchema } from '@/components/SEO';
 
-import promoCombo from '@/assets/promo-combo.jpg';
-import promoWelcome from '@/assets/promo-welcome.jpg';
-import bouquet3 from '@/assets/products/bouquet-3.jpg';
+import promoCombo from '@/assets/promo-combo.webp';
+import promoWelcome from '@/assets/promo-welcome.webp';
+import bouquet3 from '@/assets/products/bouquet-3.webp';
 
 const fallbackImages: Record<string, string> = {
   '/promotions/combo.jpg': promoCombo,

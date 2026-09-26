@@ -4,9 +4,9 @@ import { useNews } from '@/hooks/useNews';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
-import bouquet1 from '@/assets/products/bouquet-1.jpg';
-import bouquet2 from '@/assets/products/bouquet-2.jpg';
-import bouquet3 from '@/assets/products/bouquet-3.jpg';
+import bouquet1 from '@/assets/products/bouquet-1.webp';
+import bouquet2 from '@/assets/products/bouquet-2.webp';
+import bouquet3 from '@/assets/products/bouquet-3.webp';
 
 // Fallback items when no news in database
 const fallbackItems = [

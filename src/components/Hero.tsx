@@ -1,4 +1,4 @@
-import heroImageDefault from '@/assets/hero-flowers.jpg';
+import heroImageDefault from '@/assets/hero-flowers.webp';
 import logoImage from '@/assets/logo.png';
 import { CollectionCards } from './CollectionCards';
 import { Snowfall } from './Snowfall';

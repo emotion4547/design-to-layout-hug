@@ -6,7 +6,7 @@ import { ArrowLeft, Calendar, Percent, Loader2 } from 'lucide-react';
 import { usePromotion, usePromotionBySlug } from '@/hooks/usePromotions';
 import { SEO, BreadcrumbSchema } from '@/components/SEO';
 
-import promoCombo from '@/assets/promo-combo.jpg';
+import promoCombo from '@/assets/promo-combo.webp';
 
 const fallbackImages: Record<string, string> = {
   '/promotions/combo.jpg': promoCombo,

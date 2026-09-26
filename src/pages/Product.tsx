@@ -17,14 +17,14 @@ import { RichText } from '@/components/RichText';
 import { stripHtml, truncate } from '@/lib/plainText.mjs';
 import { SEO, ProductSchema, BreadcrumbSchema } from '@/components/SEO';
 
-import bouquet1 from '@/assets/products/bouquet-1.jpg';
-import bouquet2 from '@/assets/products/bouquet-2.jpg';
-import bouquet3 from '@/assets/products/bouquet-3.jpg';
-import bouquet4 from '@/assets/products/bouquet-4.jpg';
-import bouquet5 from '@/assets/products/bouquet-5.jpg';
-import bouquet6 from '@/assets/products/bouquet-6.jpg';
-import bouquet7 from '@/assets/products/bouquet-7.jpg';
-import bouquet8 from '@/assets/products/bouquet-8.jpg';
+import bouquet1 from '@/assets/products/bouquet-1.webp';
+import bouquet2 from '@/assets/products/bouquet-2.webp';
+import bouquet3 from '@/assets/products/bouquet-3.webp';
+import bouquet4 from '@/assets/products/bouquet-4.webp';
+import bouquet5 from '@/assets/products/bouquet-5.webp';
+import bouquet6 from '@/assets/products/bouquet-6.webp';
+import bouquet7 from '@/assets/products/bouquet-7.webp';
+import bouquet8 from '@/assets/products/bouquet-8.webp';
 
 const fallbackImages: Record<string, string> = {
   '/products/bouquet-1.jpg': bouquet1,

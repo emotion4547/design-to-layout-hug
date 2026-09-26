@@ -10,7 +10,7 @@ import { useCollection, useCollectionProducts } from '@/hooks/useCollections';
 import { SEO, BreadcrumbSchema } from '@/components/SEO';
 
 // Fallback images
-import bouquet1 from '@/assets/products/bouquet-1.jpg';
+import bouquet1 from '@/assets/products/bouquet-1.webp';
 
 const CollectionPage = () => {
   const { slug } = useParams<{ slug: string }>();
