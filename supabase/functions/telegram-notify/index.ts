@@ -83,6 +83,9 @@ serve(async (req) => {
       return `  • ${link} x${item.quantity} — ${item.product_price} ₽`;
     }).join('\n') || 'Нет товаров';
 
+    // В короткой заявке адреса и даты нет: менеджер уточняет их по телефону.
+    const needsDetails = !order.delivery_address || !order.delivery_date;
+
     // Build message
     const message = `
 🌸 *Новый заказ!*
@@ -92,11 +95,12 @@ serve(async (req) => {
 
 👤 *Клиент:* ${escapeMarkdown(order.customer_name)}
 📞 *Телефон:* ${order.customer_phone}
+${needsDetails ? '❗ *Короткая заявка:* адрес, дату и время нужно уточнить у клиента' : ''}
 ${order.customer_email ? `📧 *Email:* ${order.customer_email}` : ''}
 ${quizInfo}
-🚚 *Доставка:* ${order.delivery_type === 'pickup' ? 'Самовывоз' : 'Доставка'}
-📍 *Адрес:* ${escapeMarkdown(order.delivery_address)}
-📅 *Дата:* ${order.delivery_date}
+${order.delivery_type ? `🚚 *Доставка:* ${order.delivery_type === 'pickup' ? 'Самовывоз' : 'Доставка'}` : ''}
+${order.delivery_address ? `📍 *Адрес:* ${escapeMarkdown(order.delivery_address)}` : ''}
+${order.delivery_date ? `📅 *Дата:* ${order.delivery_date}` : ''}
 ${order.delivery_time ? `⏰ *Время:* ${order.delivery_time}` : ''}
 ${order.pickup_time ? `⏰ *Время самовывоза:* ${order.pickup_time}` : ''}
 

@@ -64,8 +64,8 @@ interface Order {
   customer_name: string;
   customer_phone: string;
   customer_email: string | null;
-  delivery_address: string;
-  delivery_date: string;
+  delivery_address: string | null;
+  delivery_date: string | null;
   delivery_time: string | null;
   comment: string | null;
   status: OrderStatus;
@@ -243,11 +243,15 @@ const AdminOrders = () => {
                       <div className="flex items-center gap-1">
                         {order.delivery_type === 'pickup' ? (
                           <Store className="h-4 w-4 text-blue-500" />
-                        ) : (
+                        ) : order.delivery_type ? (
                           <Truck className="h-4 w-4 text-green-500" />
-                        )}
-                        <span className="text-sm">
-                          {order.delivery_type === 'pickup' ? 'Самовывоз' : 'Доставка'}
+                        ) : null}
+                        <span className={order.delivery_type ? 'text-sm' : 'text-sm text-amber-600 font-medium'}>
+                          {order.delivery_type === 'pickup'
+                            ? 'Самовывоз'
+                            : order.delivery_type
+                              ? 'Доставка'
+                              : 'Уточнить у клиента'}
                         </span>
                       </div>
                       <div className="text-xs text-muted-foreground">
@@ -412,22 +416,24 @@ const AdminOrders = () => {
                     <>
                       <Store className="h-4 w-4" /> Самовывоз
                     </>
-                  ) : (
+                  ) : selectedOrder.delivery_type ? (
                     <>
                       <Truck className="h-4 w-4" /> Доставка
                     </>
+                  ) : (
+                    <>Доставка: уточнить у клиента</>
                   )}
                 </h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   {selectedOrder.delivery_type !== 'pickup' && (
                     <div className="col-span-2">
                       <p className="text-muted-foreground">Адрес</p>
-                      <p>{selectedOrder.delivery_address}</p>
+                      <p>{selectedOrder.delivery_address || '— не указан, уточнить по телефону'}</p>
                     </div>
                   )}
                   <div>
                     <p className="text-muted-foreground">Дата</p>
-                    <p>{selectedOrder.delivery_date}</p>
+                    <p>{selectedOrder.delivery_date || '—'}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Время</p>

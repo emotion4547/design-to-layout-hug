@@ -314,8 +314,8 @@ export type Database = {
           customer_email: string | null
           customer_name: string
           customer_phone: string
-          delivery_address: string
-          delivery_date: string
+          delivery_address: string | null
+          delivery_date: string | null
           delivery_time: string | null
           delivery_type: string | null
           id: string
@@ -336,8 +336,8 @@ export type Database = {
           customer_email?: string | null
           customer_name: string
           customer_phone: string
-          delivery_address: string
-          delivery_date: string
+          delivery_address?: string | null
+          delivery_date?: string | null
           delivery_time?: string | null
           delivery_type?: string | null
           id?: string
@@ -358,8 +358,8 @@ export type Database = {
           customer_email?: string | null
           customer_name?: string
           customer_phone?: string
-          delivery_address?: string
-          delivery_date?: string
+          delivery_address?: string | null
+          delivery_date?: string | null
           delivery_time?: string | null
           delivery_type?: string | null
           id?: string

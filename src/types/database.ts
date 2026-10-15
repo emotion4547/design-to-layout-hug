@@ -84,8 +84,8 @@ export interface Database {
           customer_name: string
           customer_phone: string
           customer_email: string | null
-          delivery_address: string
-          delivery_date: string
+          delivery_address: string | null
+          delivery_date: string | null
           delivery_time: string | null
           comment: string | null
           status: OrderStatus
@@ -98,8 +98,8 @@ export interface Database {
           customer_name: string
           customer_phone: string
           customer_email?: string | null
-          delivery_address: string
-          delivery_date: string
+          delivery_address: string | null
+          delivery_date: string | null
           delivery_time?: string | null
           comment?: string | null
           status?: OrderStatus
@@ -112,8 +112,8 @@ export interface Database {
           customer_name?: string
           customer_phone?: string
           customer_email?: string | null
-          delivery_address?: string
-          delivery_date?: string
+          delivery_address?: string | null
+          delivery_date?: string | null
           delivery_time?: string | null
           comment?: string | null
           status?: OrderStatus

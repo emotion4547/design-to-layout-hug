@@ -155,21 +155,25 @@ serve(async (req) => {
           .join('\n')
       : '  (состав не передан)';
 
+    // В короткой заявке адреса и даты нет: менеджер уточняет их по телефону.
+    const needsDetails = !order.delivery_address || !order.delivery_date;
+
     const noteText = `
 Заказ с сайта:
 📦 ID заказа: ${order.id.slice(0, 8)}
 👤 Клиент: ${order.customer_name}
 📞 Телефон: ${order.customer_phone}
+${needsDetails ? '❗ Короткая заявка: адрес, дату, время доставки и текст открытки нужно уточнить у клиента' : ''}
 ${order.customer_email ? `📧 Email: ${order.customer_email}` : ''}
-📍 Адрес доставки: ${order.delivery_address}
-📅 Дата доставки: ${order.delivery_date}
+${order.delivery_address ? `📍 Адрес доставки: ${order.delivery_address}` : ''}
+${order.delivery_date ? `📅 Дата доставки: ${order.delivery_date}` : ''}
 ${order.delivery_time ? `⏰ Время: ${order.delivery_time}` : ''}
 🛒 Состав:
 ${positions}
 💰 Сумма: ${order.total_price} ₽
 ${order.comment ? `💬 Комментарий: ${order.comment}` : ''}
 ${order.card_text ? `💌 Текст открытки: ${order.card_text}` : ''}
-    `.trim();
+    `.trim().replace(/\n{3,}/g, '\n\n');
 
     // Create lead
     const endpoint = toUnsorted ? 'leads/unsorted/forms' : 'leads/complex';

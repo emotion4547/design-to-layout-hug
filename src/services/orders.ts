@@ -14,8 +14,10 @@ export interface Order {
   customer_name: string;
   customer_phone: string;
   customer_email: string | null;
-  delivery_address: string;
-  delivery_date: string;
+  // Адрес и дату в короткой заявке не спрашиваем: их уточняет менеджер, поэтому
+  // у нового заказа они пусты.
+  delivery_address: string | null;
+  delivery_date: string | null;
   delivery_time: string | null;
   comment: string | null;
   status: OrderStatus;
@@ -62,9 +64,9 @@ interface CreateOrderData {
   recipientName?: string;
   recipientPhone?: string;
   cardText?: string;
-  deliveryType: 'delivery' | 'pickup';
-  deliveryAddress: string;
-  deliveryDate: string;
+  deliveryType?: 'delivery' | 'pickup';
+  deliveryAddress?: string;
+  deliveryDate?: string;
   deliveryTime?: string;
   pickupTime?: string;
   comment?: string;
@@ -78,8 +80,8 @@ export async function createOrder(data: CreateOrderData) {
     customer_name: data.senderName,
     customer_phone: data.senderPhone,
     customer_email: data.customerEmail || null,
-    delivery_address: data.deliveryAddress,
-    delivery_date: data.deliveryDate,
+    delivery_address: data.deliveryAddress || null,
+    delivery_date: data.deliveryDate || null,
     delivery_time: data.deliveryTime || null,
     comment: data.comment || null,
     total_price: data.totalPrice,
@@ -90,11 +92,9 @@ export async function createOrder(data: CreateOrderData) {
     recipient_name: data.recipientName || null,
     recipient_phone: data.recipientPhone || null,
     card_text: data.cardText || null,
-    delivery_type: data.deliveryType || 'delivery',
+    delivery_type: data.deliveryType || null,
     pickup_time: data.pickupTime || null,
   };
-
-  console.log('ORDER_INSERT_DATA:', JSON.stringify(insertData, null, 2));
 
   // Generate ID client-side so we can reference it without needing SELECT back
   const orderId = crypto.randomUUID();
@@ -109,7 +109,6 @@ export async function createOrder(data: CreateOrderData) {
     throw orderError;
   }
 
-  console.log('ORDER_CREATED:', orderId);
   const typedOrder = { ...insertWithId, id: orderId, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as Order;
 
   const orderItems = data.items.map((item) => ({
@@ -120,8 +119,6 @@ export async function createOrder(data: CreateOrderData) {
     quantity: item.quantity,
     addons: item.addons || [],
   }));
-
-  console.log('ORDER_ITEMS_DATA:', JSON.stringify(orderItems, null, 2));
 
   const { error: itemsError } = await supabase
     .from('order_items')
