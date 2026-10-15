@@ -11,7 +11,8 @@ import { cn } from '@/lib/utils';
 import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useToast } from '@/hooks/use-toast';
-import { useProduct } from '@/hooks/useProducts';
+import { useProduct, useCompanionProducts, useSimilarProducts } from '@/hooks/useProducts';
+import { ProductRow } from '@/components/ProductRow';
 import { supabase } from '@/integrations/supabase/client';
 import { RichText } from '@/components/RichText';
 import { stripHtml, truncate } from '@/lib/plainText.mjs';
@@ -56,6 +57,8 @@ const Product = () => {
   
   const { data: product, isLoading, error } = useProduct(id);
   const isLiked = product ? isFavorite(product.id) : false;
+  const { data: companions } = useCompanionProducts(product?.id);
+  const { data: similar } = useSimilarProducts(product);
 
   // Fetch addons based on product's category + global addons
   useEffect(() => {
@@ -371,6 +374,9 @@ const Product = () => {
           </div>
 
           <ProductReviews productId={product.id} />
+
+          <ProductRow title="С этим покупают" products={companions} />
+          <ProductRow title="Похожие товары" products={similar} />
         </div>
       </section>
     </PageLayout>

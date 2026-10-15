@@ -44,6 +44,7 @@ export interface Database {
           article: string | null
           size: string | null
           in_stock: boolean
+          is_companion: boolean
           created_at: string
           updated_at: string
         }
@@ -59,6 +60,7 @@ export interface Database {
           article?: string | null
           size?: string | null
           in_stock?: boolean
+          is_companion?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -74,6 +76,7 @@ export interface Database {
           article?: string | null
           size?: string | null
           in_stock?: boolean
+          is_companion?: boolean
           created_at?: string
           updated_at?: string
         }

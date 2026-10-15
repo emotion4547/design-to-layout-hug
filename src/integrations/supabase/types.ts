@@ -386,6 +386,7 @@ export type Database = {
           image_url: string
           images: string[] | null
           in_stock: boolean | null
+          is_companion: boolean
           name: string
           old_price: number | null
           price: number
@@ -402,6 +403,7 @@ export type Database = {
           image_url: string
           images?: string[] | null
           in_stock?: boolean | null
+          is_companion?: boolean
           name: string
           old_price?: number | null
           price: number
@@ -418,6 +420,7 @@ export type Database = {
           image_url?: string
           images?: string[] | null
           in_stock?: boolean | null
+          is_companion?: boolean
           name?: string
           old_price?: number | null
           price?: number

@@ -61,6 +61,7 @@ const AdminProducts = () => {
     article: '',
     size: '',
     in_stock: true,
+    is_companion: false,
   });
 
   const { toast } = useToast();
@@ -123,6 +124,7 @@ const AdminProducts = () => {
       article: '',
       size: '',
       in_stock: true,
+      is_companion: false,
     });
     setEditingProduct(null);
   };
@@ -140,6 +142,7 @@ const AdminProducts = () => {
       article: product.article || '',
       size: product.size || '',
       in_stock: product.in_stock,
+      is_companion: product.is_companion ?? false,
     });
     setIsDialogOpen(true);
   };
@@ -548,6 +551,19 @@ const AdminProducts = () => {
                     onCheckedChange={(checked) => setFormData({ ...formData, in_stock: checked })}
                   />
                   <Label htmlFor="in_stock">В наличии</Label>
+                </div>
+                <div className="col-span-2 flex items-start gap-2">
+                  <Switch
+                    id="is_companion"
+                    checked={!!formData.is_companion}
+                    onCheckedChange={(checked) => setFormData({ ...formData, is_companion: checked })}
+                  />
+                  <div>
+                    <Label htmlFor="is_companion">Показывать в «С этим покупают»</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Десерты, игрушки, шары: товар появится в ряду под описанием на страницах букетов.
+                    </p>
+                  </div>
                 </div>
               </div>
               <div className="flex justify-end gap-2">

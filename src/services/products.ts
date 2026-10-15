@@ -28,6 +28,7 @@ export interface Product {
   article: string | null;
   size: string | null;
   in_stock: boolean;
+  is_companion: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -40,7 +41,8 @@ export interface ProductWithCategory extends Product {
   } | null;
 }
 
-export type ProductInsert = Omit<Product, 'id' | 'created_at' | 'updated_at'> & {
+export type ProductInsert = Omit<Product, 'id' | 'created_at' | 'updated_at' | 'is_companion'> & {
+  is_companion?: boolean;
   id?: string;
   created_at?: string;
   updated_at?: string;
@@ -185,6 +187,46 @@ export async function getProductsByCategory(categoryId: string) {
   }
 
   return data as ProductWithCategory[];
+}
+
+// Товары для ряда «С этим покупают»: позиции, помеченные в админке флагом is_companion
+export async function getCompanionProducts(excludeId: string, limit = 8) {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, categories(id, name, slug)')
+    .eq('is_companion', true)
+    .eq('in_stock', true)
+    .neq('id', excludeId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching companion products:', error);
+    throw error;
+  }
+
+  return data as ProductWithCategory[];
+}
+
+// Похожие товары: та же категория, ближайшие по цене. Берём запас и сортируем на клиенте,
+// потому что PostgREST не умеет сортировать по близости к значению.
+export async function getSimilarProducts(categoryId: string, excludeId: string, price: number, limit = 8) {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, categories(id, name, slug)')
+    .eq('category_id', categoryId)
+    .eq('in_stock', true)
+    .neq('id', excludeId)
+    .limit(60);
+
+  if (error) {
+    console.error('Error fetching similar products:', error);
+    throw error;
+  }
+
+  return (data as ProductWithCategory[])
+    .sort((a, b) => Math.abs(a.price - price) - Math.abs(b.price - price) || a.id.localeCompare(b.id))
+    .slice(0, limit);
 }
 
 // Admin functions

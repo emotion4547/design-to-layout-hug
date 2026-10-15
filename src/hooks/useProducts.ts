@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProducts, getProductById, Product, ProductCategory, ProductWithCategory } from '@/services/products';
+import { getProducts, getProductById, getCompanionProducts, getSimilarProducts, Product, ProductCategory, ProductWithCategory } from '@/services/products';
 
 interface UseProductsOptions {
   categoryId?: string;
@@ -34,6 +34,24 @@ export function useProduct(id: string | undefined) {
     queryKey: ['product', id],
     queryFn: () => getProductById(id!),
     enabled: !!id,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useCompanionProducts(excludeId: string | undefined) {
+  return useQuery({
+    queryKey: ['products', 'companions', excludeId],
+    queryFn: () => getCompanionProducts(excludeId!),
+    enabled: !!excludeId,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useSimilarProducts(product: { id: string; category_id: string | null; price: number } | null | undefined) {
+  return useQuery({
+    queryKey: ['products', 'similar', product?.id],
+    queryFn: () => getSimilarProducts(product!.category_id!, product!.id, product!.price),
+    enabled: !!product?.category_id,
     staleTime: 1000 * 60 * 5,
   });
 }
