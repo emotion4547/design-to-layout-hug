@@ -2,6 +2,7 @@ import { MaxIcon } from '@/components/icons/MaxIcon';
 import { InstagramIcon } from '@/components/icons/InstagramIcon';
 import { Link } from 'react-router-dom';
 import { useAllSettings } from '@/hooks/useSettings';
+import { useCollections } from '@/hooks/useCollections';
 import logoImage from '@/assets/logo.png';
 const VKIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current">
@@ -44,6 +45,7 @@ const legalLinks = [
 export const Footer = () => {
   // Get all settings in one request
   const { data: settings } = useAllSettings();
+  const { data: collections } = useCollections(true);
   const phone = settings?.phone;
   const address = settings?.address;
   const email = settings?.email;
@@ -180,6 +182,21 @@ export const Footer = () => {
                     </Link>
                   ))}
                 </div>
+                {/* Подборки в подвале — ссылка на каждую посадочную страницу
+                    с любой страницы сайта. */}
+                {collections && collections.length > 0 && (
+                  <nav aria-label="Подборки" className="space-y-2">
+                    {collections.map((c) => (
+                      <Link
+                        key={c.id}
+                        to={`/collection/${c.slug}`}
+                        className="block text-white/80 hover:text-white transition-colors"
+                      >
+                        {c.name}
+                      </Link>
+                    ))}
+                  </nav>
+                )}
               </div>
 
               {/* Legal Links */}

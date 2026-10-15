@@ -162,8 +162,8 @@ writeFileSync(join(DIST, 'fallback.html'), fallbackHtml, 'utf-8');
 
 const [products, collections, news, promotions, categories] = await Promise.all([
   fromApi('products?select=id,name,description,price,image_url&in_stock=eq.true&limit=1000'),
-  fromApi('collections?select=slug,name,description,collection_products(count)&limit=200'),
-  fromApi('news?select=id,slug,title,excerpt&limit=200'),
+  fromApi('collections?select=slug,name,description,seo_title,seo_description,collection_products(count)&limit=200'),
+  fromApi('news?select=id,slug,title,excerpt,image_url&is_published=eq.true&limit=200'),
   fromApi('promotions?select=id,slug,title,description&limit=200'),
   fromApi('categories?select=slug,name,description,is_active&limit=200'),
 ]);
@@ -193,8 +193,10 @@ const routes = [
     const count = c.collection_products?.[0]?.count ?? 0;
     return {
       url: `/collection/${c.slug}`,
-      title: c.name,
-      description: c.description || `${c.name}: подборка букетов с доставкой по Новороссийску от 1 часа.`,
+      // seo_* задаёт страницу под запрос; без них — прежнее поведение. Описание
+      // чистим от разметки: раньше теги из поля description попадали в мета-тег.
+      title: c.seo_title || c.name,
+      description: c.seo_description || stripHtml(c.description) || `${c.name}: подборка букетов с доставкой по Новороссийску.`,
       priority: '0.8',
       noindex: count === 0,
       empty: count === 0,
@@ -204,6 +206,8 @@ const routes = [
     url: `/news/${n.slug ?? n.id}`,
     title: n.title,
     description: n.excerpt || `${n.title} — новости магазина «Везу букет».`,
+    // Обложка статьи — картинка для превью ссылки в соцсетях и мессенджерах.
+    image: n.image_url || undefined,
     priority: '0.5',
   })),
   // Страницы категорий: постоянные адреса под запросы вида

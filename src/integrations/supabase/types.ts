@@ -141,6 +141,9 @@ export type Database = {
           image_url: string | null
           is_active: boolean | null
           name: string
+          seo_description: string | null
+          seo_text: string | null
+          seo_title: string | null
           slug: string
           sort_order: number | null
           updated_at: string | null
@@ -152,6 +155,9 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           name: string
+          seo_description?: string | null
+          seo_text?: string | null
+          seo_title?: string | null
           slug: string
           sort_order?: number | null
           updated_at?: string | null
@@ -163,6 +169,9 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           name?: string
+          seo_description?: string | null
+          seo_text?: string | null
+          seo_title?: string | null
           slug?: string
           sort_order?: number | null
           updated_at?: string | null

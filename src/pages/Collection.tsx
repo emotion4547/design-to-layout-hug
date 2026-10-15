@@ -6,7 +6,8 @@ import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { useCollection, useCollectionProducts } from '@/hooks/useCollections';
+import { useCollection, useCollectionProducts, useCollections } from '@/hooks/useCollections';
+import { stripHtml } from '@/lib/plainText.mjs';
 import { SEO, BreadcrumbSchema } from '@/components/SEO';
 
 // Fallback images
@@ -14,10 +15,12 @@ import bouquet1 from '@/assets/products/bouquet-1.webp';
 
 const CollectionPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [visibleCount, setVisibleCount] = useState(12);
+  const [visibleCount, setVisibleCount] = useState(24);
 
   const { data: collection, isLoading: collectionLoading } = useCollection(slug || '');
   const { data: collectionProducts, isLoading: productsLoading } = useCollectionProducts(collection?.id || '');
+  const { data: allCollections } = useCollections(true);
+  const otherCollections = (allCollections ?? []).filter((c) => c.slug !== slug);
 
   const products = useMemo(() => {
     if (!collectionProducts) return [];
@@ -74,9 +77,15 @@ const CollectionPage = () => {
 
   return (
     <PageLayout>
+      {/* seo_title и seo_description — заголовок и описание для выдачи: у страницы
+          под запрос они отличаются от H1 и от текста над товарами. */}
       <SEO
-        title={collection.name}
-        description={collection.description || `Коллекция ${collection.name} в магазине Везу букет`}
+        title={collection.seo_title || collection.name}
+        description={
+          collection.seo_description ||
+          stripHtml(collection.description) ||
+          `Коллекция ${collection.name} в магазине Везу букет`
+        }
         image={collection.image_url || undefined}
         url={`/collection/${collection.slug}`}
       />
@@ -149,7 +158,7 @@ const CollectionPage = () => {
                 <div className="flex justify-center mt-12">
                   <Button 
                     variant="outline" 
-                    onClick={() => setVisibleCount(prev => prev + 8)}
+                    onClick={() => setVisibleCount(prev => prev + 12)}
                     className="px-8"
                   >
                     Загрузить ещё
@@ -160,6 +169,42 @@ const CollectionPage = () => {
           )}
         </div>
       </section>
+
+      {/* Текст под товарами: отвечает на вопросы покупателя и даёт странице
+          содержание, по которому её можно найти. Выводится через RichText —
+          он пропускает только разрешённые теги и проверяет адреса ссылок. */}
+      {collection.seo_text && (
+        <section className="pb-8 md:pb-12">
+          <div className="container">
+            <RichText
+              html={collection.seo_text}
+              className="max-w-3xl leading-relaxed text-foreground/90 [&_h2]:text-2xl [&_h2]:md:text-3xl [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-3 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-2 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-4 [&_li]:mb-1.5 [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2"
+            />
+          </div>
+        </section>
+      )}
+
+      {/* Другие подборки: ссылки между посадочными страницами помогают и
+          покупателю, и поисковику добраться до каждой из них. */}
+      {otherCollections.length > 0 && (
+        <section className="pb-12 md:pb-16">
+          <div className="container">
+            <h2 className="text-xl md:text-2xl font-bold mb-4">Другие подборки</h2>
+            <ul className="flex flex-wrap gap-2">
+              {otherCollections.map((c) => (
+                <li key={c.id}>
+                  <Link
+                    to={`/collection/${c.slug}`}
+                    className="inline-block px-4 py-2 rounded-full border border-border text-sm hover:border-primary/50 transition-colors"
+                  >
+                    {c.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
     </PageLayout>
   );
 };

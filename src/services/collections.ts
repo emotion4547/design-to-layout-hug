@@ -5,6 +5,9 @@ export interface Collection {
   name: string;
   slug: string;
   description: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  seo_text: string | null;
   image_url: string | null;
   is_active: boolean | null;
   sort_order: number | null;
@@ -73,7 +76,12 @@ export const getCollectionProductIds = async (collectionSlug: string): Promise<s
   return data?.map(cp => cp.product_id) || [];
 };
 
-export const createCollection = async (collection: Omit<Collection, 'id' | 'created_at' | 'updated_at'>): Promise<Collection> => {
+// seo_* необязательны: админка заводит подборку без них, тексты для поисковика
+// добавляются отдельно.
+type NewCollection = Omit<Collection, 'id' | 'created_at' | 'updated_at' | 'seo_title' | 'seo_description' | 'seo_text'> &
+  Partial<Pick<Collection, 'seo_title' | 'seo_description' | 'seo_text'>>;
+
+export const createCollection = async (collection: NewCollection): Promise<Collection> => {
   const { data, error } = await supabase
     .from('collections')
     .insert(collection)

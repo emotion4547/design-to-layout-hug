@@ -52,6 +52,18 @@ const fallbackImages: Record<string, string> = {
 const MIN_PRICE = 0;
 const MAX_PRICE = 50000;
 
+/**
+ * Ценовые сегменты — готовые диапазоны цены, чтобы не двигать ползунок.
+ * Это пресеты поверх обычного фильтра цены: клик ставит диапазон, а ползунок и
+ * поля ниже показывают его и позволяют подправить. Границы включают оба конца,
+ * как они сформулированы в названиях: «до 3 000», «3 000–7 000», «более 7 000».
+ */
+const PRICE_SEGMENTS = [
+  { id: 'compliment', title: 'Комплимент', hint: 'до 3 000 ₽', range: [MIN_PRICE, 3000] },
+  { id: 'occasion', title: 'Особый повод', hint: '3 000–7 000 ₽', range: [3000, 7000] },
+  { id: 'luxury', title: 'Роскошный подарок', hint: 'более 7 000 ₽', range: [7000, MAX_PRICE] },
+] as const;
+
 const Catalog = () => {
   const [searchParams] = useSearchParams();
   // Страница категории — тот же каталог, но с постоянным адресом вида
@@ -133,6 +145,11 @@ const Catalog = () => {
   const visibleProducts = mappedProducts.slice(0, visibleCount);
   const hasMore = visibleCount < mappedProducts.length;
 
+  // Сегмент считается выбранным, пока диапазон цены в точности совпадает с его границами.
+  const activeSegment = PRICE_SEGMENTS.find(
+    (seg) => seg.range[0] === priceRange[0] && seg.range[1] === priceRange[1],
+  );
+
   const hasActiveFilters = priceRange[0] !== MIN_PRICE || priceRange[1] !== MAX_PRICE || sortBy !== 'default' || !inStockOnly || withDiscountOnly;
 
   const resetFilters = () => {
@@ -144,6 +161,33 @@ const Catalog = () => {
 
   const FiltersContent = () => (
     <div className="space-y-6">
+      {/* Ценовой сегмент */}
+      <div className="space-y-3">
+        <h3 className="font-medium">Ценовой сегмент</h3>
+        <div className="space-y-2" role="group" aria-label="Ценовой сегмент">
+          {PRICE_SEGMENTS.map((seg) => {
+            const selected = activeSegment?.id === seg.id;
+            return (
+              <button
+                key={seg.id}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => setPriceRange(selected ? [MIN_PRICE, MAX_PRICE] : [seg.range[0], seg.range[1]])}
+                className={cn(
+                  'w-full flex flex-col items-start gap-0.5 px-4 py-2.5 rounded-lg border text-left text-sm transition-colors',
+                  selected
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-background border-border hover:border-primary/50',
+                )}
+              >
+                <span className="font-medium">{seg.title}</span>
+                <span className={cn('text-xs', selected ? 'opacity-90' : 'text-muted-foreground')}>{seg.hint}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Price Range */}
       <div className="space-y-4">
         <h3 className="font-medium">Цена, ₽</h3>
@@ -376,7 +420,9 @@ const Catalog = () => {
               ))}
               {(priceRange[0] !== MIN_PRICE || priceRange[1] !== MAX_PRICE) && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
-                  {formatPrice(priceRange[0])} — {formatPrice(priceRange[1])} ₽
+                  {activeSegment
+                    ? `${activeSegment.title}: ${activeSegment.hint}`
+                    : `${formatPrice(priceRange[0])} — ${formatPrice(priceRange[1])} ₽`}
                   <button onClick={() => setPriceRange([MIN_PRICE, MAX_PRICE])} className="ml-1 hover:text-primary">
                     <X className="h-3 w-3" />
                   </button>
