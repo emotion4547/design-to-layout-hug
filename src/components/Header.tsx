@@ -105,16 +105,16 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full py-4">
+    <header className="sticky top-0 z-50 w-full py-2 sm:py-4">
       <div className="container">
         {/* Main header bar with rounded corners */}
-        <nav className="bg-primary rounded-full px-6 py-3 flex items-center justify-between">
+        <nav className="bg-primary rounded-full px-3 py-2 sm:px-6 sm:py-3 flex items-center justify-between">
           {/* Logo Section */}
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logoImage} alt="Везу букет" width={256} height={256} className="h-12 w-12 rounded-full object-cover" />
+          <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
+            <img src={logoImage} alt="Везу букет" width={256} height={256} className="h-9 w-9 sm:h-12 sm:w-12 rounded-full object-cover" />
             <div className="text-white">
-              <span className="text-xl font-bold tracking-wide font-['Playfair_Display']">Везу букет</span>
-              <p className="text-xs text-white/70 -mt-0.5 font-['Cormorant_Garamond'] italic">с любовью в каждом букете</p>
+              <span className="hidden min-[360px]:inline whitespace-nowrap text-base sm:text-xl font-bold tracking-wide font-['Playfair_Display']">Везу букет</span>
+              <p className="hidden sm:block text-xs text-white/70 -mt-0.5 font-['Cormorant_Garamond'] italic">с любовью в каждом букете</p>
             </div>
           </Link>
 
@@ -280,7 +280,7 @@ export const Header = () => {
           </div>
 
           {/* Mobile Action Icons + Menu Button */}
-          <div className="lg:hidden flex items-center gap-1">
+          <div className="lg:hidden flex items-center gap-0 sm:gap-1">
             <Link to="/favorites" aria-label="Избранное" className="relative p-2 text-white/90 hover:text-white">
               <Heart className="h-5 w-5" />
               {totalFavorites > 0 && (
