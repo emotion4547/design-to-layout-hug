@@ -50,6 +50,9 @@ const Product = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [addons, setAddons] = useState<CategoryAddon[]>([]);
+  // На телефоне описание свёрнуто: оно длинное и раньше отодвигало цену
+  // и кнопку «В корзину» на два экрана вниз.
+  const [descExpanded, setDescExpanded] = useState(false);
   
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -175,6 +178,11 @@ const Product = () => {
     });
   };
 
+  const descriptionLength = stripHtml(product.description).length;
+  const hasDescription = descriptionLength > 0;
+  const isLongDescription = descriptionLength > 220;
+  const descCollapsed = isLongDescription && !descExpanded;
+
   const handleToggleFavorite = () => {
     toggleFavorite({
       id: product.id,
@@ -216,10 +224,10 @@ const Product = () => {
         { name: 'Каталог', url: '/catalog' },
         { name: product.name, url: `/catalog/${product.id}` },
       ]} />
-      <section className="py-8 md:py-12">
+      <section className="py-4 md:py-12">
         <div className="container">
           {/* Breadcrumb */}
-          <nav className="text-sm text-muted-foreground mb-6" aria-label="Хлебные крошки">
+          <nav className="text-sm text-muted-foreground mb-4 md:mb-6 truncate" aria-label="Хлебные крошки">
             <Link to="/" className="hover:text-foreground">Главная</Link>
             <span className="mx-2">/</span>
             <Link to="/catalog" className="hover:text-foreground">Каталог</Link>
@@ -227,7 +235,7 @@ const Product = () => {
             <span className="text-foreground">{product.name}</span>
           </nav>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-12">
             {/* Image Gallery */}
             <div className="space-y-4">
               {/* Main Image */}
@@ -281,27 +289,65 @@ const Product = () => {
               )}
             </div>
 
-            {/* Product Info */}
-            <div className="space-y-6">
+            {/* Product Info.
+                Порядок блоков на телефоне и на большом экране разный, а разметка
+                одна: описание стоит в коде сразу за названием (так оно и
+                показывается на компьютере), а на телефоне order-last уводит
+                его в самый низ, под цену и кнопку. */}
+            <div className="flex flex-col gap-5 lg:gap-6">
               <div>
                 {product.article && (
-                  <p className="text-sm text-muted-foreground mb-2">Арт: {product.article}</p>
+                  <p className="text-sm text-muted-foreground mb-1 lg:mb-2">Арт: {product.article}</p>
                 )}
-                <h1 className="text-2xl md:text-3xl font-bold mb-2">{product.name}</h1>
-                <RichText
-                  html={product.description}
-                  className="text-muted-foreground space-y-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:text-foreground"
-                />
+                <h1 className="text-2xl md:text-3xl font-bold">{product.name}</h1>
               </div>
 
-              {/* Price */}
-              <div className="flex items-baseline gap-3">
-                <span className="text-3xl font-bold">{formatPrice(product.price)} ₽</span>
-                {product.old_price && (
-                  <span className="text-lg text-muted-foreground line-through">
-                    {formatPrice(product.old_price)} ₽
-                  </span>
-                )}
+              {hasDescription && (
+                <div className="order-last lg:order-none lg:-mt-4">
+                  <p className="font-medium mb-2 lg:hidden">Описание</p>
+                  <div
+                    className={cn(
+                      "relative",
+                      descCollapsed && "max-h-28 overflow-hidden lg:max-h-none lg:overflow-visible"
+                    )}
+                  >
+                    <RichText
+                      html={product.description}
+                      className="text-muted-foreground space-y-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:text-foreground"
+                    />
+                    {descCollapsed && (
+                      <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-background to-transparent lg:hidden" />
+                    )}
+                  </div>
+                  {isLongDescription && (
+                    <button
+                      type="button"
+                      onClick={() => setDescExpanded((v) => !v)}
+                      aria-expanded={descExpanded}
+                      className="lg:hidden mt-2 text-sm font-medium text-primary underline underline-offset-2"
+                    >
+                      {descExpanded ? 'Свернуть' : 'Читать полностью'}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Price. На телефоне кнопка стоит прямо в строке с ценой —
+                  сразу под фото, без прокрутки. На большом экране хватает
+                  кнопки внизу блока, она и так видна. */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-baseline flex-wrap gap-x-3">
+                  <span className="text-3xl font-bold">{formatPrice(product.price)} ₽</span>
+                  {product.old_price && (
+                    <span className="text-lg text-muted-foreground line-through">
+                      {formatPrice(product.old_price)} ₽
+                    </span>
+                  )}
+                </div>
+                <Button size="lg" className="lg:hidden gap-2 shrink-0" onClick={handleAddToCart}>
+                  <ShoppingBag className="h-5 w-5" />
+                  В корзину
+                </Button>
               </div>
 
               {/* Size */}
@@ -361,8 +407,16 @@ const Product = () => {
                   </div>
                 </div>
 
-                {/* Total & Add to Cart */}
-                <div className="flex items-center gap-4">
+                {/* Total & Add to Cart.
+                    На телефоне кнопка уже есть в строке с ценой. Вторая нужна
+                    только когда итог отличается от цены: выбраны допы или
+                    больше одной штуки — иначе две одинаковые кнопки подряд. */}
+                <div
+                  className={cn(
+                    "flex items-center gap-4",
+                    addons.length === 0 && quantity === 1 && "hidden lg:flex"
+                  )}
+                >
                   <Button size="lg" className="flex-1 gap-2" onClick={handleAddToCart}>
                     <ShoppingBag className="h-5 w-5" />
                     Добавить в корзину

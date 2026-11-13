@@ -2,9 +2,13 @@ import { stripHtml } from '@/lib/plainText.mjs';
 import { productImage, productSrcSet } from '@/lib/productImage';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Eye } from 'lucide-react';
+import { Heart, Eye, ShoppingBag, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { reachGoal, GOALS } from '@/lib/metrika';
+import { Button } from '@/components/ui/button';
+import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
+import { useToast } from '@/hooks/use-toast';
 import { QuickViewModal } from '@/components/QuickViewModal';
 
 interface ProductCardProps {
@@ -20,6 +24,9 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
   const { isFavorite, toggleFavorite } = useFavorites();
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const isLiked = isFavorite(id);
+  const { items, addToCart } = useCart();
+  const { toast } = useToast();
+  const inCart = items.some((item) => item.id === id);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ru-RU').format(price);
@@ -31,6 +38,14 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
     toggleFavorite({ id, name, description, price, oldPrice, image });
   };
 
+  // Раньше положить букет в корзину можно было только со страницы товара:
+  // из сетки каталога до покупки было минимум два перехода.
+  const handleAddToCart = () => {
+    reachGoal(GOALS.addToCart, { product_id: id, price });
+    addToCart({ id, name, price, image });
+    toast({ title: 'Добавлено в корзину', description: name });
+  };
+
   const handleQuickView = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -39,7 +54,7 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
 
   return (
     <>
-      <article className="group animate-fade-in">
+      <article className="group animate-fade-in flex flex-col h-full">
         {/* Image Container */}
         <Link to={`/catalog/${id}`} className="block relative aspect-[3/4] overflow-hidden bg-secondary rounded-2xl mb-4">
           <img
@@ -110,6 +125,24 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
             {stripHtml(description)}
           </p>
         </Link>
+
+        {/* mt-auto прижимает кнопку к низу: в ряду сетки кнопки стоят на одной
+            линии, даже когда названия разной длины. */}
+        <div className="mt-auto pt-3">
+          {inCart ? (
+            <Button asChild variant="outline" size="sm" className="w-full gap-1.5">
+              <Link to="/cart">
+                <Check className="h-4 w-4" />
+                Оформить
+              </Link>
+            </Button>
+          ) : (
+            <Button size="sm" className="w-full gap-1.5" onClick={handleAddToCart}>
+              <ShoppingBag className="h-4 w-4" />
+              В корзину
+            </Button>
+          )}
+        </div>
       </article>
 
       {/* Quick View Modal */}

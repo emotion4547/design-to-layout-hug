@@ -309,16 +309,16 @@ const Catalog = () => {
             ]
       } />
       {/* Page Header */}
-      <section className="py-8 md:py-12 bg-background">
+      <section className="pt-5 pb-4 md:py-12 bg-background">
         <div className="container">
           {/* Breadcrumb */}
-          <nav className="text-sm text-muted-foreground mb-6" aria-label="Хлебные крошки">
+          <nav className="text-sm text-muted-foreground mb-3 md:mb-6" aria-label="Хлебные крошки">
             <span>Главная</span>
             <span className="mx-2">/</span>
             <span className="text-foreground">Каталог</span>
           </nav>
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4">
             {routeCategory ? routeCategory.name : 'Каталог'}
           </h1>
 
@@ -335,7 +335,10 @@ const Catalog = () => {
           )}
 
           {/* Search & Sort & Filter Toggle */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          {/* На телефоне здесь одна строка: поиск и кнопка фильтров. Сортировка
+              переехала в строку «Найдено…» над сеткой — три строки подряд
+              отодвигали первый букет за край экрана. */}
+          <div className="flex gap-3">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
@@ -357,7 +360,7 @@ const Catalog = () => {
             
             {/* Sorting Select */}
             <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
-              <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectTrigger className="hidden sm:flex sm:w-[200px]">
                 <ArrowUpDown className="h-4 w-4 mr-2 text-muted-foreground" />
                 <SelectValue placeholder="Сортировка" />
               </SelectTrigger>
@@ -460,18 +463,24 @@ const Catalog = () => {
       {/* Main Content */}
       <section className="pb-16 md:pb-20">
         <div className="container">
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
             {/* Sidebar - Categories & Filters (Desktop) */}
-            <aside className="lg:w-64 shrink-0">
-              {/* Categories */}
+            <aside className="lg:w-64 shrink-0 min-w-0">
+              {/* Categories.
+                  На телефоне — одна строка с прокруткой вбок, на большом экране —
+                  прежний столбец. Столбцом на телефоне категории занимали
+                  пол-экрана, и букеты начинались только после прокрутки. */}
               {categoriesLoading ? (
-                <div className="space-y-2">
+                <div className="flex gap-2 overflow-hidden lg:block lg:space-y-2">
                   {[...Array(8)].map((_, i) => (
-                    <Skeleton key={i} className="h-10 w-full rounded-lg" />
+                    <Skeleton key={i} className="h-9 w-28 shrink-0 rounded-full lg:h-10 lg:w-full lg:rounded-lg" />
                   ))}
                 </div>
               ) : (
-                <nav className="space-y-1 mb-8">
+                <nav
+                  aria-label="Категории"
+                  className="flex gap-2 overflow-x-auto -mx-6 px-6 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:block lg:space-y-1 lg:mx-0 lg:px-0 lg:pb-0 lg:mb-8 lg:overflow-visible"
+                >
                   {categories.map((category) => {
                     const isActive = category.id === 'all' 
                       ? activeCategories.includes('all') || activeCategories.length === 0
@@ -497,15 +506,16 @@ const Catalog = () => {
                           setVisibleCount(12);
                         }}
                         className={cn(
-                          "w-full text-left px-4 py-2.5 rounded-lg text-sm transition-colors flex items-center gap-2",
+                          "shrink-0 whitespace-nowrap text-left px-3.5 py-2 rounded-full border text-sm transition-colors flex items-center gap-2",
+                          "lg:w-full lg:whitespace-normal lg:px-4 lg:py-2.5 lg:rounded-lg lg:border-0",
                           isActive
-                            ? "bg-primary text-primary-foreground font-medium"
-                            : "text-foreground/80 hover:bg-secondary"
+                            ? "bg-primary text-primary-foreground font-medium border-primary"
+                            : "text-foreground/80 hover:bg-secondary border-border"
                         )}
                       >
                         {category.id !== 'all' && (
                           <span className={cn(
-                            "w-4 h-4 rounded border flex items-center justify-center",
+                            "w-4 h-4 rounded border hidden lg:flex items-center justify-center",
                             isActive ? "bg-primary-foreground border-primary-foreground" : "border-current"
                           )}>
                             {isActive && <Check className="h-3 w-3 text-primary" />}
@@ -536,10 +546,29 @@ const Catalog = () => {
 
             {/* Products Grid */}
             <div className="flex-1">
-              {/* Results count */}
-              <p className="text-sm text-muted-foreground mb-4">
-                {isLoading ? 'Загрузка...' : `Найдено: ${mappedProducts.length} товаров`}
-              </p>
+              {/* Results count + сортировка для телефона */}
+              <div className="flex items-center justify-between gap-3 mb-3 sm:mb-4">
+                <p className="text-sm text-muted-foreground whitespace-nowrap">
+                  {isLoading ? 'Загрузка...' : (
+                    <>
+                      <span className="hidden sm:inline">Найдено: </span>
+                      {mappedProducts.length} товаров
+                    </>
+                  )}
+                </p>
+                <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
+                  <SelectTrigger className="sm:hidden h-9 w-auto shrink-0 gap-1.5 px-3 text-sm" aria-label="Сортировка">
+                    <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+                    <SelectValue placeholder="Сортировка" />
+                  </SelectTrigger>
+                  <SelectContent align="end">
+                    <SelectItem value="default">По популярности</SelectItem>
+                    <SelectItem value="newest">По новизне</SelectItem>
+                    <SelectItem value="price-asc">Сначала дешевые</SelectItem>
+                    <SelectItem value="price-desc">Сначала дорогие</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
               {isLoading ? (
                 <div className="flex items-center justify-center py-20">
