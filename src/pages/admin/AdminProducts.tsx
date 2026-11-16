@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as XLSX from 'xlsx';
 import { parseProductRows } from '@/lib/productImport';
+import { canHaveVariants, hasVariants, makeVariants, makeVariantsQuietly } from '@/lib/imageVariants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -30,7 +31,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Pencil, Trash2, Loader2, Search, Download, Upload, FileCode2, Copy } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, Search, Download, Upload, FileCode2, Copy, ImageDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { MultiImageUpload } from '@/components/MultiImageUpload';
 import { useCategories } from '@/hooks/useCategories';
@@ -49,6 +50,8 @@ const AdminProducts = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  // Ход пакетного создания облегчённых копий: «12 / 64» на кнопке.
+  const [variantsProgress, setVariantsProgress] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<Partial<ProductInsert> & { images?: string[]; category_id?: string }>({
     name: '',
@@ -233,6 +236,54 @@ const AdminProducts = () => {
     }
   };
 
+  /**
+   * Создаёт облегчённые копии для всех фото, у которых их ещё нет.
+   * Нужна для товаров, заведённых до того, как админка научилась делать копии
+   * сама. Повторный запуск безопасен: готовые копии не пересоздаются.
+   */
+  const handleMakeVariants = async () => {
+    const urls = Array.from(
+      new Set(
+        (products ?? []).flatMap((p) => [p.image_url, ...(p.images ?? [])]).filter(canHaveVariants),
+      ),
+    );
+    let done = 0;
+    let made = 0;
+    let failed = 0;
+    let lastError = '';
+    setVariantsProgress(`0 / ${urls.length}`);
+    try {
+      for (const url of urls) {
+        if (!(await hasVariants(url))) {
+          try {
+            await makeVariants(url);
+            made++;
+          } catch (e) {
+            failed++;
+            lastError = e instanceof Error ? e.message : String(e);
+            // Браузер без webp не справится ни с одной картинкой — дальше идти незачем.
+            if (lastError.includes('webp')) break;
+          }
+        }
+        done++;
+        setVariantsProgress(`${done} / ${urls.length}`);
+      }
+    } finally {
+      setVariantsProgress(null);
+    }
+    toast({
+      title: failed ? 'Копии фото созданы не все' : 'Облегчённые копии фото готовы',
+      description: [
+        `проверено фото: ${done}`,
+        `создано копий: ${made}`,
+        failed ? `ошибок: ${failed} (${lastError})` : '',
+      ]
+        .filter(Boolean)
+        .join(', '),
+      variant: failed ? 'destructive' : undefined,
+    });
+  };
+
   // Import products from Excel
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -271,6 +322,7 @@ const AdminProducts = () => {
       let errors = 0;
       const newCategories: string[] = [];
       let rehosted = 0;
+      let lightened = 0;
 
       // Справочник категорий по имени — чтобы не перебирать список на каждой строке.
       const byName = new Map(
@@ -349,6 +401,11 @@ const AdminProducts = () => {
                 .eq('id', productId);
               rehosted++;
             }
+
+            // Облегчённые копии — после переноса: их делают из файла в нашем хранилище.
+            for (const u of [mainUrl, ...gallery]) {
+              if (canHaveVariants(u) && (await makeVariantsQuietly(u))) lightened++;
+            }
           }
         } catch (err) {
           console.error('Error importing product:', err);
@@ -363,6 +420,7 @@ const AdminProducts = () => {
       if (skipped.length) parts.push(`пропущено строк: ${skipped.length}`);
       if (newCategories.length) parts.push(`новых категорий: ${newCategories.join(', ')}`);
       if (rehosted) parts.push(`картинок перенесено: ${rehosted}`);
+      if (lightened) parts.push(`облегчённых копий: ${lightened}`);
 
       // Тихо потерянные строки — худший исход импорта, пишем их в консоль.
       if (skipped.length) console.warn('Пропущенные строки:', skipped);
@@ -414,6 +472,21 @@ const AdminProducts = () => {
           >
             <Copy className="h-4 w-4 mr-2" />
             Ссылка на фид
+          </Button>
+
+          {/* Облегчённые копии фото для каталога */}
+          <Button
+            variant="outline"
+            onClick={handleMakeVariants}
+            disabled={!!variantsProgress || !products?.length}
+            title="Создаёт уменьшенные копии фото, чтобы каталог быстро грузился на телефоне"
+          >
+            {variantsProgress ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <ImageDown className="h-4 w-4 mr-2" />
+            )}
+            {variantsProgress ? `Фото: ${variantsProgress}` : 'Облегчить фото'}
           </Button>
 
           {/* Import Button */}

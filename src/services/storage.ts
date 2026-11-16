@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { makeVariantsQuietly } from '@/lib/imageVariants';
 
 export async function uploadImage(
   file: File, 
@@ -24,6 +25,10 @@ export async function uploadImage(
   const { data: publicUrl } = supabase.storage
     .from(bucket)
     .getPublicUrl(data.path);
+
+  // Сразу делаем облегчённые копии: без них каталог отдаёт телефону
+  // исходник в сотни килобайт. Неудача копий не должна ронять загрузку.
+  await makeVariantsQuietly(publicUrl.publicUrl);
 
   return publicUrl.publicUrl;
 }
