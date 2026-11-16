@@ -41,3 +41,22 @@ export function productSrcSet(url: string | null | undefined): string | undefine
   if (!hasVariants(url)) return undefined;
   return WIDTHS.map((w) => `${variant(url, w)} ${w}w`).join(', ');
 }
+
+/**
+ * Запасной путь, если облегчённой версии нет.
+ *
+ * Варианты на 400 и 800 пикселей делает не импорт, а отдельный скрипт
+ * пережатия. Товары, загруженные из Excel после его прогона, остаются только
+ * с исходником, и карточка показывала пустую рамку с подписью вместо фото.
+ * Обработчик ловит ошибку загрузки и переключает картинку на исходный файл:
+ * он тяжелее, но лучше тяжёлое фото, чем никакого.
+ */
+export function fallbackToOriginal(url: string | null | undefined) {
+  return (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    if (!url || img.dataset.fallback) return;
+    img.dataset.fallback = '1';
+    img.removeAttribute('srcset');
+    img.src = url;
+  };
+}

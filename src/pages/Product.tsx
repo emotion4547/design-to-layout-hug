@@ -1,7 +1,7 @@
 import { reachGoal, GOALS } from '@/lib/metrika';
 import { ProductReviews } from '@/components/ProductReviews';
 import { useProductReviews } from '@/hooks/useReviews';
-import { productImage, productSrcSet } from '@/lib/productImage';
+import { productImage, productSrcSet, fallbackToOriginal } from '@/lib/productImage';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { PageLayout } from '@/components/PageLayout';
@@ -243,6 +243,10 @@ const Product = () => {
                 <img
                   src={productImage(productImages[selectedImage], 800)}
                   srcSet={productSrcSet(productImages[selectedImage])}
+                  onError={fallbackToOriginal(productImages[selectedImage])}
+                  // Без key при смене фото браузер переиспользует тот же <img>,
+                  // и метка «уже переключён на исходник» осталась бы от прошлого.
+                  key={productImages[selectedImage]}
                   sizes="(max-width: 1024px) 100vw, 600px"
                   alt={product.name}
                   fetchPriority="high"
@@ -278,6 +282,7 @@ const Product = () => {
                     >
                       <img
                         src={productImage(image, 400)}
+                        onError={fallbackToOriginal(image)}
                         alt={`${product.name} — фото ${index + 1}`}
                         loading="lazy"
                         decoding="async"

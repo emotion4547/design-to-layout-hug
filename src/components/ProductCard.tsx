@@ -1,5 +1,5 @@
 import { stripHtml } from '@/lib/plainText.mjs';
-import { productImage, productSrcSet } from '@/lib/productImage';
+import { productImage, productSrcSet, fallbackToOriginal } from '@/lib/productImage';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Eye, ShoppingBag, Check } from 'lucide-react';
@@ -60,6 +60,7 @@ export const ProductCard = ({ id, name, description, price, oldPrice, image }: P
           <img
             src={productImage(image, 400)}
             srcSet={productSrcSet(image)}
+            onError={fallbackToOriginal(image)}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 300px"
             alt={name}
             loading="lazy"
