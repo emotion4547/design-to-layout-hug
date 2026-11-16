@@ -27,6 +27,16 @@ import { useCategories } from '@/hooks/useCategories';
 import { useProductCounts } from '@/hooks/useProductCounts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SEO, BreadcrumbSchema } from '@/components/SEO';
+import {
+  tagBouquet,
+  roseBucket,
+  FLOWER_RULES,
+  COLOR_RULES,
+  ROSE_COUNT_OPTIONS,
+  type BouquetTags,
+} from '@/lib/bouquetTags';
+
+type TagKey = 'flower' | 'color' | 'roses';
 
 // Fallback images for products without image_url
 import bouquet1 from '@/assets/products/bouquet-1.webp';
@@ -65,7 +75,7 @@ const PRICE_SEGMENTS = [
 ] as const;
 
 const Catalog = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   // Страница категории — тот же каталог, но с постоянным адресом вида
   // /category/bukety: его можно продвигать под запрос «купить букет
   // в Новороссийске», а фильтр ?category= поисковик не индексирует.
@@ -81,6 +91,32 @@ const Catalog = () => {
   const [inStockOnly, setInStockOnly] = useState(true);
   const [withDiscountOnly, setWithDiscountOnly] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // Фильтры по составу и цвету живут прямо в адресе страницы
+  // (/catalog?flower=roses&color=red): на такой адрес можно вести рекламу
+  // и делиться им — человек сразу видит нужную подборку.
+  const readTag = (key: TagKey, allowed: { id: string }[]) => {
+    const v = searchParams.get(key);
+    return v && allowed.some((o) => o.id === v) ? v : null;
+  };
+  const flower = readTag('flower', FLOWER_RULES);
+  const color = readTag('color', COLOR_RULES);
+  const roses = readTag('roses', ROSE_COUNT_OPTIONS);
+
+  const setTag = (key: TagKey, value: string | null) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (value) next.set(key, value);
+        else next.delete(key);
+        return next;
+      },
+      { replace: true },
+    );
+    setVisibleCount(12);
+  };
+  const toggleTag = (key: TagKey, current: string | null, value: string) =>
+    setTag(key, current === value ? null : value);
 
   // Fetch categories from database
   const { data: dbCategories = [], isLoading: categoriesLoading } = useCategories({ activeOnly: true });
@@ -142,25 +178,97 @@ const Catalog = () => {
     }));
   }, [products]);
 
-  const visibleProducts = mappedProducts.slice(0, visibleCount);
-  const hasMore = visibleCount < mappedProducts.length;
+  // Метки считаются из названия и описания — см. src/lib/bouquetTags.ts.
+  const taggedProducts = useMemo(
+    () => mappedProducts.map((product) => ({ ...product, tags: tagBouquet(product) })),
+    [mappedProducts],
+  );
+
+  // Товар проходит все фильтры по меткам, кроме, возможно, одного: так для
+  // каждого варианта считается, сколько товаров останется, если его выбрать.
+  const passes = (tags: BouquetTags, skip?: TagKey) =>
+    (skip === 'flower' || !flower || tags.flowers.includes(flower)) &&
+    (skip === 'color' || !color || tags.colors.includes(color)) &&
+    (skip === 'roses' || !roses || roseBucket(tags.roseCount) === roses);
+
+  const filteredProducts = taggedProducts.filter((p) => passes(p.tags));
+
+  const countWhere = (skip: TagKey, test: (tags: BouquetTags) => boolean) =>
+    taggedProducts.reduce((n, p) => n + (passes(p.tags, skip) && test(p.tags) ? 1 : 0), 0);
+
+  const flowerOptions = FLOWER_RULES.map((o) => ({
+    ...o,
+    count: countWhere('flower', (t) => t.flowers.includes(o.id)),
+  }));
+  const colorOptions = COLOR_RULES.map((o) => ({
+    ...o,
+    count: countWhere('color', (t) => t.colors.includes(o.id)),
+  }));
+  const roseOptions = ROSE_COUNT_OPTIONS.map((o) => ({
+    ...o,
+    count: countWhere('roses', (t) => roseBucket(t.roseCount) === o.id),
+  }));
+
+  const visibleProducts = filteredProducts.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredProducts.length;
 
   // Сегмент считается выбранным, пока диапазон цены в точности совпадает с его границами.
   const activeSegment = PRICE_SEGMENTS.find(
     (seg) => seg.range[0] === priceRange[0] && seg.range[1] === priceRange[1],
   );
 
-  const hasActiveFilters = priceRange[0] !== MIN_PRICE || priceRange[1] !== MAX_PRICE || sortBy !== 'default' || !inStockOnly || withDiscountOnly;
+  const hasActiveFilters = priceRange[0] !== MIN_PRICE || priceRange[1] !== MAX_PRICE || sortBy !== 'default' || !inStockOnly || withDiscountOnly || !!roses;
+  const hasTagFilters = !!(flower || color || roses);
 
   const resetFilters = () => {
     setPriceRange([MIN_PRICE, MAX_PRICE]);
     setSortBy('default');
     setInStockOnly(true);
     setWithDiscountOnly(false);
+    if (hasTagFilters) {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          (['flower', 'color', 'roses'] as const).forEach((k) => next.delete(k));
+          return next;
+        },
+        { replace: true },
+      );
+    }
   };
+
+  const chipClass = (selected: boolean, disabled = false) =>
+    cn(
+      'shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm transition-colors',
+      selected
+        ? 'bg-primary text-primary-foreground border-primary font-medium'
+        : 'bg-background text-foreground/80 border-border hover:border-primary/50',
+      disabled && 'opacity-40 pointer-events-none',
+    );
 
   const FiltersContent = () => (
     <div className="space-y-6">
+      {/* Сколько роз — так и ищут: «25 роз», «101 роза». */}
+      {roseOptions.some((o) => o.count > 0) && (
+        <div className="space-y-3">
+          <h3 className="font-medium">Сколько роз</h3>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Сколько роз">
+            {roseOptions.map((o) => (
+              <button
+                key={o.id}
+                type="button"
+                aria-pressed={roses === o.id}
+                onClick={() => toggleTag('roses', roses, o.id)}
+                className={chipClass(roses === o.id, o.count === 0 && roses !== o.id)}
+              >
+                {o.label}
+                <span className="text-xs opacity-70">{o.count}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Ценовой сегмент */}
       <div className="space-y-3">
         <h3 className="font-medium">Ценовой сегмент</h3>
@@ -394,8 +502,22 @@ const Catalog = () => {
           </div>
 
           {/* Active filters chips */}
-          {(searchQuery || hasActiveFilters || activeCategoryNames.length > 0) && (
+          {(searchQuery || hasActiveFilters || hasTagFilters || activeCategoryNames.length > 0) && (
             <div className="flex flex-wrap gap-2 mt-4">
+              {[
+                { key: 'flower' as const, label: FLOWER_RULES.find((o) => o.id === flower)?.label },
+                { key: 'color' as const, label: COLOR_RULES.find((o) => o.id === color)?.label },
+                { key: 'roses' as const, label: ROSE_COUNT_OPTIONS.find((o) => o.id === roses)?.label },
+              ]
+                .filter((c) => c.label)
+                .map((c) => (
+                  <span key={c.key} className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
+                    {c.label}
+                    <button onClick={() => setTag(c.key, null)} className="ml-1 hover:text-primary" aria-label={`Убрать фильтр «${c.label}»`}>
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
               {searchQuery && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-secondary rounded-full text-sm">
                   Поиск: "{searchQuery}"
@@ -545,14 +667,70 @@ const Catalog = () => {
             </aside>
 
             {/* Products Grid */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
+              {/* Быстрые фильтры: какие цветы и какой цвет. Стоят над товарами
+                  и на телефоне, и на компьютере — выбор в одно касание, без
+                  шторки фильтров. Варианты, по которым ничего не найдётся,
+                  не показываются. */}
+              <div className="space-y-2 mb-3 sm:mb-4">
+                <div
+                  role="group"
+                  aria-label="Цветы в букете"
+                  className="flex gap-2 overflow-x-auto -mx-6 px-6 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:px-0 lg:flex-wrap lg:overflow-visible"
+                >
+                  {/* Выбранный вариант встаёт первым: в ленте с прокруткой вбок
+                      иначе он может оказаться за краем экрана. */}
+                  {flowerOptions
+                    .filter((o) => o.count > 0 || flower === o.id)
+                    .sort((x, y) => Number(y.id === flower) - Number(x.id === flower))
+                    .map((o) => (
+                      <button
+                        key={o.id}
+                        type="button"
+                        aria-pressed={flower === o.id}
+                        onClick={() => toggleTag('flower', flower, o.id)}
+                        className={chipClass(flower === o.id)}
+                      >
+                        {o.label}
+                        <span className="text-xs opacity-70">{o.count}</span>
+                      </button>
+                    ))}
+                </div>
+                <div
+                  role="group"
+                  aria-label="Цвет букета"
+                  className="flex gap-2 overflow-x-auto -mx-6 px-6 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:px-0 lg:flex-wrap lg:overflow-visible"
+                >
+                  {colorOptions
+                    .filter((o) => o.count > 0 || color === o.id)
+                    .sort((x, y) => Number(y.id === color) - Number(x.id === color))
+                    .map((o) => (
+                      <button
+                        key={o.id}
+                        type="button"
+                        aria-pressed={color === o.id}
+                        onClick={() => toggleTag('color', color, o.id)}
+                        className={chipClass(color === o.id)}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className="h-3.5 w-3.5 rounded-full border border-black/15"
+                          style={{ backgroundColor: o.swatch }}
+                        />
+                        {o.label}
+                        <span className="text-xs opacity-70">{o.count}</span>
+                      </button>
+                    ))}
+                </div>
+              </div>
+
               {/* Results count + сортировка для телефона */}
               <div className="flex items-center justify-between gap-3 mb-3 sm:mb-4">
                 <p className="text-sm text-muted-foreground whitespace-nowrap">
                   {isLoading ? 'Загрузка...' : (
                     <>
                       <span className="hidden sm:inline">Найдено: </span>
-                      {mappedProducts.length} товаров
+                      {filteredProducts.length} товаров
                     </>
                   )}
                 </p>
