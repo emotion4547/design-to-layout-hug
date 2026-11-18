@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
@@ -28,6 +28,7 @@ const write = (storage: 'local' | 'session', key: string) => {
 
 export const CookieConsent = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const { pathname } = useLocation();
 
   useEffect(() => {
     if (read('local', COOKIE_CONSENT_KEY) || read('session', COOKIE_DISMISSED_KEY)) return;
@@ -48,7 +49,9 @@ export const CookieConsent = () => {
     setIsVisible(false);
   };
 
-  if (!isVisible) return null;
+  // На оформлении заказа полоска на телефоне ложилась прямо на кнопку
+  // «Отправить заявку». Там её не показываем — вернётся на других страницах.
+  if (!isVisible || pathname.startsWith('/cart')) return null;
 
   // Узкая полоска, а не окно: на телефоне прежнее окно закрывало нижнюю
   // половину экрана — ровно там, где цена и кнопка «В корзину».

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 export interface CartItem {
   id: string;
@@ -21,16 +21,87 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+/**
+ * Корзина хранится в браузере покупателя.
+ *
+ * Раньше она жила только в памяти страницы и пропадала при перезагрузке,
+ * а в новой вкладке была пустой. Покупатель, который полчаса выбирал букеты
+ * и открывал их в соседних вкладках, доходил до оформления с пустой или
+ * неполной корзиной — так в Метрике и выглядели визиты с десятком
+ * добавлений в корзину и без заказа.
+ *
+ * Корзина живёт неделю: цены и наличие меняются, и через месяц собранный
+ * когда-то заказ скорее запутает, чем поможет.
+ */
+const STORAGE_KEY = 'vezubuket-cart';
+const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+const isCartItem = (x: unknown): x is CartItem => {
+  const i = x as CartItem;
+  return (
+    !!i &&
+    typeof i.id === 'string' &&
+    typeof i.name === 'string' &&
+    typeof i.price === 'number' &&
+    typeof i.quantity === 'number' &&
+    i.quantity > 0
+  );
+};
+
+function parseStored(raw: string | null): CartItem[] {
+  if (!raw) return [];
+  try {
+    const data = JSON.parse(raw) as { items?: unknown; savedAt?: number };
+    if (!Array.isArray(data.items)) return [];
+    if (typeof data.savedAt === 'number' && Date.now() - data.savedAt > MAX_AGE_MS) return [];
+    return data.items.filter(isCartItem);
+  } catch {
+    return [];
+  }
+}
+
+// Хранилище бывает недоступно (частный режим, запрет в настройках) —
+// тогда корзина просто работает как раньше, в памяти страницы.
+function loadCart(): CartItem[] {
+  try {
+    return parseStored(localStorage.getItem(STORAGE_KEY));
+  } catch {
+    return [];
+  }
+}
+
+function saveCart(items: CartItem[]) {
+  try {
+    if (items.length === 0) localStorage.removeItem(STORAGE_KEY);
+    else localStorage.setItem(STORAGE_KEY, JSON.stringify({ items, savedAt: Date.now() }));
+  } catch {
+    /* нет доступа к хранилищу — не страшно */
+  }
+}
+
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>(loadCart);
+
+  useEffect(() => {
+    saveCart(items);
+  }, [items]);
+
+  // Корзина одна на все вкладки: добавили букет в одной — он виден в другой.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) setItems(parseStored(e.newValue));
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const addToCart = (item: Omit<CartItem, 'quantity'>, quantity = 1) => {
     setItems(prev => {
       const existingIndex = prev.findIndex(i => i.id === item.id);
       if (existingIndex >= 0) {
-        const updated = [...prev];
-        updated[existingIndex].quantity += quantity;
-        return updated;
+        // Новый объект, а не правка старого: изменение «на месте» React
+        // может не заметить, и счётчик в шапке не обновится.
+        return prev.map((i, idx) => (idx === existingIndex ? { ...i, quantity: i.quantity + quantity } : i));
       }
       return [...prev, { ...item, quantity }];
     });
