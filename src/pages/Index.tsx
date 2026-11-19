@@ -6,7 +6,6 @@ import { BonusSystem } from '@/components/BonusSystem';
 import { Delivery } from '@/components/Delivery';
 import { News } from '@/components/News';
 import { SEO } from '@/components/SEO';
-import { QuizPopup } from '@/components/QuizPopup';
 import YandexReviews from '@/components/YandexReviews';
 
 const Index = () => {
@@ -24,7 +23,6 @@ const Index = () => {
       <BonusSystem />
       <Delivery />
       <News />
-      <QuizPopup />
     </PageLayout>
   );
 };
